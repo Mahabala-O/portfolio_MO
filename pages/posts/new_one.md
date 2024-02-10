@@ -1,8 +1,8 @@
-
+---
 title: A Simple Page with Images
 date: 2021/3/19
 description: This page showcases a simple layout with text and images.
-tag: photography
+tag: photogry
 author: You
 ---
 
