@@ -1,6 +1,6 @@
 ---
 title: A Simple Page with Images
-date: 2021/3/19
+date: 2024/1/19
 description: This page showcases a simple layout with text and images.
 tag: web development
 author: You
