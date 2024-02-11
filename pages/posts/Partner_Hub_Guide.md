@@ -18,6 +18,7 @@ CicLAvia is a non-profit organization based in Los Angeles, California, known fo
   height={96}
   priority
   className="next-image"
+  layout="fixed"
 />
 
 
