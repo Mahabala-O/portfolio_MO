@@ -68,6 +68,6 @@ img.next-image {
   display: flex;
   justify-content: center; /* Center horizontally */
   align-items: center; /* Center vertically */
-  height: 100vh; /* Adjust the height as needed */
+  height: 5vh; /* Adjust the height as needed */
 }
 
