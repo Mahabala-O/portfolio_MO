@@ -63,3 +63,11 @@ img.next-image {
 .nav-line .nav-link {
   color: #69778c;
 }
+
+.image-container {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  height: 100vh; /* Adjust the height as needed */
+}
+
