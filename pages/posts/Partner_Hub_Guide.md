@@ -50,12 +50,12 @@ At CicLAvia events, a diverse array of hub partners, including the Los Angeles P
 <div className="image-container">
   <Image
     src="/images/interview.png"
-    alt="Logo"
+    alt="Image"
     width={1125}
     height={750}
     priority
-    className="next-image"
-    layout="fixed"
+    
+    
   />
 </div>
 
