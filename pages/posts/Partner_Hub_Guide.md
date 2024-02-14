@@ -47,6 +47,20 @@ At CicLAvia events, a diverse array of hub partners, including the Los Angeles P
 
 **Overall Goal:** CicLAvia aims to enhance partner engagement with attendees, focusing on more human-oriented and less transactional experiences.
 
+<div className="image-container">
+  <Image
+    src="/images/ciclavialogo-2.png"
+    alt="Logo"
+    width="202"
+    height="96"
+    priority
+    className="next-image"
+    layout="fixed"
+  />
+</div>
+
+
+## Problem Assessment: ** Identifying Engagement Hurdles **
 
 
 
