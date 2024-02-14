@@ -49,7 +49,7 @@ At CicLAvia events, a diverse array of hub partners, including the Los Angeles P
 
 <div className="image-container">
   <Image
-    src="/images/ciclavialogo-2.png"
+    src="/images/interview.png"
     alt="Logo"
     width="202"
     height="96"
@@ -60,7 +60,7 @@ At CicLAvia events, a diverse array of hub partners, including the Los Angeles P
 </div>
 
 
-## Problem Assessment: 
+## Problem Assessment 
 **Identifying Engagement Hurdles**
 
 
