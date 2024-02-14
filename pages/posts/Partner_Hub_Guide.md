@@ -60,7 +60,8 @@ At CicLAvia events, a diverse array of hub partners, including the Los Angeles P
 </div>
 
 
-## Problem Assessment: ** Identifying Engagement Hurdles **
+## Problem Assessment: 
+**Identifying Engagement Hurdles**
 
 
 
