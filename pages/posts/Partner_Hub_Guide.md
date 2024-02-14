@@ -6,13 +6,6 @@ tag: my work
 author: You
 ---
 
-## My Roles
-- Lead UX Researcher & Analyst
-- Testing Architect
-- Lead UX Writer & Content Strategist
-- Infographic Designer & Visual Communicator
-
-
 
 <div className="image-container">
   <Image
@@ -25,6 +18,17 @@ author: You
     layout="fixed"
   />
 </div>
+
+    
+## My Roles
+- Lead UX Researcher & Analyst
+- Testing Architect
+- Lead UX Writer & Content Strategist
+- Infographic Designer & Visual Communicator
+
+
+
+
     
 ## What is Ciclavia?
 
