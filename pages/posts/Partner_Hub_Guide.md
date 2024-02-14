@@ -51,8 +51,8 @@ At CicLAvia events, a diverse array of hub partners, including the Los Angeles P
   <Image
     src="/images/interview.png"
     alt="Logo"
-    width="202"
-    height="96"
+    width={1125}
+    height={750}
     priority
     className="next-image"
     layout="fixed"
