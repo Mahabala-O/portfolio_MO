@@ -26,12 +26,12 @@ author: You
   />
 </div>
     
-<div class="center-text">**What is Ciclavia?** </div>
+##What is Ciclavia?##
 
 CicLAvia is a non-profit organization based in Los Angeles, California, known for organizing events that temporarily close city streets to car traffic, allowing them to be used for walking, cycling, and other social activities. These events promote sustainable transportation, healthier lifestyles, and community engagement, transforming urban areas into vibrant public spaces free from vehicular congestion. CicLAvia's initiatives aim to foster a greater sense of community and environmental consciousness in urban life.
 
 
-<div class= "center-text" >**Partner Hubs**</div>
+##Partner Hubs##
 
 At CicLAvia events, a diverse array of hub partners, including the Los Angeles Public Library, LA Metro, the Natural History Museum, and L.A. Care Health Plan, play a significant role. These partners, along with many others, set up booths offering various interactive activities, educational displays, and community resources. Their presence provides attendees with a wealth of opportunities to engage with different aspects of the community, from public health and transportation to environmental education and cultural enrichment. This variety of booths adds depth and diversity to the CicLAvia experience, reflecting the vibrant tapestry of Los Angeles and its communities
 
