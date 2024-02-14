@@ -37,15 +37,15 @@ At CicLAvia events, a diverse array of hub partners, including the Los Angeles P
 
 ## Interviews 
 
-"Likes:" Users appreciate engagement with attendees, promoting to diverse audiences, and showcasing community artists and creative organizations.
+**Likes:** Users appreciate engagement with attendees, promoting to diverse audiences, and showcasing community artists and creative organizations.
 
-"Frustrations:" Challenges include limited time and funding for booths and artist payments, navigating city regulations, insufficient communication with officials, and transactional interactions with attendees.
+**Frustrations:** Challenges include limited time and funding for booths and artist payments, navigating city regulations, insufficient communication with officials, and transactional interactions with attendees.
 
-"Desires:" Users seek to access demographic data of attendees, create connected, human experiences at booths, and implement sustainable practices.
+**Desires:** Users seek to access demographic data of attendees, create connected, human experiences at booths, and implement sustainable practices.
 
-"Misunderstandings:" Difficulties in managing crowds and lines, using outdated resources, and offering irrelevant giveaways were noted.
+**Misunderstandings:** Difficulties in managing crowds and lines, using outdated resources, and offering irrelevant giveaways were noted.
 
-"Overall Goal:" CicLAvia aims to enhance partner engagement with attendees, focusing on more human-oriented and less transactional experiences.
+**Overall Goal:** CicLAvia aims to enhance partner engagement with attendees, focusing on more human-oriented and less transactional experiences.
 
 
 
