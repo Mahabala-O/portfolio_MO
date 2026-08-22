@@ -1,4 +1,13 @@
 {
+  "name": "portfolio_MO",
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    ...
+  }
+}
+{
   "private": true,
   "license": "MIT",
   "scripts": {
