@@ -1,15 +1,9 @@
 {
-  "name": "portfolio_MO",
+  "private": true,
+  "license": "MIT",
   "engines": {
     "node": "24.x"
   },
-  "scripts": {
-    ...
-  }
-}
-{
-  "private": true,
-  "license": "MIT",
   "scripts": {
     "dev": "next",
     "build": "node ./scripts/gen-rss.js && next build",
