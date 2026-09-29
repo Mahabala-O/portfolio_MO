@@ -4,7 +4,7 @@ const SITE_DESCRIPTION =
   'Mikhail Orlov: MSBA candidate at UC Irvine. Data analysis projects in Python, SQL, and Tableau.'
 
 const LINKS = {
-  linkedin: 'https://www.linkedin.com/in/mikhail-orlov-das',
+  linkedin: 'https://www.linkedin.com/in/mikhail-orlov-uci',
   github: 'https://github.com/Mahabala-O',
   email: 'mailto:mikhail.orlov.ca@gmail.com'
 }
