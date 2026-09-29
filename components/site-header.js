@@ -4,10 +4,12 @@ import { useTheme } from 'next-themes'
 import { MoonIcon, SunIcon } from 'nextra/icons'
 import { useEffect, useState } from 'react'
 
+import { SITE } from '../lib/site'
+
 const NAV = [
   { href: '/', label: 'About' },
   { href: '/projects', label: 'Projects' },
-  { href: '/photos', label: 'Photos' }
+  { href: '/resume', label: 'Resume' }
 ]
 
 function isActive(pathname, href) {
@@ -39,7 +41,8 @@ export default function SiteHeader() {
   return (
     <header className="site-header">
       <Link href="/" className="site-name">
-        Mikhail Orlov
+        {SITE.name}
+        <span className="site-role">{SITE.role}</span>
       </Link>
       <nav aria-label="Main">
         {NAV.map(({ href, label }) => (

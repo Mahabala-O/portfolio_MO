@@ -9,7 +9,10 @@ export default withNextra({
   async redirects() {
     return [
       { source: '/posts', destination: '/projects', permanent: true },
-      { source: '/posts/:slug*', destination: '/projects', permanent: true }
+      { source: '/posts/:slug*', destination: '/projects', permanent: true },
+      { source: '/tags/:tag*', destination: '/projects', permanent: true },
+      // Temporary: the Photos page was removed but may come back.
+      { source: '/photos', destination: '/', permanent: false }
     ]
   }
 })

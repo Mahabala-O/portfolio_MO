@@ -1,35 +1,43 @@
-const YEAR = new Date().getFullYear()
-const SITE_NAME = 'Mikhail Orlov'
-const SITE_DESCRIPTION =
-  'Mikhail Orlov: MSBA candidate at UC Irvine. Data analysis projects in Python, SQL, and Tableau.'
+import { LINKS, SITE, formatMonthYear } from './lib/site'
 
-const LINKS = {
-  linkedin: 'https://www.linkedin.com/in/mikhail-orlov-uci',
-  github: 'https://github.com/Mahabala-O',
-  email: 'mailto:mikhail.orlov.ca@gmail.com'
+const YEAR = new Date().getFullYear()
+
+// Markdown images open full size in a new tab, so detailed charts stay readable.
+function ZoomableImage({ src, alt, ...props }) {
+  const href = typeof src === 'string' ? src : src?.src
+  return (
+    <a href={href} target="_blank" rel="noreferrer" className="zoomable">
+      <img src={href} alt={alt} {...props} />
+    </a>
+  )
 }
 
 export default {
   darkMode: true,
-  titleSuffix: ` – ${SITE_NAME}`,
+  titleSuffix: ` – ${SITE.name}`,
   readMore: 'Read more →',
+  dateFormatter: formatMonthYear,
+  components: { img: ZoomableImage },
   head: ({ title, meta }) => {
-    const description = meta.description || SITE_DESCRIPTION
+    const description = meta.description || SITE.description
+    const image = `${SITE.url}/api/og?title=${encodeURIComponent(meta.title || SITE.role)}`
     return (
       <>
         <meta name="description" content={description} />
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
         <meta property="og:type" content={meta.type === 'post' ? 'article' : 'website'} />
+        <meta property="og:image" content={image} />
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={description} />
+        <meta name="twitter:image" content={image} />
       </>
     )
   },
   footer: (
     <footer className="site-footer">
       <small>
-        <time>{YEAR}</time> © {SITE_NAME}
+        <time>{YEAR}</time> © {SITE.name} · {SITE.role}
       </small>
       <nav aria-label="Social links">
         <a href={LINKS.linkedin} target="_blank" rel="noreferrer">

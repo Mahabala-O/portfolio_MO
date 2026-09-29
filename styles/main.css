@@ -185,9 +185,70 @@ article [aria-label='Toggle Dark Mode'] {
     padding-top: 1.25rem;
   }
   .site-header nav {
+    width: 100%;
     gap: 1rem;
+  }
+  .site-header .theme-toggle {
+    margin-left: auto;
   }
   .site-header + article {
     padding-top: 1.75rem;
+  }
+}
+
+/* Branding: role label next to the name in the header */
+.site-role {
+  margin-left: 0.5rem;
+  padding-left: 0.5rem;
+  border-left: 1px solid var(--rule);
+  color: var(--muted);
+  font-variation-settings: 'wght' 450;
+}
+
+/* Project list (components/project-list.js) */
+.project-list {
+  padding-left: 0;
+  list-style: none;
+}
+.project-list li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding-left: 0;
+}
+.project-list li::before {
+  display: none;
+}
+.project-list li + li {
+  margin-top: 1.25rem;
+}
+.project-list a {
+  font-variation-settings: 'wght' 650;
+}
+.project-list-meta {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+/* Images in project write-ups open full size */
+.zoomable {
+  display: block;
+  cursor: zoom-in;
+}
+
+@media (max-width: 480px) {
+  .site-role {
+    display: none;
+  }
+}
+
+@media print {
+  .site-header,
+  .site-footer {
+    display: none;
+  }
+  article {
+    padding-top: 0;
+    padding-bottom: 0;
   }
 }

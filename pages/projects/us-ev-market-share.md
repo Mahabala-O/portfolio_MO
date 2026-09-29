@@ -2,7 +2,8 @@
 title: U.S. Electric Vehicle Market Share
 date: 2026/4/15
 description: State-level analysis of EV, PHEV, and hybrid adoption across all 50 states and D.C. California leads at 3.41% EV share, while the bottom states sit below 0.2%, a 20× gap.
-tag: python, tableau, market-analysis
+tools: Python, Tableau
+highlight: California's EV share is 20× the lowest states'
 ---
 
 **Tools:** Python (pandas) in Jupyter, Tableau, Notion
