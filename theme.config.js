@@ -39,7 +39,6 @@ export default {
           GitHub
         </a>
         <a href={LINKS.email}>Email</a>
-        <a href="/feed.xml">RSS</a>
       </nav>
     </footer>
   )

@@ -1,9 +1,13 @@
 import 'nextra-theme-blog/style.css'
 import Head from 'next/head'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
 
 import '../styles/main.css'
 
 export default function Nextra({ Component, pageProps }) {
+  const { pathname } = useRouter()
+
   return (
     <>
       <Head>
@@ -21,6 +25,11 @@ export default function Nextra({ Component, pageProps }) {
           crossOrigin="anonymous"
         />
       </Head>
+      {pathname !== '/' && (
+        <header className="site-header">
+          <Link href="/">Mikhail Orlov</Link>
+        </header>
+      )}
       <Component {...pageProps} />
     </>
   )
