@@ -122,32 +122,72 @@ html.dark {
 }
 
 
+/* Site-wide header (components/site-header.js) replaces the theme's per-page
+   nav row and its dark mode toggle. */
+article > div:has(> ._justify-end),
+article [aria-label='Toggle Dark Mode'] {
+  display: none;
+}
+
 .site-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
   max-width: 65ch;
   margin: 0 auto;
   padding-top: 2rem;
 }
 .site-header a {
-  color: inherit;
-  font-variation-settings: 'wght' 650;
+  color: var(--muted);
   text-decoration: none;
 }
-.site-header a:hover {
-  color: var(--link);
+.site-header a:hover,
+.site-header a[aria-current='page'] {
+  color: inherit;
+}
+.site-header .site-name {
+  color: inherit;
+  font-variation-settings: 'wght' 650;
+}
+.site-header nav {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  font-size: 0.9375rem;
+}
+.theme-toggle {
+  display: flex;
+  padding: 0.25rem;
+  margin: -0.25rem;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.theme-toggle:hover {
+  color: inherit;
+}
+.theme-toggle svg {
+  width: 14px;
+  height: 14px;
 }
 .site-header + article {
-  padding-top: 2.5rem;
+  padding-top: 3rem;
 }
 
 @media (max-width: 640px) {
   article {
-    padding-top: 2rem;
     padding-bottom: 3rem;
   }
   .site-header {
     padding-top: 1.25rem;
   }
+  .site-header nav {
+    gap: 1rem;
+  }
   .site-header + article {
-    padding-top: 1.25rem;
+    padding-top: 1.75rem;
   }
 }

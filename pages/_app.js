@@ -1,15 +1,15 @@
 import 'nextra-theme-blog/style.css'
 import Head from 'next/head'
-import Link from 'next/link'
-import { useRouter } from 'next/router'
+import { ThemeProvider } from 'next-themes'
 
+import SiteHeader from '../components/site-header'
 import '../styles/main.css'
 
 export default function Nextra({ Component, pageProps }) {
-  const { pathname } = useRouter()
-
   return (
-    <>
+    // Same settings as nextra-theme-blog's provider, which defers to this one
+    // when nested, so the header toggle and the theme share one state.
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <Head>
         <link
           rel="alternate"
@@ -25,12 +25,8 @@ export default function Nextra({ Component, pageProps }) {
           crossOrigin="anonymous"
         />
       </Head>
-      {pathname !== '/' && (
-        <header className="site-header">
-          <Link href="/">Mikhail Orlov</Link>
-        </header>
-      )}
+      <SiteHeader />
       <Component {...pageProps} />
-    </>
+    </ThemeProvider>
   )
 }
