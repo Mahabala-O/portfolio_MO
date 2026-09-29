@@ -1,34 +1,31 @@
-# Portfolio Starter Kit
+# Mikhail Orlov — Portfolio
 
-This portfolio is built with **Next.js** and a library called [Nextra](https://nextra.vercel.app/). It allows you to write Markdown and focus on the _content_ of your portfolio. This starter includes:
+Personal portfolio at [portfolio-mo.vercel.app](https://portfolio-mo.vercel.app), built with Next.js and [Nextra](https://nextra.site) (`nextra-theme-blog`).
 
-- Automatically configured to handle Markdown/MDX
-- Generates an RSS feed based on your posts
-- A beautiful theme included out of the box
-- Easily categorize posts with tags
-- Fast, optimized web font loading
+## Editing content
 
-## Configuration
+- **About page:** `pages/index.mdx`
+- **Projects:** add a Markdown file to `pages/projects/`. Frontmatter:
 
-1. Update your name in `theme.config.js` or change the footer.
-1. Update your name and site URL for the RSS feed in `scripts/gen-rss.js`.
-1. Update the meta tags in `pages/_document.js`.
-1. Update the posts inside `pages/posts/*.md` with your own content.
+  ```yaml
+  ---
+  title: Project name
+  date: 2026/5/6 # controls sort order
+  description: One or two sentences shown on the projects list
+  tag: python, tableau # comma-separated, becomes /tags/<tag> pages
+  ---
+  ```
 
-## Deploy your own
+- **Footer links, site name, SEO defaults:** `theme.config.js`
+- **Colors (light and dark):** CSS variables at the top of `styles/main.css`
 
-Deploy the example using [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=next-example):
+The build (`npm run build`) also generates `public/feed.xml` (RSS) and `public/sitemap.xml` from the projects folder.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/git/external?repository-url=https://github.com/vercel/nextjs-portfolio-starter&project-name=portfolio&repository-name=portfolio)
-
-## How to use
-
-Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [npm](https://docs.npmjs.com/cli/init) or [Yarn](https://yarnpkg.com/lang/en/docs/cli/create/) to bootstrap the example:
+## Development
 
 ```bash
-npx create-next-app --example blog my-blog
-# or
-yarn create next-app --example blog my-blog
+npm install
+npm run dev
 ```
 
-Deploy it to the cloud with [Vercel](https://vercel.com/new?utm_source=github&utm_medium=readme&utm_campaign=next-example) ([Documentation](https://nextjs.org/docs/deployment)).
+Dark mode follows the visitor's system setting by default, and the toggle in the nav overrides it.

@@ -3,40 +3,57 @@ const path = require('path')
 const RSS = require('rss')
 const matter = require('gray-matter')
 
+const SITE_URL = 'https://portfolio-mo.vercel.app'
+const PAGES_DIR = path.join(__dirname, '..', 'pages')
+const POSTS_DIR = path.join(PAGES_DIR, 'projects')
+
 async function generate() {
   const feed = new RSS({
-    title: 'Your Name',
-    site_url: 'https://yoursite.com',
-    feed_url: 'https://yoursite.com/feed.xml'
+    title: 'Mikhail Orlov',
+    description: 'Data analysis projects by Mikhail Orlov',
+    site_url: SITE_URL,
+    feed_url: `${SITE_URL}/feed.xml`
   })
 
-  const posts = await fs.readdir(path.join(__dirname, '..', 'pages', 'posts'))
+  const posts = await fs.readdir(POSTS_DIR)
   const allPosts = []
   await Promise.all(
     posts.map(async (name) => {
-      if (name.startsWith('index.')) return
+      if (name.startsWith('index.') || !/\.mdx?$/.test(name)) return
 
-      const content = await fs.readFile(
-        path.join(__dirname, '..', 'pages', 'posts', name)
-      )
+      const content = await fs.readFile(path.join(POSTS_DIR, name))
       const frontmatter = matter(content)
+      if (frontmatter.data.draft) return
 
       allPosts.push({
         title: frontmatter.data.title,
-        url: '/posts/' + name.replace(/\.mdx?/, ''),
+        url: `${SITE_URL}/projects/${name.replace(/\.mdx?$/, '')}`,
         date: frontmatter.data.date,
         description: frontmatter.data.description,
-        categories: frontmatter.data.tag.split(', '),
-        author: frontmatter.data.author
+        categories: (frontmatter.data.tag || '').split(', ').filter(Boolean),
+        author: frontmatter.data.author || 'Mikhail Orlov'
       })
     })
   )
 
   allPosts.sort((a, b) => new Date(b.date) - new Date(a.date))
   allPosts.forEach((post) => {
-      feed.item(post)
+    feed.item(post)
   })
   await fs.writeFile('./public/feed.xml', feed.xml({ indent: true }))
+
+  const urls = [
+    `${SITE_URL}/`,
+    `${SITE_URL}/projects`,
+    `${SITE_URL}/photos`,
+    ...allPosts.map((post) => post.url)
+  ]
+  const sitemap =
+    '<?xml version="1.0" encoding="UTF-8"?>\n' +
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+    urls.map((url) => `  <url><loc>${url}</loc></url>`).join('\n') +
+    '\n</urlset>\n'
+  await fs.writeFile('./public/sitemap.xml', sitemap)
 }
 
 generate()

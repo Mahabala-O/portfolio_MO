@@ -5,4 +5,11 @@ const withNextra = nextra({
   themeConfig: './theme.config.js'
 })
 
-export default withNextra()
+export default withNextra({
+  async redirects() {
+    return [
+      { source: '/posts', destination: '/projects', permanent: true },
+      { source: '/posts/:slug*', destination: '/projects', permanent: true }
+    ]
+  }
+})
