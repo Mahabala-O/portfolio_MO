@@ -7,7 +7,7 @@ Personal portfolio at [portfolio-mo.vercel.app](https://portfolio-mo.vercel.app)
 | What | Where |
 | --- | --- |
 | Name, role label, footer links, site description | `lib/site.js` (used by the header, footer, and link previews) |
-| Homepage headline, intro, links, bio | `pages/index.mdx` |
+| Homepage headline (`title`), browser-tab title (`tabTitle`), intro, links, bio | `pages/index.mdx` |
 | Resume | `pages/resume.mdx` (editing notes are at the top of the file) |
 | Header navigation | `NAV` in `components/site-header.js` |
 | Colors for light and dark mode | CSS variables at the top of `styles/main.css` |

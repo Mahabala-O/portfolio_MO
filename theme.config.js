@@ -20,15 +20,19 @@ export default {
   components: { img: ZoomableImage },
   head: ({ title, meta }) => {
     const description = meta.description || SITE.description
-    const image = `${SITE.url}/api/og?title=${encodeURIComponent(meta.title || SITE.role)}`
+    // `tabTitle` in frontmatter sets the browser tab and search title when the
+    // page heading (`title`) is too long for it.
+    const pageTitle = meta.tabTitle ? `${meta.tabTitle} – ${SITE.name}` : title
+    const image = `${SITE.url}/api/og?title=${encodeURIComponent(meta.tabTitle || meta.title || SITE.role)}`
     return (
       <>
+        {meta.tabTitle && <title>{pageTitle}</title>}
         <meta name="description" content={description} />
-        <meta property="og:title" content={title} />
+        <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={description} />
         <meta property="og:type" content={meta.type === 'post' ? 'article' : 'website'} />
         <meta property="og:image" content={image} />
-        <meta name="twitter:title" content={title} />
+        <meta name="twitter:title" content={pageTitle} />
         <meta name="twitter:description" content={description} />
         <meta name="twitter:image" content={image} />
       </>
