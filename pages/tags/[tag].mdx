@@ -1,13 +1,12 @@
 ---
 type: tag
-title: Tagged Posts
+title: Tagged Projects
 ---
 
-import { useRouter } from 'next/router'
+import { TagName, TagTitle } from 'nextra-theme-blog/tags'
 
-export const TagName = () => {
-  const { tag } = useRouter().query
-  return tag || null
-}
+export { getStaticPaths, getStaticProps } from 'nextra-theme-blog/tags'
 
-# Posts Tagged with “<TagName/>”
+# <span>Projects tagged with “<TagName />”</span>
+
+<TagTitle prefix="Projects tagged with " />
