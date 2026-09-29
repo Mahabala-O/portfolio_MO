@@ -1,8 +1,9 @@
 ---
 title: SaaS Revenue & Churn Analysis
 date: 2026/5/6
-description: End-to-end churn and revenue analysis for a B2B SaaS company, delivered as a board-ready package. Covers churn drivers, MRR trends, CLV:CAC, and an at-risk customer score (AUC 0.937).
-tag: python, tableau, churn
+description: End-to-end churn and revenue analysis for a B2B SaaS company, delivered as a board-ready package. Covers churn drivers, MRR trends, CLV:CAC, and an at-risk customer scoring model.
+tools: Python, Tableau
+highlight: Risk model flags at-risk customers with 0.937 AUC
 ---
 
 **Role:** Business Analyst · **Context:** board meeting prep for a B2B SaaS company · **Tools:** Python (pandas, SciPy, scikit-learn), Tableau, Notion

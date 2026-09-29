@@ -30,7 +30,7 @@ async function generate() {
         url: `${SITE_URL}/projects/${name.replace(/\.mdx?$/, '')}`,
         date: frontmatter.data.date,
         description: frontmatter.data.description,
-        categories: (frontmatter.data.tag || '').split(', ').filter(Boolean),
+        categories: (frontmatter.data.tools || '').split(', ').filter(Boolean),
         author: frontmatter.data.author || 'Mikhail Orlov'
       })
     })
@@ -45,7 +45,7 @@ async function generate() {
   const urls = [
     `${SITE_URL}/`,
     `${SITE_URL}/projects`,
-    `${SITE_URL}/photos`,
+    `${SITE_URL}/resume`,
     ...allPosts.map((post) => post.url)
   ]
   const sitemap =
