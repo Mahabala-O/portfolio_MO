@@ -1,0 +1,84 @@
+---
+title: U.S. Electric Vehicle Market Share
+date: 2026/4/15
+description: State-level analysis of electric, plug-in hybrid, and hybrid vehicles across all 50 states and D.C. California has 13% of U.S. vehicles but 35% of its EVs; the analysis ranks where charging investment would reach the most drivers.
+tools: Python, Tableau
+highlight: California has 13% of U.S. vehicles but 35% of its EVs
+---
+
+import {
+  EvStats,
+  EvTileMap,
+  FleetScatter,
+  FuelMixChart,
+  GapChart
+} from '../../components/projects/ev-charts'
+
+**Tools:** Python (pandas) in Jupyter, Tableau
+
+[Notebook and data on GitHub ↗](https://github.com/Mahabala-O/Analyzing-U.S.-Electric-Vehicle-Market-Share)
+
+<EvStats />
+
+## Summary
+
+- **EVs are still a small share of the fleet:** 1.24% of the 287 million registered vehicles in the U.S.
+- **They are concentrated in California**, which has 35% of all U.S. EVs. Outside California, the EV share falls to 0.92%.
+- **The gap between states is wide.** California's EV share (3.41%) is 27 times North Dakota's (0.13%).
+- **Where to invest next:** Texas, Ohio, and Pennsylvania. They combine large fleets with below-average EV share, so they are furthest from the national average in number of vehicles.
+
+## The question
+
+Where are electric vehicles on the road today, and which states should be prioritized for EV infrastructure investment?
+
+## Data and approach
+
+The dataset is a single snapshot of registered vehicles by fuel type for all 50 states and D.C. (51 rows, 12 fuel types, 287.1 million vehicles). The counts were stored as text with commas, so I converted them to numbers. There were no missing values, and methanol was zero in every state. I then calculated each fuel's share of every state's fleet, ranked states, compared California with the other large states, and measured how far each state is from the national average.
+
+"EV share" here means battery-electric vehicles as a share of *all registered vehicles*, the cars already on the road, not new-car sales. It changes slowly, so it shows where EV drivers are now rather than where sales are heading.
+
+## 1. The national picture
+
+<FuelMixChart />
+
+Gasoline powers 85% of the fleet. Battery EVs are 1.24%, and plug-in hybrids another 0.46%. Flex-fuel (E85) looks like the biggest alternative at 7%, but that column counts vehicles that *can* run on E85, and most of them fill up with regular gasoline. It overstates how much ethanol is actually used. Hydrogen is negligible nationally (16,900 vehicles), and every one of them is in California.
+
+## 2. Where EVs are
+
+<EvTileMap />
+
+The leaders are California (3.41%), D.C. (2.60%), Hawaii (2.37%), Washington (2.23%), and Nevada (1.85%), mostly western and coastal places. At the bottom, North Dakota, Mississippi, Wyoming, South Dakota, and West Virginia are all below 0.2%. These are rural, low-density states where most vehicles run on gasoline or diesel. The dataset doesn't include charging or policy data, so explanations like charging access or state incentives are hypotheses to test, not findings.
+
+### California compared with the other large states
+
+| State      | EV    | Plug-in hybrid | Hybrid | Gasoline |
+| ---------- | ----- | -------------- | ------ | -------- |
+| California | 3.41% | 1.11%          | 4.62%  | 84.64%   |
+| Florida    | 1.37% | 0.31%          | 2.23%  | 86.83%   |
+| New York   | 1.16% | 0.82%          | 2.77%  | 87.52%   |
+| Texas      | 0.89% | 0.21%          | 1.73%  | 82.93%   |
+
+California's EV share is 2.5 times Florida's, about 3 times New York's, and nearly 4 times Texas's. It leads on plug-in hybrids and hybrids too.
+
+## 3. Where to invest next
+
+Charging investment reaches the most potential drivers where a state has a lot of vehicles and a below-average EV share. To rank states on both at once, I estimated how many more EVs each state would need to reach the national average share: its total vehicles times (1.24% minus its EV share).
+
+<FleetScatter />
+
+<GapChart />
+
+1. **Texas.** 25.8 million vehicles, the second-largest fleet in the country, with an EV share of 0.89%. It is about 89,000 EVs short of the national average, the largest gap of any state.
+2. **Ohio.** 10.3 million vehicles and a 0.49% EV share, about 77,000 EVs short.
+3. **Pennsylvania.** 10.2 million vehicles and a 0.69% EV share, about 56,000 EVs short. Michigan (55,000) is a close fourth.
+
+Two large states that might seem like obvious picks rank lower on this measure. **Florida** has the third-largest fleet, but its EV share (1.37%) is already above the national average. **Georgia** (0.96%) is a major logistics hub, which could make charging there serve drivers across the Southeast, but it ranks 17th by the gap.
+
+## Limitations and next steps
+
+- This is one year's snapshot, so it shows levels, not growth. Adding registrations from other years, or new-car sales, would show which states are catching up.
+- The gap measure assumes the national average is the right target. Adding public charger counts per state would let me rank states by chargers per EV, which is closer to where investment is actually lacking.
+
+## Deliverables
+
+A cleaned dataset and analysis notebook, an interactive Tableau workbook (map, state rankings, and fleet composition), and a written findings report.
