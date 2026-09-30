@@ -1,0 +1,106 @@
+---
+title: SaaS Revenue & Churn Analysis
+date: 2026/5/6
+description: Churn and revenue analysis for a B2B SaaS board meeting. Who is leaving and why, what each plan is worth, and a risk score that flags at-risk customers with 0.94 AUC.
+tools: Python, Tableau
+highlight: Risk score flags at-risk customers with 0.94 AUC
+---
+
+import {
+  BillingByPlan,
+  ChurnBySegment,
+  ChurnRateChart,
+  MrrChart,
+  ReasonsByPlan,
+  SaasStats,
+  UsageChart
+} from '../../components/projects/saas-charts'
+
+**Role:** Business Analyst · **Context:** board meeting prep for CloudTask Pro, a fictional B2B SaaS company (practice dataset) · **Tools:** Python (pandas, SciPy, scikit-learn), Tableau
+
+[Notebook and data on GitHub ↗](https://github.com/Mahabala-O/saas-revenue-churn-analysis)
+
+<SaasStats />
+
+## Summary
+
+- **Half of all customers have left, and the Starter plan is the main problem.** 71% of Starter customers churned, the only plan above the 52% average.
+- **Annual billing is the clearest retention lever.** It lowers churn in every plan except Enterprise, by 17 to 26 points.
+- **Low product usage is the strongest early warning.** No customer using 60% or more of the features churned. 85 active customers are below the risk line today, holding about $82K in monthly revenue.
+- **Revenue growth slowed sharply in 2025.** MRR grew 38% in 2024 but only 12% in 2025, and has been nearly flat since March.
+
+## The question
+
+CloudTask Pro sells project management software and grew from 0 to 600 customers between January 2022 and December 2025. Revenue kept rising, but the board was worried about churn. The CFO asked for four things ahead of the board meeting: who is leaving and why, how revenue is trending, what each customer segment is worth, and which active customers are likely to leave next.
+
+## Data and approach
+
+Two datasets: 600 customer subscriptions (plan, billing cycle, industry, company size, region, acquisition channel, feature usage, NPS survey score, and churn date and reason) and 48 months of revenue (MRR, new and churned customers, and acquisition cost). In pandas I calculated churn rates by segment, fit a linear regression to MRR, estimated customer lifetime value (CLV) by plan, and built a weighted risk score, which I checked with AUC.
+
+## 1. Who is leaving
+
+<ChurnBySegment />
+
+- **Plan is the only segment with a clear outlier.** Starter churns at 71%. Every other plan is below average, and Enterprise is at 22%.
+- **Industry and channel don't single anything out.** Industries range from 44% to 61% without one standout. For acquisition channel, the useful signal is at the low end: customers from direct sales (39%) and organic search (44%) stay noticeably longer.
+- **Treat the small-segment rates with caution.** Latin America (62%) and companies with 500+ employees (63%) look high, but they have only 60 and 38 customers. They are worth watching, not acting on yet.
+
+<BillingByPlan />
+
+Monthly customers churn at 61% and annual customers at 40%. That gap is not just a side effect of cheaper plans billing monthly: it holds within Starter, Professional, and Business. Monthly customers can leave at any time, while annual customers have committed up front and have a reason to get value from the product before renewal.
+
+<ReasonsByPlan />
+
+Budget cuts and "price too high" together account for a third of all churn (104 of 313 customers). Cost matters more the cheaper the plan: it is 38% of Starter churn but 26% of Business churn. Business customers are the likeliest to cite missing features. Lower tiers need a pricing and value fix. Higher tiers need product and support work.
+
+## 2. How revenue is trending
+
+<MrrChart />
+
+MRR grew from $7K to $293K. A straight line explains 97% of the movement (R² = 0.97), with growth averaging about $6,500 a month. That fit describes the past well but overstates where revenue is heading: in 2025 MRR gained about $2,600 a month, and it has barely moved since March.
+
+<ChurnRateChart />
+
+Monthly churn settled into a 2–6% range from mid-2023. The exception is April and May 2025, when 32 customers left in two months, right as growth stalled. One likely explanation is a group of customers who signed up together and reached the same renewal point together. Checking the signup dates of the customers who left in those months would confirm it.
+
+## 3. What each customer is worth
+
+| Plan         | Monthly revenue | Avg tenure | CLV     | CLV:CAC |
+| ------------ | --------------- | ---------- | ------- | ------- |
+| Enterprise   | $2,985          | 25.5 mo    | $76,106 | 379×    |
+| Business     | $1,304          | 19.0 mo    | $24,787 | 123×    |
+| Professional | $497            | 16.4 mo    | $8,137  | 41×     |
+| Starter      | $216            | 9.4 mo     | $2,016  | 10×     |
+
+CLV is average monthly revenue times average tenure. Every plan clears the usual 3× CLV:CAC benchmark. An Enterprise customer is worth about 38 times a Starter customer, because they pay more and stay almost three times as long. Starter's short tenure is what limits its value: keeping a Starter customer three months longer adds about $650.
+
+The CLV:CAC ratios are rough. The dataset has one blended acquisition cost ($201) for every plan, and that figure is low next to about $1,000 in monthly revenue per customer, so the ratios are inflated. Enterprise customers almost certainly cost more to win than Starter customers. The ranking of the plans is useful; the exact multiples are not.
+
+## 4. Spotting at-risk customers
+
+<UsageChart />
+
+On average, churned customers used 27% of the product's features and active customers used 55%. Churned customers also gave lower NPS survey scores (3.0 versus 5.8 out of 10), and no one who scored 7 or higher left. I used these signals to build two flags for different jobs:
+
+- **Early warning (wide net).** Flags active customers whose feature usage is below 38.9% (the churned average plus one standard deviation). That catches **85 customers**, 30% of the active base, holding about $82K in monthly revenue. This list is for broad onboarding and adoption outreach.
+- **Priority list (composite score).** A weighted score: 50% feature usage, 30% NPS score, and 20% tenure. Active customers who score above the churned-customer average are flagged, which gives **14 customers** (5% of the active base). This list is for direct outreach now.
+
+The composite score separates churned from active customers with an **AUC of 0.94**: pick one churned and one active customer at random, and the score ranks the churned one as riskier 94% of the time. Tenure makes that number look better than it should, because customers who churned early have short tenure partly *because* they churned. With tenure removed, usage and NPS alone still reach 0.91.
+
+## Recommendations
+
+1. **Make Starter the retention priority.** It has the highest churn and its customers mostly leave over cost, so test pricing and a clearer value message for this tier.
+2. **Move monthly customers to annual billing.** Offer a discount for committing annually. It is the one lever that works across Starter, Professional, and Business.
+3. **Act on low usage early.** Put the 85 low-usage accounts into an onboarding and feature-adoption program, and have account managers contact the 14 highest-risk accounts first, starting with those closest to renewal.
+4. **Take Business-tier churn feedback to the product team.** Missing features are this tier's most common reason for leaving.
+5. **Explain the 2025 slowdown before relying on the trend line.** Look into the April–May churn spike and the flat months since, and don't plan off the three-year linear trend in the meantime.
+
+## Limitations and next steps
+
+- The data is synthetic, and each customer's feature usage and NPS score is a single snapshot. They may have been recorded close to when customers left rather than beforehand, which would make them look more predictive than they are.
+- CLV uses revenue rather than profit, and active customers' tenure is still growing, so CLV is understated for the plans where customers stay longest.
+- I chose the risk score's weights by judgment and tested the score on the same customers it describes. Next, I would fit a logistic regression and test it on customers from a later time period.
+
+## Deliverables
+
+A Jupyter notebook with the full analysis and a Tableau story of four dashboards for the board: MRR and churn trends, segment risk, CLV and profitability, and at-risk customers.
