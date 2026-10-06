@@ -71,7 +71,7 @@ export function SaasStats() {
           value: money(last.mrr),
           detail: `up ${pct(rate(last.mrr - yearAgo.mrr, yearAgo.mrr))} in 2025`
         },
-        { label: 'Risk score AUC', value: '0.94', detail: '1.0 is perfect' }
+        { label: 'At-risk customers', value: '85', detail: '~$82K in monthly revenue' }
       ]}
     />
   )
