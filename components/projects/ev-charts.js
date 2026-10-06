@@ -100,7 +100,7 @@ export function EvTileMap() {
   const ranked = [...withShare].sort((a, b) => b.share - a.share)
   return (
     <Figure
-      title="EV share of registered vehicles by state"
+      title="EV share of registered vehicles by state, 2023"
       subtitle="Each square is a state (plus D.C.), placed roughly where it sits on the map"
       table={{
         columns: ['Rank', 'State', 'EV share', 'EVs', 'All vehicles'],

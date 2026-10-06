@@ -1,7 +1,7 @@
 ---
 title: U.S. Electric Vehicle Market Share
 date: 2026/4/15
-description: State-level analysis of electric, plug-in hybrid, and hybrid vehicles across all 50 states and D.C. California has 13% of U.S. vehicles but 35% of its EVs; the analysis ranks where charging investment would reach the most drivers.
+description: State-level analysis of electric, plug-in hybrid, and hybrid vehicles across all 50 states and D.C. (2023 registrations). California has 13% of U.S. vehicles but 35% of its EVs; the analysis ranks where charging investment would reach the most drivers.
 tools: Python, Tableau
 highlight: California has 13% of U.S. vehicles but 35% of its EVs
 ---
@@ -14,7 +14,7 @@ import {
   GapChart
 } from '../../components/projects/ev-charts'
 
-**Tools:** Python (pandas) in Jupyter, Tableau
+**Data:** light-duty vehicle registrations by state, **2023**, from the U.S. Department of Energy's [Alternative Fuels Data Center](https://afdc.energy.gov/vehicle-registration) (based on Experian registration data) · **Tools:** Python (pandas) in Jupyter, Tableau
 
 [Notebook and data on GitHub ↗](https://github.com/Mahabala-O/Analyzing-U.S.-Electric-Vehicle-Market-Share)
 
@@ -33,7 +33,7 @@ Where are electric vehicles on the road today, and which states should be priori
 
 ## Data and approach
 
-The dataset is a single snapshot of registered vehicles by fuel type for all 50 states and D.C. (51 rows, 12 fuel types, 287.1 million vehicles). The counts were stored as text with commas, so I converted them to numbers. There were no missing values, and methanol was zero in every state. I then calculated each fuel's share of every state's fleet, ranked states, compared California with the other large states, and measured how far each state is from the national average.
+The dataset is the Alternative Fuels Data Center's count of light-duty vehicles registered in 2023, by fuel type, for all 50 states and D.C. (51 rows, 12 fuel types, 287.1 million vehicles, rounded to the nearest 100). The counts were stored as text with commas, so I converted them to numbers. There were no missing values, and methanol was zero in every state. I then calculated each fuel's share of every state's fleet, ranked states, compared California with the other large states, and measured how far each state is from the national average.
 
 "EV share" here means battery-electric vehicles as a share of *all registered vehicles*, the cars already on the road, not new-car sales. It changes slowly, so it shows where EV drivers are now rather than where sales are heading.
 
@@ -76,7 +76,7 @@ Two large states that might seem like obvious picks rank lower on this measure. 
 
 ## Limitations and next steps
 
-- This is one year's snapshot, so it shows levels, not growth. Adding registrations from other years, or new-car sales, would show which states are catching up.
+- This is a 2023 snapshot, so it shows levels, not growth, and EV numbers have grown since. Adding registrations from other years, or new-car sales, would show which states are catching up.
 - The gap measure assumes the national average is the right target. Adding public charger counts per state would let me rank states by chargers per EV, which is closer to where investment is actually lacking.
 
 ## Deliverables
