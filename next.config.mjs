@@ -14,5 +14,11 @@ export default withNextra({
       // Temporary: the Photos page was removed but may come back.
       { source: '/photos', destination: '/', permanent: false }
     ]
+  },
+  async rewrites() {
+    return [
+      // Standalone career-fair guide (public/fair-guide.html), served without the site layout.
+      { source: '/fair-guide', destination: '/fair-guide.html' }
+    ]
   }
 })
