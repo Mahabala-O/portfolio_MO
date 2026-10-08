@@ -46,6 +46,7 @@ async function generate() {
     `${SITE_URL}/`,
     `${SITE_URL}/projects`,
     `${SITE_URL}/resume`,
+    `${SITE_URL}/fair-guide`,
     ...allPosts.map((post) => post.url)
   ]
   const sitemap =

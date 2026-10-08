@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="For business analytics students: all 60 employers at UCI's Fall Career & Internship Fair, ranked by how likely they are to hire analysts.">
+<meta property="og:title" content="Fall Fair Analyst Guide">
+<meta property="og:description" content="For business analytics students: all 60 employers at UCI's Fall Career & Internship Fair, ranked by how likely they are to hire analysts.">
+<meta property="og:url" content="https://portfolio-mo.vercel.app/fair-guide">
+<meta property="og:image" content="https://portfolio-mo.vercel.app/api/og?title=Fall%20Fair%20Analyst%20Guide">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://portfolio-mo.vercel.app/fair-guide">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}</style>
+<title>Fall Fair Analyst Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one quiet data table in the style of a comp-data site. Filters on one line, compact rows, details open inline under a row. */
+:root {
+  --bg: #FAFAFA;
+  --surface: #FFFFFF;
+  --surface-2: #F5F5F6;
+  --ink: #18181B;
+  --muted: #71717A;
+  --faint: #A1A1AA;
+  --line: #E6E6E9;
+  --accent: #2563EB;
+  --first: #15803D;
+  --stop: #B45309;
+  --other: #A1A1AA;
+  --font-body: "Geist", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0B0B0C; --surface: #111113; --surface-2: #18181B; --ink: #F4F4F5; --muted: #A1A1AA; --faint: #71717A;
+    --line: #26262B; --accent: #7EA6FF; --first: #4ADE80; --stop: #FBBF24; --other: #52525B; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0B0B0C; --surface: #111113; --surface-2: #18181B; --ink: #F4F4F5; --muted: #A1A1AA; --faint: #71717A;
+  --line: #26262B; --accent: #7EA6FF; --first: #4ADE80; --stop: #FBBF24; --other: #52525B; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font: 400 14px/1.5 var(--font-body); -webkit-font-smoothing: antialiased; }
+button, input, select { font: inherit; color: inherit; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+
+.page { max-width: 1080px; margin: 0 auto; padding-inline: clamp(16px, 4vw, 32px); padding-block: 32px 48px; }
+
+header { display: grid; gap: 6px; margin-bottom: 20px; }
+.eyebrow { font: 400 12px/1.4 var(--font-mono); color: var(--muted); margin: 0; }
+h1 { font: 600 24px/1.2 var(--font-body); letter-spacing: -.015em; margin: 0; }
+.sub { margin: 0; color: var(--muted); max-width: 70ch; }
+
+/* Filters */
+.filters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
+.search { position: relative; flex: 1 1 220px; min-width: 0; }
+.search input { width: 100%; height: 34px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 0 10px 0 32px; }
+.search input::placeholder { color: var(--faint); }
+.search svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--faint); }
+.seg { display: inline-flex; background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 2px; gap: 2px; max-width: 100%; overflow-x: auto; }
+.seg button { border: 0; background: none; height: 28px; padding: 0 10px; border-radius: 6px; cursor: pointer; color: var(--muted); white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
+.seg button:hover { color: var(--ink); }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgb(0 0 0 / .08); }
+.seg .n { font: 400 12px/1 var(--font-mono); color: var(--faint); font-variant-numeric: tabular-nums; }
+.select { position: relative; }
+.select select { appearance: none; height: 34px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 0 30px 0 10px; cursor: pointer; max-width: 100%; }
+.select svg { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--muted); }
+.toggle { height: 34px; border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 0 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.toggle[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.toggle svg { width: 14px; height: 14px; }
+
+/* Table */
+.table { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.cols { display: grid; grid-template-columns: minmax(0, 1fr) 9.5rem minmax(0, 1fr) 28px 32px; gap: 16px; align-items: center; }
+.thead { padding: 0 12px 0 16px; height: 36px; border-bottom: 1px solid var(--line); font-size: 12px; color: var(--muted); }
+.thead button { border: 0; background: none; padding: 0; cursor: pointer; color: inherit; display: inline-flex; align-items: center; gap: 4px; }
+.thead button:hover, .thead button[data-active="true"] { color: var(--ink); }
+.thead .arrow { font-family: var(--font-mono); font-size: 11px; }
+.list { list-style: none; margin: 0; padding: 0; }
+.item + .item { border-top: 1px solid var(--line); }
+.row { padding: 0 12px 0 16px; min-height: 56px; }
+.hit { grid-column: 1 / 5; display: grid; grid-template-columns: subgrid; align-items: center; gap: 16px; border: 0; background: none; text-align: left; padding: 10px 0; cursor: pointer; min-width: 0; }
+.row:hover { background: var(--surface-2); }
+.emp { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.logo { flex: none; width: 30px; height: 30px; border-radius: 7px; background: var(--surface-2); border: 1px solid var(--line); display: grid; place-items: center; font: 500 11px/1 var(--font-mono); color: var(--muted); letter-spacing: .02em; }
+.emp-text { min-width: 0; }
+.emp-name { font-weight: 500; display: block; overflow-wrap: anywhere; }
+.emp-meta { display: block; font-size: 12.5px; color: var(--muted); }
+.plan { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; white-space: nowrap; }
+.dot { width: 7px; height: 7px; border-radius: 50%; flex: none; }
+.dot.first { background: var(--first); }
+.dot.stop { background: var(--stop); }
+.dot.other { background: var(--other); }
+.roles { display: flex; flex-wrap: wrap; gap: 4px; min-width: 0; }
+.tag { font: 400 12px/1 var(--font-mono); color: var(--muted); background: var(--surface-2); border: 1px solid var(--line); border-radius: 5px; padding: 4px 6px; white-space: nowrap; }
+.tag.on { color: var(--ink); border-color: var(--ink); }
+.none { color: var(--faint); font-size: 13px; }
+.chev { color: var(--faint); justify-self: end; transition: transform .15s ease; }
+.hit[aria-expanded="true"] .chev { transform: rotate(180deg); color: var(--ink); }
+.save { width: 28px; height: 28px; border-radius: 6px; border: 0; background: none; color: var(--faint); cursor: pointer; display: grid; place-items: center; justify-self: end; }
+.save:hover { color: var(--ink); background: var(--surface-2); }
+.save[aria-pressed="true"] { color: var(--stop); }
+.save[aria-pressed="true"] path { fill: currentColor; }
+.save svg { width: 15px; height: 15px; }
+
+.detail { padding: 4px 16px 18px 58px; display: grid; gap: 14px; }
+.detail-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.detail-grid.single { grid-template-columns: minmax(0, 1fr); max-width: 60ch; }
+.detail h4 { margin: 0 0 3px; font: 500 11px/1.4 var(--font-mono); text-transform: uppercase; letter-spacing: .06em; color: var(--faint); }
+.detail p { margin: 0; color: var(--ink); line-height: 1.5; }
+.detail .ask p { font-weight: 500; }
+.detail .links { display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 13px; }
+.detail .detail-roles { display: none; }
+.detail-roles .roles { margin-top: 2px; }
+
+.empty { padding: 40px 16px; text-align: center; color: var(--muted); }
+.empty button { margin-top: 10px; }
+.foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 16px; margin-top: 10px; font-size: 12.5px; color: var(--muted); }
+.foot .count { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+footer { margin-top: 32px; font-size: 12.5px; color: var(--muted); max-width: 80ch; display: grid; gap: 6px; }
+footer p { margin: 0; }
+
+.emp-meta .m-plan { display: none; align-items: center; gap: 5px; margin-right: 6px; }
+@media (max-width: 720px) {
+  .cols { grid-template-columns: minmax(0, 1fr) 20px 28px; gap: 10px; }
+  .hit { grid-column: 1 / 3; }
+  .thead .c-plan, .thead .c-roles, .hit .c-plan, .hit .c-roles { display: none; }
+  .emp-meta .m-plan { display: inline-flex; }
+  .detail { padding-left: 16px; }
+  .detail-grid { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .detail .detail-roles { display: block; }
+  .filters .search { flex-basis: 100%; }
+}
+@media (max-width: 480px) {
+  .seg .n { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .chev { transition: none; } }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <header>
+    <p class="eyebrow">UCI Fall Career &amp; Internship Fair · Thu, Oct 8, 2026 · 10 am–2 pm · UCI Student Center</p>
+    <h1>Fall Fair Analyst Guide</h1>
+    <p class="sub">For business analytics students: all 60 employers at the fair, ranked by how likely they are to hire analysts. Select a row to see what an employer is recruiting for, which skills to highlight, and a question to ask at their table.</p>
+  </header>
+
+  <div class="filters">
+    <label class="search" for="q">
+      <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"/></svg>
+      <input id="q" type="search" placeholder="Search employers" autocomplete="off" aria-label="Search employers">
+    </label>
+    <div class="seg" id="plan-seg" role="group" aria-label="Visit plan"></div>
+    <label class="select" for="role">
+      <select id="role" aria-label="Analyst role"></select>
+      <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </label>
+    <button class="toggle" id="saved-toggle" type="button" aria-pressed="false">
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2h8v12l-4-3-4 3z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+      Saved <span id="saved-n">0</span>
+    </button>
+  </div>
+
+  <div class="table">
+    <div class="thead cols">
+      <span><button type="button" data-sort="name">Employer <span class="arrow"></span></button></span>
+      <span class="c-plan"><button type="button" data-sort="plan">Plan <span class="arrow"></span></button></span>
+      <span class="c-roles">Analyst roles</span>
+      <span></span><span></span>
+    </div>
+    <ul class="list" id="list"></ul>
+    <div class="empty" id="empty" hidden>
+      <p>No employers match these filters.</p>
+      <button class="toggle" type="button" id="clear-all">Clear filters</button>
+    </div>
+  </div>
+  <div class="foot">
+    <span class="count" id="result-count"></span>
+    <span><span class="plan"><span class="dot first"></span>Visit first: hire analysts regularly</span> &nbsp; <span class="plan"><span class="dot stop"></span>Worth a stop: ask first</span> &nbsp; <span class="plan"><span class="dot other"></span>Other roles</span></span>
+  </div>
+
+  <footer>
+    <p>Made by <a href="https://portfolio-mo.vercel.app" target="_blank" rel="noopener">Mikhail Orlov</a>, MS in Business Analytics student at UC Irvine. This is an unofficial student guide and is not affiliated with UCI or Handshake.</p>
+    <p>Built from the fair's Handshake employer list on Oct 7, 2026. RTX appears twice on Handshake (RTX and RTX – Raytheon) and is listed once here.</p>
+    <p>Analyst roles are the kinds each employer typically hires for, based on its Handshake profile and public careers information. They are not confirmed openings for this fair, so check the fair's Jobs tab on Handshake for current postings. Handshake links need a Handshake login.</p>
+  </footer>
+</div>
+
+<script>
+// EMPLOYER DATA. To reuse this page for another fair, edit ROLES, PLANS and the E list below,
+// then update the date line in the header. plan is "first", "stop" or "other"; hs is the
+// employer's Handshake id (the number in app.joinhandshake.com/e/<id>).
+const ROLES = {
+  data: "Data analyst",
+  biz: "Business analyst",
+  fin: "Financial analyst",
+  health: "Healthcare analyst",
+  risk: "Risk & pricing analyst",
+  ops: "Operations & supply chain",
+  mkt: "Marketing & e-commerce",
+  pub: "Public sector analyst",
+  cons: "Consulting analyst"
+};
+
+const PLANS = {
+  first: { label: "Visit first", note: "Hire analysts regularly" },
+  stop: { label: "Worth a stop", note: "Some analyst roles; ask first" },
+  other: { label: "Other roles", note: "Not recruiting analysts" }
+};
+
+const E = [
+  // Visit first
+  { n: "Qualcomm – Finance & Accounting", hs: 30644, web: "https://www.qualcomm.com/company/careers/internships-and-early-in-career-opportunities", hq: "San Diego, CA", cat: "Tech", plan: "first", roles: ["fin", "biz"],
+    rec: "Finance and accounting interns and early-career hires who work on planning, forecasting and reporting.",
+    lead: "Forecasting coursework, Excel models, dashboards built for leadership.",
+    ask: "How much of the intern work is building forecasts versus reporting on actuals?" },
+  { n: "Capital Group", hs: 17454, web: "https://www.capitalgroup.com/about-us/careers/students.html", hq: "Los Angeles, CA", cat: "Investment management", plan: "first", roles: ["data", "fin", "biz"],
+    rec: "Student programs at one of the world's largest investment managers, with $2.7 trillion under management.",
+    lead: "Python and SQL, statistics, explaining findings to non-technical people.",
+    ask: "Which teams take analytics interns, and what does their data stack look like?" },
+  { n: "BMO Financial Group", hs: 12830, web: "https://jobs.bmo.com/us/en", hq: "New York, NY", cat: "Banking", plan: "first", roles: ["fin", "risk", "data", "biz"],
+    rec: "North American bank with a large California presence since it bought Bank of the West in 2023.",
+    lead: "SQL reporting, data validation, KPI tracking.",
+    ask: "Which analyst roles are open in California, and which are based in Chicago?" },
+  { n: "PENNYMAC", hs: 40244, web: "http://www.pennymac.com", hq: "Westlake Village, CA", cat: "Mortgage lending", plan: "first", roles: ["data", "fin", "risk", "biz"],
+    rec: "Mortgage lender and servicer, named a Most Loved Workplace by Newsweek.",
+    lead: "SQL reporting, dashboards, root-cause analysis of operational problems.",
+    ask: "Do new analysts spend more time on SQL reporting or on modeling?" },
+  { n: "CalOptima", hs: 41477, web: "https://www.caloptima.org/en.aspx", hq: "Orange, CA", cat: "Healthcare", plan: "first", roles: ["health", "data", "biz", "fin"],
+    rec: "Public agency that runs Orange County's Medi-Cal health plan.",
+    lead: "Any healthcare experience, SQL, Power BI.",
+    ask: "Do analysts work with claims and quality (HEDIS) data, and are there student or entry-level openings?" },
+  { n: "COPE Health Solutions", hs: 953907, web: "https://copehealthsolutions.com/", hq: "Los Angeles, CA", cat: "Healthcare consulting", plan: "first", roles: ["health", "cons", "data"],
+    rec: "Healthcare consulting firm focused on population health and value-based care.",
+    lead: "Healthcare data, Excel modeling, client-ready slides.",
+    ask: "What does a first-year analyst do on a client project: data work, financial modeling, or both?" },
+  { n: "Epic", hs: 9196, web: "https://careers.epic.com/", hq: "Verona, WI", cat: "Healthcare software", plan: "first", roles: ["data", "health", "biz"],
+    rec: "Healthcare software company that hires all majors. Jobs are on-site in Verona, Wisconsin.",
+    lead: "SQL, any healthcare exposure, working through messy problems quickly.",
+    ask: "Which of your roles use SQL and data analysis every day?" },
+  { n: "Fox Corporation", hs: 443823, web: "https://fox.com", hq: "Los Angeles, CA", cat: "Media", plan: "first", roles: ["data", "mkt", "fin"],
+    rec: "Internships across FOX Sports, FOX Entertainment, FOX News and FOX Technology.",
+    lead: "Tableau or Power BI, SQL, audience and engagement metrics.",
+    ask: "Which internships work closest to audience or advertising data?" },
+
+  // Worth a stop
+  { n: "AAA – Auto Club Enterprises", hs: 114038, web: "https://careers.ace.aaa.com", hq: "Costa Mesa, CA", cat: "Insurance", plan: "stop", roles: ["risk", "data", "biz"],
+    rec: "Insurance, roadside and travel services, with a large headquarters in Costa Mesa.",
+    lead: "SQL, Excel, data validation.",
+    ask: "Are there analyst roles in pricing, claims or member data at the Costa Mesa office?" },
+  { n: "Aperture", hs: 771915, web: "http://www.aperturellc.com", hq: "Arlington, TX", cat: "Consulting", plan: "stop", roles: ["cons", "data"],
+    rec: "Forensic and consulting experts who analyze incidents, operations and business problems.",
+    lead: "Root-cause analysis, careful documentation.",
+    ask: "Do you hire business or data analysts, or mostly engineers?" },
+  { n: "City of Newport Beach", hs: 208726, web: "http://www.newportbeachca.gov", hq: "Newport Beach, CA", cat: "Government", plan: "stop", roles: ["pub"],
+    rec: "City government. Each opening has its own application and filing deadline.",
+    lead: "Budget and KPI reporting, Excel.",
+    ask: "When do administrative or budget analyst openings usually post?" },
+  { n: "COOP Careers", hs: 237631, web: "http://coopcareers.org", hq: "San Francisco, CA", cat: "Career program", plan: "stop", roles: ["data", "mkt"],
+    rec: "Free fellowship for first-generation college grads, with Data Analytics, Digital Marketing and Financial Services tracks.",
+    lead: "First-gen background, interest in analytics.",
+    ask: "Who is eligible, and can the fellowship run alongside a master's program?" },
+  { n: "County of Orange", hs: 13465, web: "https://hrs.ocgov.com/careers/explore-your-possibilities", hq: "Santa Ana, CA", cat: "Government", plan: "stop", roles: ["pub", "data", "fin", "health"],
+    rec: "18,000+ employees across 22 departments, including the Health Care Agency.",
+    lead: "Reporting and dashboards, interest in public service.",
+    ask: "Which departments hire analysts, and do any take student interns?" },
+  { n: "Enterprise Mobility", hs: 11551, web: "https://www.enterprisemobility.com/careers", hq: "St. Louis, MO", cat: "Transportation", plan: "stop", roles: ["ops", "biz"],
+    rec: "Mostly hiring for its Management Training Program in branch operations and sales.",
+    lead: "Operations experience, customer-facing work.",
+    ask: "Are any analyst roles open at regional offices, or only the management track?" },
+  { n: "ExpiTrans", hs: 204393, web: "http://www.expitrans.com", hq: "Rancho Santa Margarita, CA", cat: "Payments", plan: "stop", roles: ["biz", "data"],
+    rec: "Payment processing products and services for banks, merchants and processors.",
+    lead: "Requirements gathering, SQL.",
+    ask: "Do business analysts work on your implementation projects?" },
+  { n: "FedEx", hs: 316095, web: "https://careers.fedex.com/", hq: "Memphis, TN", cat: "Logistics", plan: "stop", roles: ["ops", "data"],
+    rec: "Shipping and logistics. Local hiring is often for operations roles.",
+    lead: "Operations metrics, fulfillment KPIs.",
+    ask: "Are there operations or data analyst roles in Southern California?" },
+  { n: "Parker Hannifin", hs: 13638, web: "http://www.parker.com", hq: "Cleveland, OH", cat: "Manufacturing", plan: "stop", roles: ["fin", "ops", "biz"],
+    rec: "Fortune 250 motion and control company hiring interns, co-ops and entry-level staff. Parker Aerospace is based in Irvine.",
+    lead: "Excel models, supply chain or cost data.",
+    ask: "Does the Irvine aerospace group hire finance or supply chain analysts?" },
+  { n: "Port of Long Beach", hs: 215755, web: "http://www.polb.com", hq: "Long Beach, CA", cat: "Government", plan: "stop", roles: ["pub", "ops", "fin"],
+    rec: "Public port that moves about $300 billion in trade a year.",
+    lead: "Operations data, Excel, interest in public service.",
+    ask: "Which divisions hire analysts: finance, planning or trade data?" },
+  { n: "RTX (incl. Raytheon)", hs: 23381, web: "https://careers.rtx.com/global/en/campus", hq: "Washington, DC", cat: "Aerospace & defense", plan: "stop", roles: ["fin", "ops", "data", "biz"],
+    rec: "Campus hiring across Collins Aerospace, Pratt & Whitney and Raytheon. Most roles are in engineering.",
+    lead: "Financial analysis, supply chain data.",
+    ask: "Do your finance or supply chain rotational programs have Southern California locations?" },
+  { n: "SPS", hs: 129091, web: "https://www.spsglobal.com/en/about-sps", hq: "New York, NY", cat: "Business services", plan: "stop", roles: ["ops", "biz", "data"],
+    rec: "Outsourced business processing and data management.",
+    lead: "Process improvement, data quality work.",
+    ask: "Do you hire process or data analysts on the West Coast?" },
+  { n: "The Baldwin Group", hs: 337098, web: "http://www.baldwinriskpartners.com", hq: "Tampa, FL", cat: "Insurance", plan: "stop", roles: ["risk", "data", "biz"],
+    rec: "Independent insurance distribution and risk management firm.",
+    lead: "Excel, client data, KPI reporting.",
+    ask: "Which analyst roles do you hire for in California?" },
+  { n: "TriNet", hs: 24196, web: "http://www.TriNet.com", hq: "Atlanta, GA", cat: "HR services", plan: "stop", roles: ["biz", "data", "fin"],
+    rec: "HR, payroll and benefits services for small and midsize businesses.",
+    lead: "SQL, Salesforce, process documentation.",
+    ask: "Are there analyst roles on the data, finance or product teams?" },
+  { n: "UCI – Division of Finance & Administration", hs: 153363, web: "https://dfa.uci.edu/", hq: "Irvine, CA", cat: "UC & campus", plan: "stop", roles: ["fin", "biz", "data"],
+    rec: "Campus finance, budget and operations units. A good source of part-time work during a degree.",
+    lead: "Excel, reporting, being a current UCI student.",
+    ask: "Are there part-time student analyst positions this year?" },
+  { n: "UCPath Center", hs: 76886, web: "http://ucpathjobs.org/", hq: "Riverside, CA", cat: "UC & campus", plan: "stop", roles: ["biz", "data", "ops"],
+    rec: "Payroll, benefits and HR services for more than 230,000 UC employees.",
+    lead: "Reporting, data validation, process improvement.",
+    ask: "Are reporting or business analyst roles remote or hybrid?" },
+  { n: "Whova", hs: 102728, web: "https://whova.com/jobs/we-are-hiring/", hq: "San Diego, CA", cat: "Tech", plan: "stop", roles: ["biz", "mkt", "data"],
+    rec: "Event management software company.",
+    lead: "Product sense, engagement metrics.",
+    ask: "Do business analyst hires work on product data or with customers?" },
+  { n: "Z SUPPLY", hs: 144356, web: "http://www.zsupplyclothing.com", hq: "Costa Mesa, CA", cat: "Retail", plan: "stop", roles: ["mkt", "ops"],
+    rec: "Women's apparel brand selling online and through boutiques nationwide.",
+    lead: "E-commerce data, SQL reporting, customer feedback analysis.",
+    ask: "Are there e-commerce or merchandise planning analyst roles?" },
+
+  // Other roles
+  { n: "Advanced Behavioral Health", hs: 201455, web: "http://abhcal.com", hq: "Huntington Beach, CA", cat: "Behavioral health", plan: "other", roles: [], rec: "Part-time and full-time ABA therapists for children." },
+  { n: "Arlon EMD", hs: 1001961, web: "https://www.arlonemd.com", hq: "Rancho Cucamonga, CA", cat: "Manufacturing", plan: "other", roles: [], rec: "Circuit-board materials maker; engineering and production roles." },
+  { n: "Child Creativity Lab", hs: 532112, web: "https://www.childcreativitylab.org/", hq: "Santa Ana, CA", cat: "Education", plan: "other", roles: [], rec: "Hands-on creativity programs for kids." },
+  { n: "Chula Vista Police Department", hs: 311077, web: "http://www.joincvpd.com", hq: "Chula Vista, CA", cat: "Law enforcement", plan: "other", roles: [], rec: "Police officer recruiting." },
+  { n: "City Year", hs: 9004, web: "https://www.cityyear.org/", hq: "Boston, MA", cat: "Education", plan: "other", roles: [], rec: "AmeriCorps service year supporting students in schools." },
+  { n: "County of Orange Probation Department", hs: 827514, web: "https://ocprobation.ocgov.com", hq: "Santa Ana, CA", cat: "Law enforcement", plan: "other", roles: [], rec: "Probation and public safety roles." },
+  { n: "Creative Behavior Interventions", hs: 172299, web: "http://www.cbibelieves.com", hq: "Tustin, CA", cat: "Behavioral health", plan: "other", roles: [], rec: "Autism and developmental disability services." },
+  { n: "DK Law", hs: 1062184, web: "https://dklaw.com/", hq: "Costa Mesa, CA", cat: "Legal", plan: "other", roles: [], rec: "Law firm staff roles." },
+  { n: "Easterseals Southern California", hs: 36518, web: "http://socal.easterseals.com/careers", hq: "Irvine, CA", cat: "Behavioral health", plan: "other", roles: [], rec: "Autism services and disability support roles." },
+  { n: "Elevo Learning", hs: 91984, web: "https://elevolearning.com", hq: "San Diego, CA", cat: "Education", plan: "other", roles: [], rec: "Wellness and enrichment coaches for schools." },
+  { n: "Hanjin Intermodal America", hs: 841400, web: "http://www.hanjinusa.com", hq: "Gardena, CA", cat: "Logistics", plan: "other", roles: [], rec: "Logistics operations roles." },
+  { n: "Irvine Ranch Water District", hs: 119671, web: "http://www.irwd.com/careers", hq: "Irvine, CA", cat: "Government", plan: "other", roles: [], rec: "Water utility; mostly engineering and operations roles." },
+  { n: "JANUS et Cie", hs: 210973, web: "http://www.janusetcie.com", hq: "Santa Fe Springs, CA", cat: "Retail", plan: "other", roles: [], rec: "Outdoor furniture design and sales." },
+  { n: "KEYENCE", hs: 15776, web: "https://www.keyence.com/ss/careers/", hq: "Itasca, IL", cat: "Tech", plan: "other", roles: [], rec: "Technical sales and application engineering." },
+  { n: "Kidworks Community Development Corp", hs: 121653, web: "http://kidworksoc.org", hq: "Santa Ana, CA", cat: "Nonprofit", plan: "other", roles: [], rec: "Youth and community programs in Santa Ana." },
+  { n: "Latham & Watkins", hs: 24990, web: "http://www.lw.com/", hq: "New York, NY", cat: "Legal", plan: "other", roles: [], rec: "Paralegal and professional staff roles." },
+  { n: "LAX Airport Police", hs: 191513, web: "http://www.lawa.org", hq: "Los Angeles, CA", cat: "Law enforcement", plan: "other", roles: [], rec: "Airport police officers at LAX and Van Nuys." },
+  { n: "Matthews Real Estate Investment Services", hs: 40089, web: "http://matthews.com", hq: "Nashville, TN", cat: "Real estate", plan: "other", roles: [], rec: "Commercial real estate brokerage." },
+  { n: "Mercury Systems", hs: 52608, web: "http://www.mrcy.com", hq: "Andover, MA", cat: "Aerospace & defense", plan: "other", roles: [], rec: "Defense electronics; mostly engineering." },
+  { n: "Metro Builders & Engineers Group", hs: 346602, web: "http://www.metrobuilders.com", hq: "Newport Beach, CA", cat: "Construction", plan: "other", roles: [], rec: "Construction and project engineering." },
+  { n: "Modern Woodmen of America", hs: 313819, web: "https://www.modernwoodmen.org/careers/", hq: "Rock Island, IL", cat: "Insurance", plan: "other", roles: [], rec: "Financial representative (sales) roles." },
+  { n: "NeoGenomics Laboratories", hs: 429647, web: "https://neogenomics.com/", hq: "Fort Myers, FL", cat: "Healthcare", plan: "other", roles: [], rec: "Cancer diagnostics lab roles." },
+  { n: "Newport-Mesa Unified School District", hs: 539702, web: "http://nmusd.us", hq: "Costa Mesa, CA", cat: "Education", plan: "other", roles: [], rec: "K–12 school district jobs." },
+  { n: "RailPros", hs: 130053, web: "http://www.railpros.com", hq: "Irving, TX", cat: "Engineering", plan: "other", roles: [], rec: "Rail engineering, construction management and safety." },
+  { n: "Rainbow Rising Child Development Center", hs: 335261, web: "http://rainbowrising.org", hq: "Irvine, CA", cat: "Education", plan: "other", roles: [], rec: "After-school childcare at Irvine elementary schools." },
+  { n: "RBC Bearings – Transport Dynamics", hs: 46030, web: "http://www.rbcbearings.com", hq: "Oxford, CT", cat: "Manufacturing", plan: "other", roles: [], rec: "Precision bearings for aerospace and defense." },
+  { n: "Safran", hs: 125724, web: "https://www.safran-group.com/", hq: "Irving, TX", cat: "Aerospace & defense", plan: "other", roles: [], rec: "Aviation, defense and space; mostly engineering." },
+  { n: "Teach For America", hs: 24036, web: "http://www.teachforamerica.org", hq: "New York, NY", cat: "Education", plan: "other", roles: [], rec: "Teaching and virtual tutoring roles." },
+  { n: "U.S. Navy", hs: 108936, web: "https://www.navy.com/", hq: "Millington, TN", cat: "Military", plan: "other", roles: [], rec: "Officer and enlisted programs." },
+  { n: "UC Center Sacramento", hs: 166520, web: "http://uccs.ucdavis.edu", hq: "Sacramento, CA", cat: "UC & campus", plan: "other", roles: [], rec: "Policy internships for UC undergraduates." },
+  { n: "UCI – Merage School, Specialty Masters", hs: 73696, web: "http://merage.uci.edu/", hq: "Irvine, CA", cat: "UC & campus", plan: "other", roles: [], rec: "Recruiting students for its master's programs." },
+  { n: "UCI – School of Social Ecology", hs: 95166, web: "http://socialecology.uci.edu/", hq: "Irvine, CA", cat: "UC & campus", plan: "other", roles: [], rec: "Academic programs." },
+  { n: "UCI Medical Center – Volunteer Services", hs: 470116, web: "http://www.ucihealth.org/volunteer", hq: "Orange, CA", cat: "Healthcare", plan: "other", roles: [], rec: "Hospital volunteer roles." },
+  { n: "YMCA of Orange County – Childcare", hs: 116418, web: "http://www.ymcaoc.org/careers/", hq: "Tustin, CA", cat: "Education", plan: "other", roles: [], rec: "Childcare and youth program staff." }
+];
+
+
+const SHORT = { data: "Data", biz: "Business", fin: "Financial", health: "Healthcare", risk: "Risk & pricing", ops: "Ops & supply chain", mkt: "Marketing & e-com", pub: "Public sector", cons: "Consulting" };
+const SEG = { first: "Visit first", stop: "Worth a stop", other: "Other" };
+const HS = id => "https://app.joinhandshake.com/e/" + id;
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const PLAN_ORDER = { first: 0, stop: 1, other: 2 };
+const BOOKMARK = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2h8v12l-4-3-4 3z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>';
+const CHEV = '<svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+function initials(name) {
+  const words = name.split(" – ")[0].replace(/\(.*?\)/g, "").replace(/\./g, "").split(/[\s–-]+/).filter(w => /^[A-Za-z]/.test(w) && !/^(of|the|and|&|inc\.?|llc|llp)$/i.test(w));
+  if (/^[A-Z]{2,3}$/.test(words[0])) return words[0];
+  return (words[0][0] + (words[1] ? words[1][0] : words[0][1] || "")).toUpperCase();
+}
+
+const KEY = "fall-fair-analyst-guide.saved";
+let saved = new Set();
+try { saved = new Set(JSON.parse(localStorage.getItem(KEY) || "[]")); } catch (e) {}
+function persist() { try { localStorage.setItem(KEY, JSON.stringify([...saved])); } catch (e) {} }
+
+const state = { q: "", plan: "all", role: "", savedOnly: false, sort: "plan", dir: 1 };
+const open = new Set();
+
+function setupFilters() {
+  const plans = [["all", "All", E.length], ...Object.keys(PLANS).map(k => [k, SEG[k], E.filter(e => e.plan === k).length])];
+  document.getElementById("plan-seg").innerHTML = plans.map(([k, label, n]) =>
+    `<button type="button" data-plan="${k}" aria-pressed="${k === state.plan}">${k !== "all" ? `<span class="dot ${k}"></span>` : ""}${label} <span class="n">${n}</span></button>`).join("");
+  const counts = Object.keys(ROLES).map(r => [r, E.filter(e => e.roles.includes(r)).length]).sort((a, b) => b[1] - a[1]);
+  document.getElementById("role").innerHTML = `<option value="">All analyst roles</option>` +
+    counts.map(([r, n]) => `<option value="${r}">${esc(ROLES[r])} (${n})</option>`).join("");
+}
+
+function matches(e) {
+  if (state.plan !== "all" && e.plan !== state.plan) return false;
+  if (state.role && !e.roles.includes(state.role)) return false;
+  if (state.savedOnly && !saved.has(e.hs)) return false;
+  if (state.q) {
+    const hay = [e.n, e.cat, e.hq, e.rec, ...e.roles.map(r => ROLES[r])].join(" ").toLowerCase();
+    return state.q.split(/\s+/).every(w => hay.includes(w));
+  }
+  return true;
+}
+
+function sorted(list) {
+  const byName = (a, b) => a.n.localeCompare(b.n);
+  return list.sort((a, b) => state.sort === "name"
+    ? state.dir * byName(a, b)
+    : state.dir * (PLAN_ORDER[a.plan] - PLAN_ORDER[b.plan]) || byName(a, b));
+}
+
+function tags(e, limit, full) {
+  if (!e.roles.length) return `<span class="none">None typical</span>`;
+  const list = [...e.roles].sort((a, b) => (b === state.role) - (a === state.role));
+  const shown = limit ? list.slice(0, limit) : list;
+  const more = list.length - shown.length;
+  return shown.map(r => `<span class="tag${r === state.role ? " on" : ""}">${esc(full ? ROLES[r] : SHORT[r])}</span>`).join("") + (more > 0 ? `<span class="tag">+${more}</span>` : "");
+}
+
+function item(e) {
+  const id = "d" + e.hs;
+  const isOpen = open.has(e.hs);
+  const on = saved.has(e.hs);
+  const planLabel = PLANS[e.plan].label;
+  const detail = e.plan === "other"
+    ? `<div class="detail-grid single"><div><h4>Recruiting for</h4><p>${esc(e.rec)}</p></div></div>`
+    : `<div class="detail-roles"><h4>Analyst roles</h4><div class="roles">${tags(e, 0, true)}</div></div>
+       <div class="detail-grid">
+         <div><h4>Recruiting for</h4><p>${esc(e.rec)}</p></div>
+         <div><h4>Skills to highlight</h4><p>${esc(e.lead)}</p></div>
+         <div class="ask"><h4>Ask them</h4><p>${esc(e.ask)}</p></div>
+       </div>`;
+  return `<li class="item">
+    <div class="row cols">
+      <button class="hit" type="button" data-open="${e.hs}" aria-expanded="${isOpen}" aria-controls="${id}">
+        <span class="emp">
+          <span class="logo" aria-hidden="true">${esc(initials(e.n))}</span>
+          <span class="emp-text">
+            <span class="emp-name">${esc(e.n)}</span>
+            <span class="emp-meta"><span class="m-plan"><span class="dot ${e.plan}"></span>${planLabel} ·</span>${esc(e.cat)} · ${esc(e.hq)}</span>
+          </span>
+        </span>
+        <span class="plan c-plan"><span class="dot ${e.plan}"></span>${planLabel}</span>
+        <span class="roles c-roles">${tags(e, 3)}</span>
+        <span class="chev">${CHEV}</span>
+      </button>
+      <button class="save" type="button" data-save="${e.hs}" aria-pressed="${on}" aria-label="${on ? "Remove" : "Save"} ${esc(e.n)}" title="${on ? "Saved" : "Save"}">${BOOKMARK}</button>
+    </div>
+    <div class="detail" id="${id}" ${isOpen ? "" : "hidden"}>
+      ${detail}
+      <div class="links"><a href="${HS(e.hs)}" target="_blank" rel="noopener">Handshake profile ↗</a><a href="${esc(e.web)}" target="_blank" rel="noopener">Careers site ↗</a></div>
+    </div>
+  </li>`;
+}
+
+function render() {
+  const list = sorted(E.filter(matches));
+  document.getElementById("list").innerHTML = list.map(item).join("");
+  document.getElementById("empty").hidden = list.length > 0;
+  document.getElementById("result-count").textContent = list.length === E.length ? `${E.length} employers` : `${list.length} of ${E.length} employers`;
+  document.getElementById("saved-n").textContent = saved.size;
+  document.getElementById("saved-toggle").setAttribute("aria-pressed", state.savedOnly);
+  document.querySelectorAll("[data-plan]").forEach(b => b.setAttribute("aria-pressed", b.dataset.plan === state.plan));
+  document.querySelectorAll("[data-sort]").forEach(b => {
+    const active = b.dataset.sort === state.sort;
+    b.dataset.active = active;
+    b.querySelector(".arrow").textContent = active ? (state.dir > 0 ? "↑" : "↓") : "";
+  });
+}
+
+document.addEventListener("click", ev => {
+  const t = ev.target;
+  const s = t.closest("[data-save]");
+  if (s) { const id = Number(s.dataset.save); saved.has(id) ? saved.delete(id) : saved.add(id); persist(); render(); return; }
+  const o = t.closest("[data-open]");
+  if (o) {
+    const id = Number(o.dataset.open);
+    const nowOpen = !open.has(id);
+    nowOpen ? open.add(id) : open.delete(id);
+    o.setAttribute("aria-expanded", nowOpen);
+    document.getElementById("d" + id).hidden = !nowOpen;
+    return;
+  }
+  const p = t.closest("[data-plan]");
+  if (p) { state.plan = p.dataset.plan; render(); return; }
+  const so = t.closest("[data-sort]");
+  if (so) { state.dir = state.sort === so.dataset.sort ? -state.dir : 1; state.sort = so.dataset.sort; render(); return; }
+});
+document.getElementById("q").addEventListener("input", ev => { state.q = ev.target.value.trim().toLowerCase(); render(); });
+document.getElementById("role").addEventListener("change", ev => { state.role = ev.target.value; render(); });
+document.getElementById("saved-toggle").addEventListener("click", () => { state.savedOnly = !state.savedOnly; render(); });
+document.getElementById("clear-all").addEventListener("click", () => {
+  Object.assign(state, { q: "", plan: "all", role: "", savedOnly: false });
+  document.getElementById("q").value = ""; document.getElementById("role").value = ""; render();
+});
+
+setupFilters();
+render();
+</script>
+
+</body>
+</html>
