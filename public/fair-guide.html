@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="For business analytics students: all 60 employers at UCI's Fall Career & Internship Fair, ranked by how likely they are to hire analysts.">
+<meta name="description" content="For business analytics students: employers at UCI's fall career fairs, ranked by which ones hire analysts, with what to ask at each table.">
 <meta property="og:title" content="Fall Fair Analyst Guide">
-<meta property="og:description" content="For business analytics students: all 60 employers at UCI's Fall Career & Internship Fair, ranked by how likely they are to hire analysts.">
+<meta property="og:description" content="For business analytics students: employers at UCI's fall career fairs, ranked by which ones hire analysts, with what to ask at each table.">
 <meta property="og:url" content="https://portfolio-mo.vercel.app/fair-guide">
 <meta property="og:image" content="https://portfolio-mo.vercel.app/api/og?title=Fall%20Fair%20Analyst%20Guide">
 <meta name="twitter:card" content="summary_large_image">
@@ -128,6 +128,14 @@ h1 { font: 600 24px/1.2 var(--font-body); letter-spacing: -.015em; margin: 0; }
 footer { margin-top: 32px; font-size: 12.5px; color: var(--muted); max-width: 80ch; display: grid; gap: 6px; }
 footer p { margin: 0; }
 
+.fair-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.fair-tabs button { height: 30px; padding: 0 12px; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; cursor: pointer; font-size: 13px; color: var(--muted); }
+.fair-tabs button:hover { color: var(--ink); }
+.fair-tabs button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.found { display: grid; gap: 4px; max-width: 90ch; }
+.found a { white-space: nowrap; }
+.detail .found .auth { color: var(--muted); font-size: 13px; }
+
 .emp-meta .m-plan { display: none; align-items: center; gap: 5px; margin-right: 6px; }
 @media (max-width: 720px) {
   .cols { grid-template-columns: minmax(0, 1fr) 20px 28px; gap: 10px; }
@@ -149,9 +157,10 @@ footer p { margin: 0; }
 
 <div class="page">
   <header>
-    <p class="eyebrow">UCI Fall Career &amp; Internship Fair · Thu, Oct 8, 2026 · 10 am–2 pm · UCI Student Center</p>
+    <div class="fair-tabs" id="fair-tabs" role="group" aria-label="Career fair"></div>
+    <p class="eyebrow" id="eyebrow"></p>
     <h1>Fall Fair Analyst Guide</h1>
-    <p class="sub">For business analytics students: all 60 employers at the fair, ranked by how likely they are to hire analysts. Select a row to see what an employer is recruiting for, which skills to highlight, and a question to ask at their table.</p>
+    <p class="sub" id="sub"></p>
   </header>
 
   <div class="filters">
@@ -168,6 +177,7 @@ footer p { margin: 0; }
       <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2h8v12l-4-3-4 3z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
       Saved <span id="saved-n">0</span>
     </button>
+    <button class="toggle" id="defense-toggle" type="button" aria-pressed="false" hidden>Hide defense</button>
   </div>
 
   <div class="table">
@@ -185,20 +195,22 @@ footer p { margin: 0; }
   </div>
   <div class="foot">
     <span class="count" id="result-count"></span>
-    <span><span class="plan"><span class="dot first"></span>Visit first: hire analysts regularly</span> &nbsp; <span class="plan"><span class="dot stop"></span>Worth a stop: ask first</span> &nbsp; <span class="plan"><span class="dot other"></span>Other roles</span></span>
+    <span><span class="plan"><span class="dot first"></span>Visit first: analyst teams that hire new grads</span> &nbsp; <span class="plan"><span class="dot stop"></span>Worth a stop: analyst roles exist, new-grad fit unclear</span> &nbsp; <span class="plan"><span class="dot other"></span>Other roles</span></span>
   </div>
 
   <footer>
     <p>Made by <a href="https://portfolio-mo.vercel.app" target="_blank" rel="noopener">Mikhail Orlov</a>, MS in Business Analytics student at UC Irvine. This is an unofficial student guide and is not affiliated with UCI or Handshake.</p>
-    <p>Built from the fair's Handshake employer list on Oct 7, 2026. RTX appears twice on Handshake (RTX and RTX – Raytheon) and is listed once here.</p>
-    <p>Analyst roles are the kinds each employer typically hires for, based on its Handshake profile and public careers information. They are not confirmed openings for this fair, so check the fair's Jobs tab on Handshake for current postings. Handshake links need a Handshake login.</p>
+    <p id="source"></p>
+    <p>Analyst roles are the kinds each employer typically hires for, based on its Handshake profile and public careers information. They are not confirmed openings, so check the fair's Jobs tab on Handshake and each careers site for current postings. Handshake links need a Handshake login.</p>
   </footer>
 </div>
 
 <script>
-// EMPLOYER DATA. To reuse this page for another fair, edit ROLES, PLANS and the E list below,
-// then update the date line in the header. plan is "first", "stop" or "other"; hs is the
-// employer's Handshake id (the number in app.joinhandshake.com/e/<id>).
+// FAIR DATA. To add a fair, add its employer list below and an entry at the top of FAIRS.
+// Each employer: n (name), web, hq, cat, plan ("first", "stop" or "other"), roles (keys of ROLES), rec.
+// "first" and "stop" employers also have lead and ask. Optional: found (roles seen on its careers
+// pages), link (an example posting), auth (work authorization notes), defense (true for defense and
+// military employers), hs (Handshake employer id, the number in app.joinhandshake.com/e/<id>).
 const ROLES = {
   data: "Data analyst",
   biz: "Business analyst",
@@ -208,16 +220,220 @@ const ROLES = {
   ops: "Operations & supply chain",
   mkt: "Marketing & e-commerce",
   pub: "Public sector analyst",
-  cons: "Consulting analyst"
+  cons: "Consulting analyst",
+  sys: "Business systems analyst"
 };
+const PLANS = { first: "Visit first", stop: "Worth a stop", other: "Other roles" };
 
-const PLANS = {
-  first: { label: "Visit first", note: "Hire analysts regularly" },
-  stop: { label: "Worth a stop", note: "Some analyst roles; ask first" },
-  other: { label: "Other roles", note: "Not recruiting analysts" }
-};
+const STEM = [
+  // Visit first: analyst or operations teams that hire new grads
+  { n: "Edwards Lifesciences", web: "http://www.edwards.com", hq: "Irvine, CA", cat: "Medical devices", plan: "first", roles: ["biz", "fin", "ops", "data"],
+    rec: "Irvine-headquartered heart-valve company. Its fair recruiting is mostly for engineering and summer internships.",
+    found: "Irvine headquarters roles include Analyst, Sales Operations Analytics (onsite), Senior Analyst, Strategy, Senior Financial Analyst and Senior Analyst, Commercial Sales Contracts. Its Summer 2027 Irvine Supply Chain Internship feeds new-grad programs, so supply chain hires new grads too. Whether these analyst teams hire master's grads directly is unclear.",
+    link: "https://edwards.com/job/38633/analyst-sales-operations-analytics",
+    auth: "Its 2027 internships rule out visa sponsorship; the policy for full-time roles wasn't stated.",
+    lead: "SQL and Power BI or Tableau, sales or operations reporting, healthcare experience.",
+    ask: "Which Irvine teams hire analysts out of master's programs: sales operations, strategy, finance or supply chain? When do roles for 2027 grads post, do you sponsor visas, and who should I follow up with?" },
+  { n: "AbbVie – Operations", web: "https://careers.abbvie.com", hq: "North Chicago, IL", cat: "Pharma", plan: "first", roles: ["fin", "mkt", "data", "ops", "sys"],
+    rec: "Pharma company whose Irvine site is home to Allergan Aesthetics. Its fair entry is for Business Technology Solutions internships.",
+    found: "Irvine roles include Financial Analyst (FP&A for commercial brands), Finance Analyst, Senior Analyst roles in Marketing Business Intelligence (pricing analytics and contract insights) and a Logistics Analyst. Most ask for 2–4+ years of experience. Its tech interns move into a two-year rotational Business Systems Analyst program, but the 2027 internships are labeled undergraduate.",
+    link: "https://careers.abbvie.com/job/finance-analyst-in-irvine-ca-jid-23869",
+    auth: "Its 2027 internships require US work authorization.",
+    lead: "FP&A and Excel modeling, pricing or commercial analytics, SQL.",
+    ask: "Which Irvine teams hire analysts with a master's but little experience: commercial analytics, finance or operations? When do 2027 roles post, do you sponsor visas, and who in Allergan Aesthetics recruiting should I contact?" },
+  { n: "Niagara Bottling", web: "https://careers.niagarawater.com/campus", hq: "Diamond Bar, CA", cat: "Beverage manufacturing", plan: "first", roles: ["ops", "data", "fin"],
+    rec: "Family-owned bottler headquartered in Diamond Bar. Its fair recruiting is for Summer 2027 interns.",
+    found: "Diamond Bar headquarters roles include Customer Analytics Analyst II, Financial Analyst II (including revenue and manufacturing), Senior Supply Chain Analyst for supply network planning (remote allowed), Senior Commodity Analyst and Senior Data Analyst for manufacturing data. The II and Senior titles suggest a few years of experience; an entry-level analyst title wasn't found.",
+    lead: "SQL, supply chain or demand planning coursework, Lean or process improvement.",
+    ask: "Which Diamond Bar teams hire analysts right after a master's: supply chain planning, customer analytics or finance? When do 2027 roles post, do you sponsor visas, and who should I follow up with?" },
+  { n: "Danaher (incl. Beckman Coulter)", web: "https://jobs.danaher.com/global/en", hq: "Washington, DC", cat: "Life sciences & diagnostics", plan: "first", roles: ["biz", "fin", "data", "sys"],
+    rec: "Science and diagnostics group. One of its companies, Beckman Coulter Diagnostics, is based in Brea.",
+    found: "Brea postings include Business Analyst, IT Business Analyst, Analyst I – Proposals ($28–36/hour, contract and deal analysis) and accounting analysts. Its Brea analytics and operations finance internships point to BI and finance teams there. How much experience each role needs varies.",
+    lead: "Power BI or Tableau, SQL, financial or deal analysis.",
+    ask: "Which Beckman Coulter teams in Brea hire master's grads as analysts? When do 2027 roles usually post, do you sponsor visas, and who should I follow up with?" },
+  { n: "Southern California Edison", web: "https://www.edisoncareers.com/", hq: "Rosemead, CA", cat: "Utility", plan: "first", roles: ["fin", "data", "biz"],
+    rec: "Electric utility serving Southern California. Its fair recruiting covers engineering and Summer 2027 internships.",
+    found: "Analyst roles found are mostly finance in Rosemead: Associate Financial Analyst (closest to entry level), Financial Analyst – Associate Specialist (hybrid) and Financial Forecasting & Data Analyst Specialist (spend forecasts in SAP). Its many 2027 data analytics internships point to analytics teams across the company.",
+    auth: "Its internships require US work authorization without sponsorship; the policy for full-time roles wasn't stated.",
+    lead: "Forecasting, Excel modeling, SQL or Python, SAP exposure.",
+    ask: "Beyond finance, which teams hire data or business analysts out of master's programs? When do 2027 roles post, do you sponsor visas, and who should I follow up with?" },
+  { n: "ITT Inc.", web: "https://www.itt.com/interns", hq: "Stamford, CT", cat: "Industrial manufacturing", plan: "first", roles: ["biz", "fin", "ops", "data"],
+    rec: "Engineered components maker. Its ITT Cannon connectors business is based in Irvine.",
+    found: "ITT Cannon in Irvine has posted Business Analyst (sales, 2026), Pricing Analyst (bill-of-materials cost and bookings analysis) and Senior SAP Analyst roles, plus a Summer 2027 Data Analytics / AI internship. The experience level for new grads is unclear.",
+    auth: "Its Irvine internship is open to US persons only under export-control rules, which may apply to some full-time roles.",
+    lead: "Pricing and cost analysis, SQL, SAP, Excel.",
+    ask: "Does ITT Cannon hire master's grads into business or pricing analyst roles in Irvine? When do they post, do they require US-person status or sponsor visas, and who should I follow up with?" },
+  { n: "Hyundai America Technical Center", web: "http://www.hatci.com", hq: "Superior Township, MI", cat: "Automotive R&D", plan: "first", roles: ["data", "biz"],
+    rec: "Hyundai's North American R&D center. Its Irvine office hosts the North America Quality Center.",
+    found: "The Irvine quality center has hired a Data Analyst and a Senior Data Analyst for quality analytics and reporting across Hyundai, Genesis and Kia (fully onsite; senior pay listed at $115,000–155,000). HATCI also has a Business Data Analyst on its R&D strategy team in Michigan and a data science internship in Irvine.",
+    link: "https://careers-americas.hyundai.com/hatci/job/Irvine-Data-Analyst-%28North-America-Quality-Center-NAQC%29-CA-92618/1319722100",
+    lead: "SQL, Python or R, quality or warranty data, dashboards.",
+    ask: "Does the Irvine quality center hire master's grads as data analysts? When do 2027 roles post, do you sponsor visas, and who should I follow up with?" },
+  { n: "Keurig Dr Pepper", web: "https://careers.keurigdrpepper.com", hq: "Frisco, TX", cat: "Consumer goods", plan: "first", roles: ["fin", "ops", "mkt", "data"],
+    rec: "Coffee and soft-drink company headquartered in Frisco, TX and Burlington, MA. Its fair recruiting is for Summer 2027 interns.",
+    found: "Full-time roles include Financial Analyst (corporate FP&A in Burlington or Frisco, hybrid), Supply Chain Analyst (Frisco) and sales planning and analytics analysts who work with revenue growth management and category management. Its Summer 2027 data analytics and sales analyst internships show the same teams take students. No California roles were found.",
+    link: "https://careers.keurigdrpepper.com/en/job/frisco/supply-chain-analyst/42849/85283745584",
+    auth: "Its internships require US work authorization with no future sponsorship.",
+    lead: "Excel and SQL, Power BI or Tableau, retail or sales data.",
+    ask: "Which teams hire analysts straight out of a master's program, and are any roles in California or remote? When do 2027 roles post, do you sponsor visas, and who should I follow up with?" },
+  { n: "Veeva Systems – Generation Veeva", web: "http://www.veeva.com/generationveeva", hq: "Pleasanton, CA", cat: "Life sciences software", plan: "first", roles: ["cons", "data", "sys"],
+    rec: "Cloud software for pharma and biotech. Generation Veeva hires new grads into development programs.",
+    found: "Associate Business Consultant – Life Sciences Analytics is a full-time new-grad role in a 20-month Business Consulting Development Program built on Veeva's industry data. One posting lists a July 2027 start. No specific major is required, and locations vary by posting.",
+    link: "https://jobs.lever.co/veeva/ede654e5-8458-4cbc-8ec4-b7b768de168b",
+    lead: "SQL and Excel analysis, explaining data to clients, interest in pharma.",
+    ask: "Which offices hire for the Life Sciences Analytics track, and does it take master's grads? When does the 2027 cohort close, do you sponsor visas, and who should I follow up with?" },
+  { n: "Epic", web: "https://careers.epic.com/", hq: "Verona, WI", cat: "Healthcare software", plan: "first", roles: ["data", "biz", "health"],
+    rec: "Healthcare software company that hires many new grads from all majors. Jobs are on-site in Verona, Wisconsin.",
+    found: "Analyst roles include Division Operations Data Analyst (BI, reporting and process improvement) and Financial Performance Analyst (operational metrics for healthcare customers). Epic hires heavily from campuses, and UW–Madison's MS in Business Analytics program has visited its Division Operations team.",
+    lead: "SQL, Excel, any healthcare exposure, working through messy problems quickly.",
+    ask: "Which roles do MS business analytics grads usually join? When do 2027 roles open, do you sponsor visas, and who should I follow up with?" },
+  { n: "Toast", web: "https://careers.toasttab.com", hq: "Boston, MA", cat: "Restaurant tech", plan: "first", roles: ["ops", "biz", "data", "sys"],
+    rec: "Restaurant point-of-sale and software company.",
+    found: "Has posted entry-level analyst roles: Workforce Management Analyst (Boston, $58K–93K), Analyst, Operations Analytics (remote US, $72K–115K; may have closed) and business systems analysts. Many of its roles are remote or hybrid.",
+    lead: "SQL, Salesforce data, operations metrics.",
+    ask: "Which teams hire entry-level analysts, and are remote roles open to people in California? When do 2027 roles post, do you sponsor visas, and who should I follow up with?" },
+  { n: "Western Digital", web: "https://jobs.westerndigital.com/university", hq: "San Jose, CA", cat: "Tech hardware", plan: "first", roles: ["ops", "fin", "mkt", "data"],
+    rec: "Data storage company headquartered in San Jose, with an office in Irvine.",
+    found: "Has hired new grads as New College Grad Supply Chain Planners (hard-drive supply planning in San Jose, about $54K–76K for a 2025 start). Its Summer 2027 finance and Irvine sales & marketing internships show those teams too. Analyst roles in Irvine are unclear.",
+    auth: "Some internship postings say no visa sponsorship.",
+    lead: "Supply chain planning, Excel and SQL, forecasting.",
+    ask: "Will there be New College Grad supply chain or finance roles for 2027, and do any sit in Irvine? Do you sponsor visas, and who should I follow up with?" },
+  { n: "Fast Enterprises", web: "http://www.fastenterprises.com/", hq: "Centennial, CO", cat: "Government software", plan: "first", roles: ["sys", "cons", "data"],
+    rec: "Builds tax and motor-vehicle software for state governments.",
+    found: "Hires new grads as Implementation Consultants who write SQL against client databases and configure its software. Postings mention 2027 start dates, fully in-office client work, and moving between US project sites every 2–3 years.",
+    lead: "SQL, relational databases, client communication.",
+    ask: "How much SQL and analysis is in the first year, and how are project locations assigned? When do 2027 start dates fill, do you sponsor visas, and who should I follow up with?" },
 
-const E = [
+  // Worth a stop: analyst roles exist, but the fit for new grads is unclear
+  { n: "Medtronic", web: "https://www.medtronic.com/us-en/our-company/careers/early-careers.html", hq: "Minneapolis, MN", cat: "Medical devices", plan: "stop", roles: ["fin", "ops"],
+    rec: "Medical device company with a large neurovascular business in Irvine.",
+    found: "Irvine analyst roles found are senior: Principal Financial Analyst for Neurovascular (onsite in Irvine or remote), Principal Supply Chain Analyst and supply chain planners. Its 2027 supply chain and finance internships are for bachelor's students, so the path for master's grads is unclear.",
+    auth: "Its internships don't sponsor visas; one job board lists sponsorship for a senior Irvine planner role.",
+    lead: "Supply chain or financial analysis, forecasting, inventory data.",
+    ask: "Do the Irvine neurovascular finance or supply chain teams hire master's grads at entry level? When do 2027 roles post, do you sponsor visas, and who should I follow up with?" },
+  { n: "Panasonic Avionics", web: "https://careers.na.panasonic.com/avionics", hq: "Lake Forest, CA", cat: "In-flight tech", plan: "stop", roles: ["data", "biz"],
+    rec: "In-flight entertainment company headquartered in Orange County. Its full-time openings are mostly engineering.",
+    found: "No full-time analyst openings were found; recent Orange County postings are engineering. It runs data science internships in Irvine each summer, which points to a data team there.",
+    lead: "Python or SQL, customer or product data.",
+    ask: "Which teams hire business or data analysts, and do they hire master's grads? When do 2027 roles post, do you sponsor visas, and who should I follow up with?" },
+  { n: "Parker Hannifin", web: "http://www.parker.com", hq: "Cleveland, OH", cat: "Manufacturing", plan: "stop", roles: ["ops", "fin"],
+    rec: "Motion and control company whose aerospace divisions are based in Irvine.",
+    found: "Irvine divisions (Fluid Systems and Military Flight Controls) hire supply chain planners, senior planners and procurement analysts, mostly experienced and some asking for CPIM. Supply chain interns can move into its Supply Chain Leadership Development program.",
+    auth: "Many roles require US citizenship or permanent residency.",
+    lead: "Supply chain planning, MRP and inventory data, Excel.",
+    ask: "Does the Supply Chain Leadership Development program take master's grads, and do Irvine divisions hire entry-level planners? When do 2027 roles post, and who should I follow up with?" },
+  { n: "Marvell Technology", web: "https://www.marvell.com/company/careers/", hq: "Santa Clara, CA", cat: "Tech hardware", plan: "stop", roles: ["fin", "ops", "biz"],
+    rec: "Chip company with a large Irvine office. Its fair recruiting is for engineering.",
+    found: "Irvine postings are mostly finance: Financial Analyst (listed as entry level, $91K–135K), Senior Financial Analysts for the storage business unit and workplace services, and accounting analysts. Santa Clara has a Program Inventory Ops Analyst and a pricing and margin Business Analyst.",
+    auth: "Its engineering internships have sponsored H-1B visas; the policy for analyst roles wasn't stated.",
+    lead: "Financial modeling, forecasting, Excel and BI dashboards.",
+    ask: "Does the Irvine finance team hire master's grads, and are there operations or business analyst roles in Irvine? When do 2027 roles post, and who should I follow up with?" },
+  { n: "Bloom Energy", web: "https://www.bloomenergy.com/", hq: "San Jose, CA", cat: "Energy", plan: "stop", roles: ["ops", "fin", "biz", "data"],
+    rec: "Fuel-cell power company that posts many supply chain and data internships.",
+    found: "Full-time roles found include Business Analyst, Asset Management Group (San Jose, onsite, fleet performance reports), senior financial analysts in San Jose and supply chain cost roles in Newark, DE. Its supply chain analytics internships point to more analyst teams. No Southern California roles were found.",
+    lead: "Tableau or Power BI, SQL, supply chain or performance reporting.",
+    ask: "Which teams hire analysts out of master's programs, and where are they based? When do 2027 roles post, do you sponsor visas, and who should I follow up with?" },
+  { n: "Hewlett Packard Enterprise", web: "https://careers.hpe.com/", hq: "Spring, TX", cat: "Tech", plan: "stop", roles: ["ops", "biz", "sys"],
+    rec: "Enterprise tech company hiring across engineering and business teams.",
+    found: "Business Operations Analyst I and II roles (supply chain and operations) mostly ask for 2–6 years. The graduate analyst roles found were outside the US. HPE Labs has a business analyst internship in AI and data science.",
+    lead: "Supply chain or operations analysis, Excel, Python.",
+    ask: "Does HPE hire master's grads into business operations analyst roles in the US? When do 2027 roles post, do you sponsor visas, and who should I follow up with?" },
+  { n: "Applied Medical", web: "https://appliedmedical.com/internships", hq: "Rancho Santa Margarita, CA", cat: "Medical devices", plan: "stop", roles: ["biz", "sys"],
+    rec: "Surgical device maker in Rancho Santa Margarita. Its fair entry is for the engineering team.",
+    found: "Rancho Santa Margarita postings include an entry-level Software Asset Management Analyst ($28–36/hour) and experienced SAP business and functional analysts in finance and sales. It offers internships across more than 25 departments.",
+    lead: "Process analysis, requirements gathering, SAP or other ERP exposure.",
+    ask: "Which business teams hire entry-level analysts, and do they consider master's grads? When do roles post, do you sponsor visas, and who should I follow up with?" },
+  { n: "Alcon", web: "http://www.alcon.com/careers", hq: "Fort Worth, TX", cat: "Eye care", plan: "stop", roles: ["fin", "ops", "data"],
+    rec: "Eye-care company whose US hub is Fort Worth, with drug development and clinical work in Lake Forest.",
+    found: "Analyst roles found are mainly finance and operations in Fort Worth and abroad. Its Lake Forest site focuses on drug development and clinical trials. Past interns did supply chain analytics with Tableau in Fort Worth.",
+    lead: "Tableau, supply chain reporting, financial analysis.",
+    ask: "Do any Southern California teams hire analysts, or are analyst roles centered in Fort Worth? When do 2027 roles post, do you sponsor visas, and who should I follow up with?" },
+  { n: "Fortive – Advanced Sterilization Products", web: "https://www.fortive.com", hq: "Irvine, CA", cat: "Medical devices", plan: "stop", roles: ["fin", "ops"],
+    rec: "ASP makes hospital sterilization systems and is based in Irvine.",
+    found: "No analyst openings were found; Irvine postings are engineering and R&D. Its Irvine finance internship is part of a Global Leadership Development Program, so a finance team and a leadership track exist there. Full-time hiring of new grads is unclear.",
+    lead: "Financial analysis, Excel models, continuous improvement.",
+    ask: "Does the Global Leadership Development Program hire master's grads full-time? Which Irvine teams hire analysts, and who should I follow up with?" },
+  { n: "Siemens – Smart Infrastructure", web: "https://jobs.siemens.com/", hq: "Washington, DC", cat: "Industrial tech", plan: "stop", roles: ["ops", "fin", "biz"],
+    rec: "Siemens' electrical products business.",
+    found: "US analyst roles found are experienced: Operations Analyst (Texas, Colorado, Nevada and Arizona; reporting and utilization metrics) and Financial Analyst (Illinois). The new-grad analyst roles found were outside the US, and its US leadership program is for engineers.",
+    lead: "Operations reporting, Excel, Salesforce.",
+    ask: "Are there US new-grad or rotational programs for analysts? Do any Southern California sites hire analysts, and who should I follow up with?" },
+  { n: "Murata Electronics", web: "https://jobs.murata.com/Murata", hq: "Smyrna, GA", cat: "Electronic components", plan: "stop", roles: ["ops", "data", "biz"],
+    rec: "Electronic components maker with an office in Irvine.",
+    found: "Irvine openings include a Demand Analyst and a Sales Operations Administration Analyst (also offered in Atlanta and Dallas). Its supply chain analyst roles in Georgia ask for 3+ years, so the level for new grads is unclear.",
+    link: "https://jobs.murata.com/Murata/job/Irvine-Demand-Analyst-CA-104175/1424118800/",
+    lead: "Demand forecasting, Excel and Power BI, supply chain data.",
+    ask: "Would the Irvine demand or sales operations teams hire a master's grad without full-time experience? When do roles post, do you sponsor visas, and who should I follow up with?" },
+  { n: "State Water Resources Control Board", web: "https://www.waterboards.ca.gov/", hq: "Sacramento, CA", cat: "Government", plan: "stop", roles: ["pub", "data"],
+    rec: "California's water quality regulator. Most of its fair recruiting is for engineers and scientists.",
+    found: "Hires student assistants and graduate students for data work through CalCareers. Full-time state analyst jobs also go through CalCareers and usually require passing an exam or assessment first; most Water Boards jobs are in Sacramento. Specific full-time openings weren't checked.",
+    lead: "Statistics, GIS, data cleaning, interest in public policy.",
+    ask: "Which offices hire analysts out of master's programs, and which state exam or job classification should I start with? Who should I follow up with?" },
+
+  // Other roles: not hiring analysts at this fair, or not researched
+  { n: "ACCO Engineered Systems", web: "http://www.accoes.com/", hq: "Pasadena, CA", cat: "Construction", plan: "other", roles: [], rec: "Mechanical contractor; engineering, project management and field roles." },
+  { n: "Air Force Test Center – 412th Test Engineering Group", web: "https://www.aftc.af.mil", hq: "Edwards AFB, CA", cat: "Defense", plan: "other", roles: [], defense: true, rec: "Civilian flight-test engineering at Edwards Air Force Base." },
+  { n: "Amca", web: "http://amca.com", hq: "El Segundo, CA", cat: "Defense", plan: "other", roles: [], defense: true, rec: "Builds critical components for aircraft, military vehicles and infrastructure." },
+  { n: "Apex Companies", web: "https://www.apexcos.com", hq: "Rockville, MD", cat: "Environmental consulting", plan: "other", roles: [], rec: "Water, environmental and infrastructure consulting; scientists and engineers." },
+  { n: "Arista Networks", web: "http://www.arista.com", hq: "Santa Clara, CA", cat: "Tech", plan: "other", roles: [], rec: "Cloud networking; recruiting software engineers." },
+  { n: "AVEVA", web: "https://www.aveva.com/en/about/careers/early-careers/", hq: "Cambridge, UK", cat: "Industrial software", plan: "other", roles: [], rec: "Graduate programs in R&D, IT, tech support, services, marketing and HR, with no analyst track listed." },
+  { n: "Balfour Beatty", web: "http://www.balfourbeattyus.com", hq: "Dallas, TX", cat: "Construction", plan: "other", roles: [], rec: "General contractor; construction management roles." },
+  { n: "Barksdale (Crane)", web: "http://www.barksdale.com/en/home/", hq: "Vernon, CA", cat: "Manufacturing", plan: "other", roles: [], rec: "Pressure, temperature and flow controls; engineering roles." },
+  { n: "Barnhart Crane and Rigging", web: "https://www.barnhartcrane.com", hq: "Memphis, TN", cat: "Engineering", plan: "other", roles: [], rec: "Heavy lifting and transport; engineering and field roles." },
+  { n: "Barry-Wehmiller – BW Design Group", web: "http://www.barry-wehmiller.com/", hq: "Clayton, MO", cat: "Engineering", plan: "other", roles: [], rec: "Architecture and engineering for manufacturers." },
+  { n: "Burns & McDonnell", web: "https://www.burnsmcd.com/", hq: "Kansas City, MO", cat: "Engineering", plan: "other", roles: [], rec: "Engineering, construction and architecture firm." },
+  { n: "C&V Consulting", web: "https://www.cvc-inc.net", hq: "Irvine, CA", cat: "Civil engineering", plan: "other", roles: [], rec: "Hiring civil engineering graduates as design engineers." },
+  { n: "Caliagua", web: "https://caliagua.net/", hq: "Anaheim, CA", cat: "Construction", plan: "other", roles: [], rec: "Water and wastewater infrastructure contractor." },
+  { n: "CIA – Directorate of Digital Innovation", web: "https://www.cia.gov/index.html", hq: "Washington, DC", cat: "Defense & intelligence", plan: "other", roles: [], defense: true, rec: "Intelligence agency recruiting for digital and technical roles." },
+  { n: "CRB", web: "https://www.crbgroup.com/", hq: "Plymouth Meeting, PA", cat: "Engineering", plan: "other", roles: [], rec: "Design and construction for life sciences and food facilities." },
+  { n: "DiCon Fiberoptics", web: "http://www.diconfiberoptics.com", hq: "Richmond, CA", cat: "Tech hardware", plan: "other", roles: [], rec: "Photonics and optical components; engineering roles." },
+  { n: "Divergent", web: "http://www.divergent.us", hq: "Torrance, CA", cat: "Manufacturing", plan: "other", roles: [], rec: "3D-printed vehicle structures. Openings found were engineering; its finance and operations hiring is unclear." },
+  { n: "Enterprise Automation (Tetra Tech)", web: "http://www.eaintegrator.com", hq: "Irvine, CA", cat: "Engineering", plan: "other", roles: [], rec: "Automation consulting and systems integration engineering." },
+  { n: "EwingCole", web: "http://www.ewingcole.com", hq: "Philadelphia, PA", cat: "Architecture", plan: "other", roles: [], rec: "Architecture, engineering and interior design, with an Irvine office." },
+  { n: "Hathaway Dinwiddie Construction", web: "http://www.hathawaydinwiddie.com", hq: "San Francisco, CA", cat: "Construction", plan: "other", roles: [], rec: "General contractor; project engineer roles." },
+  { n: "Hensel Phelps", web: "http://www.henselphelps.com/", hq: "Greeley, CO", cat: "Construction", plan: "other", roles: [], rec: "Employee-owned general contractor; field and project engineering." },
+  { n: "Hill & Peterson AFB Civilian Engineering", web: "https://afciviliancareers.com/", hq: "Hill AFB, UT", cat: "Defense", plan: "other", roles: [], defense: true, rec: "Civilian scientists and engineers for the Air Force." },
+  { n: "Hodess Cleanrooms", web: "https://www.hodesscleanrooms.com/", hq: "Attleboro, MA", cat: "Construction", plan: "other", roles: [], rec: "Cleanroom construction." },
+  { n: "Honeywell Aerospace – Control Systems", web: "https://aerospace.honeywell.com/", hq: "Phoenix, AZ", cat: "Aerospace", plan: "other", roles: [], rec: "Aerospace control systems; engineering roles." },
+  { n: "HORIBA Semiconductor", web: "http://www.horiba.com/", hq: "Irvine, CA", cat: "Tech hardware", plan: "other", roles: [], rec: "Its Americas headquarters is in Irvine. Analyst-type openings found were software and SAP roles." },
+  { n: "Huitt-Zollars", web: "http://www.huitt-zollars.com/", hq: "Dallas, TX", cat: "Engineering", plan: "other", roles: [], rec: "Architecture, engineering and surveying." },
+  { n: "indie Semiconductor", web: "https://www.indiesemi.com/interns", hq: "Aliso Viejo, CA", cat: "Tech hardware", plan: "other", roles: [], rec: "Automotive chips and sensors; engineering internships." },
+  { n: "Innovative Construction Solutions", web: "http://www.icsinc.tv", hq: "Dublin, CA", cat: "Construction", plan: "other", roles: [], rec: "Remediation and civil construction." },
+  { n: "Iris Technology", web: "https://www.iristechnology.com/", hq: "Irvine, CA", cat: "Defense", plan: "other", roles: [], defense: true, rec: "Components for aerospace and defense partners." },
+  { n: "Keck Graduate Institute", web: "http://www.kgi.edu", hq: "Claremont, CA", cat: "Graduate school", plan: "other", roles: [], rec: "Recruiting for biotech and health graduate programs." },
+  { n: "Kiewit", web: "https://kiewit.com/students", hq: "Omaha, NE", cat: "Construction", plan: "other", roles: [], rec: "Construction and engineering; field and project engineering." },
+  { n: "KPFF Consulting Engineers", web: "http://www.kpff.com/", hq: "Seattle, WA", cat: "Engineering", plan: "other", roles: [], rec: "Structural and civil engineering." },
+  { n: "Leonardo DRS", web: "http://www.leonardodrs.com/", hq: "Arlington, VA", cat: "Defense", plan: "other", roles: [], defense: true, rec: "Defense technology; two groups are at the fair (CYP and EOIS)." },
+  { n: "Los Angeles County Public Works", web: "http://dpw.lacounty.gov", hq: "Alhambra, CA", cat: "Government", plan: "other", roles: [], rec: "Recruiting civil engineers." },
+  { n: "Marine Corps Officer Programs", web: "http://www.marineofficer.com", hq: "Fountain Valley, CA", cat: "Military", plan: "other", roles: [], defense: true, rec: "Officer programs for college students." },
+  { n: "ME Engineers", web: "http://www.me-engineers.com", hq: "Golden, CO", cat: "Engineering", plan: "other", roles: [], rec: "Building systems engineering for major venues and hospitals." },
+  { n: "MKS", web: "https://www.mks.com/", hq: "Andover, MA", cat: "Tech hardware", plan: "other", roles: [], rec: "Instruments and process control for semiconductor manufacturing; engineering roles." },
+  { n: "Moffatt & Nichol", web: "https://www.moffattnichol.com/careers", hq: "Long Beach, CA", cat: "Engineering", plan: "other", roles: [], rec: "Coastal, port and transportation engineering." },
+  { n: "NAVAIR – Weapons Division", web: "https://www.navair.navy.mil/nawcwd/", hq: "Patuxent River, MD", cat: "Defense", plan: "other", roles: [], defense: true, rec: "Navy civilian engineering and science careers." },
+  { n: "Naval Surface Warfare Center Port Hueneme", web: "https://www.navsea.navy.mil/Home/Warfare-Centers/NSWC-Port-Hueneme/", hq: "Port Hueneme, CA", cat: "Defense", plan: "other", roles: [], defense: true, rec: "Navy engineering and logistics." },
+  { n: "Nikkiso Clean Energy & Industrial Gases", web: "https://www.nikkisoceig.com/", hq: "Temecula, CA", cat: "Energy", plan: "other", roles: [], rec: "Cryogenic pumps and LNG systems; engineering roles." },
+  { n: "Northrop Grumman", web: "http://www.northropgrumman.com", hq: "Falls Church, VA", cat: "Defense", plan: "other", roles: [], defense: true, rec: "Defense and space contractor." },
+  { n: "OHLA USA", web: "http://www.ohla-usa.com", hq: "College Point, NY", cat: "Construction", plan: "other", roles: [], rec: "Highway, tunnel, bridge and transit construction." },
+  { n: "PBF Energy – Torrance Refining", web: "http://www.pbfenergy.com", hq: "Parsippany, NJ", cat: "Energy", plan: "other", roles: [], rec: "Refinery engineering internships, including at Torrance." },
+  { n: "Pearl Harbor Naval Shipyard", web: "https://www.navsea.navy.mil/Home/Shipyards/PHNS-IMF/", hq: "Pearl Harbor, HI", cat: "Defense", plan: "other", roles: [], defense: true, rec: "Navy shipyard engineering." },
+  { n: "Puget Sound Naval Shipyard", web: "https://www.navsea.navy.mil/home/shipyards/psns-imf/", hq: "Bremerton, WA", cat: "Defense", plan: "other", roles: [], defense: true, rec: "Navy shipyard; entry-level roles for engineering, business and science majors." },
+  { n: "RoviSys", web: "http://www.rovisys.com", hq: "Aurora, OH", cat: "Engineering", plan: "other", roles: [], rec: "Automation and controls engineering." },
+  { n: "RTX", web: "https://careers.rtx.com/global/en/campus", hq: "Washington, DC", cat: "Defense", plan: "other", roles: [], defense: true, rec: "Aerospace and defense: Collins Aerospace, Pratt & Whitney and Raytheon." },
+  { n: "Siegfried", web: "http://www.siegfried.ch/about-siegfried/", hq: "Irvine, CA", cat: "Pharma manufacturing", plan: "other", roles: [], rec: "Makes drug ingredients and finished doses, with a site in Irvine." },
+  { n: "Southland Industries", web: "https://southlandind.com/", hq: "Garden Grove, CA", cat: "Construction", plan: "other", roles: [], rec: "Building systems engineering and construction." },
+  { n: "Starpath Robotics", web: "https://starpath.space/", hq: "Hawthorne, CA", cat: "Space", plan: "other", roles: [], rec: "Robots for producing water, power and oxygen on the Moon; engineering roles." },
+  { n: "Teach For America", web: "http://www.teachforamerica.org", hq: "New York, NY", cat: "Education", plan: "other", roles: [], rec: "Teaching and virtual tutoring roles." },
+  { n: "City of Los Angeles – Bureau of Engineering", web: "https://engineering.lacity.gov/", hq: "Los Angeles, CA", cat: "Government", plan: "other", roles: [], rec: "Engineering for city buildings, streets and infrastructure." },
+  { n: "theCoderSchool – Irvine", web: "http://www.thecoderschool.com/", hq: "Palo Alto, CA", cat: "Education", plan: "other", roles: [], rec: "Part-time coding coaches for kids." },
+  { n: "Think Academy US", web: "https://www.thethinkacademy.com/", hq: "San Jose, CA", cat: "Education", plan: "other", roles: [], rec: "K–12 math and science teaching." },
+  { n: "Trinity Consultants", web: "http://www.trinityconsultants.com", hq: "Dallas, TX", cat: "Environmental consulting", plan: "other", roles: [], rec: "Environmental, health and safety consulting." },
+  { n: "U.S. Navy", web: "https://www.navy.com/", hq: "Millington, TN", cat: "Military", plan: "other", roles: [], defense: true, rec: "Officer and enlisted programs." },
+  { n: "UC Irvine – School of Education", web: "http://education.uci.edu", hq: "Irvine, CA", cat: "UC & campus", plan: "other", roles: [], rec: "Recruiting for education graduate programs." },
+  { n: "VCC", web: "http://www.vccusa.com", hq: "Little Rock, AR", cat: "Construction", plan: "other", roles: [], rec: "General contractor." },
+  { n: "Whiting-Turner", web: "http://www.whiting-turner.com", hq: "Towson, MD", cat: "Construction", plan: "other", roles: [], rec: "Construction management and general contracting." }
+];
+
+const FALL = [
   // Visit first
   { n: "Qualcomm – Finance & Accounting", hs: 30644, web: "https://www.qualcomm.com/company/careers/internships-and-early-in-career-opportunities", hq: "San Diego, CA", cat: "Tech", plan: "first", roles: ["fin", "biz"],
     rec: "Finance and accounting interns and early-career hires who work on planning, forecasting and reporting.",
@@ -362,13 +578,25 @@ const E = [
   { n: "UCI Medical Center – Volunteer Services", hs: 470116, web: "http://www.ucihealth.org/volunteer", hq: "Orange, CA", cat: "Healthcare", plan: "other", roles: [], rec: "Hospital volunteer roles." },
   { n: "YMCA of Orange County – Childcare", hs: 116418, web: "http://www.ymcaoc.org/careers/", hq: "Tustin, CA", cat: "Education", plan: "other", roles: [], rec: "Childcare and youth program staff." }
 ];
+const FAIRS = [
+  { id: "stem-oct-2026", tab: "STEM Fair · Oct 15", name: "Fall STEM Career & Internship Fair", date: "2026-10-15",
+    when: "Thu, Oct 15, 2026 · 10 am–2 pm", place: "UCI Student Center", employers: STEM,
+    sub: "For business analytics students looking for full-time roles: all {n} employers at the fair, ranked by whether they have analyst, business operations or operations teams that hire master's grads. Select a row to see those teams, where they are, and what to ask at the table.",
+    labels: { rec: "At the fair", found: "Full-time analyst roles" },
+    source: "Built from the fair's Handshake employer list on Oct 12, 2026, when careers pages and job boards were also checked for full-time analyst roles. Postings change often. Defense and military employers, and most construction and engineering firms, weren't researched. Leonardo DRS has two entries on Handshake and is listed once here." },
+  { id: "career-oct-2026", tab: "Career Fair · Oct 8", name: "Fall Career & Internship Fair", date: "2026-10-08",
+    when: "Thu, Oct 8, 2026 · 10 am–2 pm", place: "UCI Student Center", employers: FALL,
+    sub: "For business analytics students: all {n} employers at the fair, ranked by how likely they are to hire analysts. Select a row to see what an employer is recruiting for, which skills to highlight, and a question to ask at their table.",
+    labels: { rec: "Recruiting for", found: "On their careers page" },
+    source: "Built from the fair's Handshake employer list on Oct 7, 2026. RTX appears twice on Handshake (RTX and RTX – Raytheon) and is listed once here." }
+];
 
-
-const SHORT = { data: "Data", biz: "Business", fin: "Financial", health: "Healthcare", risk: "Risk & pricing", ops: "Ops & supply chain", mkt: "Marketing & e-com", pub: "Public sector", cons: "Consulting" };
+const SHORT = { data: "Data", biz: "Business", fin: "Financial", health: "Healthcare", risk: "Risk & pricing", ops: "Ops & supply chain", mkt: "Marketing & e-com", pub: "Public sector", cons: "Consulting", sys: "Systems" };
 const SEG = { first: "Visit first", stop: "Worth a stop", other: "Other" };
+const PLAN_ORDER = { first: 0, stop: 1, other: 2 };
 const HS = id => "https://app.joinhandshake.com/e/" + id;
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-const PLAN_ORDER = { first: 0, stop: 1, other: 2 };
+const slug = s => String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 const BOOKMARK = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2h8v12l-4-3-4 3z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>';
 const CHEV = '<svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
@@ -378,29 +606,72 @@ function initials(name) {
   return (words[0][0] + (words[1] ? words[1][0] : words[0][1] || "")).toUpperCase();
 }
 
-const KEY = "fall-fair-analyst-guide.saved";
-let saved = new Set();
-try { saved = new Set(JSON.parse(localStorage.getItem(KEY) || "[]")); } catch (e) {}
-function persist() { try { localStorage.setItem(KEY, JSON.stringify([...saved])); } catch (e) {} }
+function localDate() {
+  const d = new Date();
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+}
 
+// Opens the fair named in the link (#id), else the next upcoming fair, else the most recent one.
+function pickFair() {
+  const named = FAIRS.find(f => "#" + f.id === location.hash);
+  if (named) return named;
+  const today = localDate();
+  const upcoming = FAIRS.filter(f => f.date >= today).sort((a, b) => a.date.localeCompare(b.date));
+  return upcoming[0] || [...FAIRS].sort((a, b) => b.date.localeCompare(a.date))[0];
+}
+
+const KEY = "fall-fair-analyst-guide.saved";
+const PREF = "fall-fair-analyst-guide.hide-defense";
+let saved = new Set();
+let hideDefense = false;
+try {
+  // The first version saved bare Handshake ids, all from the Oct 8 fair.
+  saved = new Set(JSON.parse(localStorage.getItem(KEY) || "[]").map(v => typeof v === "number" ? "career-oct-2026:" + v : v));
+  hideDefense = localStorage.getItem(PREF) === "1";
+} catch (e) {}
+function persist() {
+  try {
+    localStorage.setItem(KEY, JSON.stringify([...saved]));
+    localStorage.setItem(PREF, hideDefense ? "1" : "0");
+  } catch (e) {}
+}
+
+let fair = pickFair();
 const state = { q: "", plan: "all", role: "", savedOnly: false, sort: "plan", dir: 1 };
 const open = new Set();
+const keyOf = e => fair.id + ":" + (e.hs || slug(e.n));
+const pool = () => fair.employers.filter(e => !(hideDefense && e.defense));
 
-function setupFilters() {
-  const plans = [["all", "All", E.length], ...Object.keys(PLANS).map(k => [k, SEG[k], E.filter(e => e.plan === k).length])];
-  document.getElementById("plan-seg").innerHTML = plans.map(([k, label, n]) =>
-    `<button type="button" data-plan="${k}" aria-pressed="${k === state.plan}">${k !== "all" ? `<span class="dot ${k}"></span>` : ""}${label} <span class="n">${n}</span></button>`).join("");
-  const counts = Object.keys(ROLES).map(r => [r, E.filter(e => e.roles.includes(r)).length]).sort((a, b) => b[1] - a[1]);
+function setupFair() {
+  const E = fair.employers;
+  document.getElementById("fair-tabs").innerHTML = FAIRS.map(f =>
+    `<button type="button" data-fair="${f.id}" aria-pressed="${f === fair}">${esc(f.tab)}</button>`).join("");
+  document.getElementById("eyebrow").textContent = `UCI ${fair.name} · ${fair.when} · ${fair.place}`;
+  document.getElementById("sub").textContent = fair.sub.replace("{n}", E.length);
+  document.getElementById("source").textContent = fair.source;
+  document.getElementById("defense-toggle").hidden = !E.some(e => e.defense);
+  const counts = Object.keys(ROLES).map(r => [r, E.filter(e => e.roles.includes(r)).length]).filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1]);
   document.getElementById("role").innerHTML = `<option value="">All analyst roles</option>` +
     counts.map(([r, n]) => `<option value="${r}">${esc(ROLES[r])} (${n})</option>`).join("");
+  document.getElementById("role").value = state.role;
+}
+
+function switchFair(next) {
+  fair = next;
+  Object.assign(state, { q: "", plan: "all", role: "", savedOnly: false });
+  open.clear();
+  document.getElementById("q").value = "";
+  try { history.replaceState(null, "", "#" + fair.id); } catch (e) {}
+  setupFair();
+  render();
 }
 
 function matches(e) {
   if (state.plan !== "all" && e.plan !== state.plan) return false;
   if (state.role && !e.roles.includes(state.role)) return false;
-  if (state.savedOnly && !saved.has(e.hs)) return false;
+  if (state.savedOnly && !saved.has(keyOf(e))) return false;
   if (state.q) {
-    const hay = [e.n, e.cat, e.hq, e.rec, ...e.roles.map(r => ROLES[r])].join(" ").toLowerCase();
+    const hay = [e.n, e.cat, e.hq, e.rec, e.found || "", ...e.roles.map(r => ROLES[r])].join(" ").toLowerCase();
     return state.q.split(/\s+/).every(w => hay.includes(w));
   }
   return true;
@@ -422,21 +693,29 @@ function tags(e, limit, full) {
 }
 
 function item(e) {
-  const id = "d" + e.hs;
-  const isOpen = open.has(e.hs);
-  const on = saved.has(e.hs);
-  const planLabel = PLANS[e.plan].label;
+  const k = keyOf(e);
+  const id = "d-" + slug(k);
+  const isOpen = open.has(k);
+  const on = saved.has(k);
+  const planLabel = PLANS[e.plan];
+  const found = e.found || e.auth ? `<div class="found">
+      ${e.found ? `<h4>${fair.labels.found}</h4><p>${esc(e.found)}${e.link ? ` <a href="${esc(e.link)}" target="_blank" rel="noopener">Example posting ↗</a>` : ""}</p>` : ""}
+      ${e.auth ? `<p class="auth">${esc(e.auth)}</p>` : ""}
+    </div>` : "";
   const detail = e.plan === "other"
-    ? `<div class="detail-grid single"><div><h4>Recruiting for</h4><p>${esc(e.rec)}</p></div></div>`
+    ? `<div class="detail-grid single"><div><h4>${fair.labels.rec}</h4><p>${esc(e.rec)}</p></div></div>`
     : `<div class="detail-roles"><h4>Analyst roles</h4><div class="roles">${tags(e, 0, true)}</div></div>
+       ${found}
        <div class="detail-grid">
-         <div><h4>Recruiting for</h4><p>${esc(e.rec)}</p></div>
+         <div><h4>${fair.labels.rec}</h4><p>${esc(e.rec)}</p></div>
          <div><h4>Skills to highlight</h4><p>${esc(e.lead)}</p></div>
          <div class="ask"><h4>Ask them</h4><p>${esc(e.ask)}</p></div>
        </div>`;
+  const links = (e.hs ? `<a href="${HS(e.hs)}" target="_blank" rel="noopener">Handshake profile ↗</a>` : "") +
+    `<a href="${esc(e.web)}" target="_blank" rel="noopener">Careers site ↗</a>`;
   return `<li class="item">
     <div class="row cols">
-      <button class="hit" type="button" data-open="${e.hs}" aria-expanded="${isOpen}" aria-controls="${id}">
+      <button class="hit" type="button" data-open="${esc(k)}" aria-expanded="${isOpen}" aria-controls="${id}">
         <span class="emp">
           <span class="logo" aria-hidden="true">${esc(initials(e.n))}</span>
           <span class="emp-text">
@@ -448,23 +727,31 @@ function item(e) {
         <span class="roles c-roles">${tags(e, 3)}</span>
         <span class="chev">${CHEV}</span>
       </button>
-      <button class="save" type="button" data-save="${e.hs}" aria-pressed="${on}" aria-label="${on ? "Remove" : "Save"} ${esc(e.n)}" title="${on ? "Saved" : "Save"}">${BOOKMARK}</button>
+      <button class="save" type="button" data-save="${esc(k)}" aria-pressed="${on}" aria-label="${on ? "Remove" : "Save"} ${esc(e.n)}" title="${on ? "Saved" : "Save"}">${BOOKMARK}</button>
     </div>
     <div class="detail" id="${id}" ${isOpen ? "" : "hidden"}>
       ${detail}
-      <div class="links"><a href="${HS(e.hs)}" target="_blank" rel="noopener">Handshake profile ↗</a><a href="${esc(e.web)}" target="_blank" rel="noopener">Careers site ↗</a></div>
+      <div class="links">${links}</div>
     </div>
   </li>`;
 }
 
 function render() {
-  const list = sorted(E.filter(matches));
+  const P = pool();
+  const plans = [["all", "All", P.length], ...Object.keys(PLANS).map(k => [k, SEG[k], P.filter(e => e.plan === k).length])];
+  document.getElementById("plan-seg").innerHTML = plans.map(([k, label, n]) =>
+    `<button type="button" data-plan="${k}" aria-pressed="${k === state.plan}">${k !== "all" ? `<span class="dot ${k}"></span>` : ""}${label} <span class="n">${n}</span></button>`).join("");
+
+  const list = sorted(P.filter(matches));
+  const hidden = fair.employers.length - P.length;
   document.getElementById("list").innerHTML = list.map(item).join("");
   document.getElementById("empty").hidden = list.length > 0;
-  document.getElementById("result-count").textContent = list.length === E.length ? `${E.length} employers` : `${list.length} of ${E.length} employers`;
-  document.getElementById("saved-n").textContent = saved.size;
+  document.getElementById("result-count").textContent =
+    (list.length === P.length ? `${P.length} employers` : `${list.length} of ${P.length} employers`) +
+    (hidden ? ` · ${hidden} defense hidden` : "");
+  document.getElementById("saved-n").textContent = [...saved].filter(k => k.startsWith(fair.id + ":")).length;
   document.getElementById("saved-toggle").setAttribute("aria-pressed", state.savedOnly);
-  document.querySelectorAll("[data-plan]").forEach(b => b.setAttribute("aria-pressed", b.dataset.plan === state.plan));
+  document.getElementById("defense-toggle").setAttribute("aria-pressed", hideDefense);
   document.querySelectorAll("[data-sort]").forEach(b => {
     const active = b.dataset.sort === state.sort;
     b.dataset.active = active;
@@ -475,30 +762,37 @@ function render() {
 document.addEventListener("click", ev => {
   const t = ev.target;
   const s = t.closest("[data-save]");
-  if (s) { const id = Number(s.dataset.save); saved.has(id) ? saved.delete(id) : saved.add(id); persist(); render(); return; }
+  if (s) { const k = s.dataset.save; saved.has(k) ? saved.delete(k) : saved.add(k); persist(); render(); return; }
   const o = t.closest("[data-open]");
   if (o) {
-    const id = Number(o.dataset.open);
-    const nowOpen = !open.has(id);
-    nowOpen ? open.add(id) : open.delete(id);
+    const k = o.dataset.open;
+    const nowOpen = !open.has(k);
+    nowOpen ? open.add(k) : open.delete(k);
     o.setAttribute("aria-expanded", nowOpen);
-    document.getElementById("d" + id).hidden = !nowOpen;
+    document.getElementById(o.getAttribute("aria-controls")).hidden = !nowOpen;
     return;
   }
+  const f = t.closest("[data-fair]");
+  if (f) { const next = FAIRS.find(x => x.id === f.dataset.fair); if (next && next !== fair) switchFair(next); return; }
   const p = t.closest("[data-plan]");
   if (p) { state.plan = p.dataset.plan; render(); return; }
   const so = t.closest("[data-sort]");
   if (so) { state.dir = state.sort === so.dataset.sort ? -state.dir : 1; state.sort = so.dataset.sort; render(); return; }
 });
+window.addEventListener("hashchange", () => {
+  const next = FAIRS.find(x => "#" + x.id === location.hash);
+  if (next && next !== fair) switchFair(next);
+});
 document.getElementById("q").addEventListener("input", ev => { state.q = ev.target.value.trim().toLowerCase(); render(); });
 document.getElementById("role").addEventListener("change", ev => { state.role = ev.target.value; render(); });
 document.getElementById("saved-toggle").addEventListener("click", () => { state.savedOnly = !state.savedOnly; render(); });
+document.getElementById("defense-toggle").addEventListener("click", () => { hideDefense = !hideDefense; persist(); render(); });
 document.getElementById("clear-all").addEventListener("click", () => {
   Object.assign(state, { q: "", plan: "all", role: "", savedOnly: false });
   document.getElementById("q").value = ""; document.getElementById("role").value = ""; render();
 });
 
-setupFilters();
+setupFair();
 render();
 </script>
 
