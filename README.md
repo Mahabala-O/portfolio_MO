@@ -11,7 +11,7 @@ Personal portfolio at [portfolio-mo.vercel.app](https://portfolio-mo.vercel.app)
 | Resume | `pages/resume.mdx` (editing notes are at the top of the file) |
 | Header navigation | `NAV` in `components/site-header.js` |
 | Colors for light and dark mode | CSS variables at the top of `styles/main.css` |
-| Career-fair guide at `/fair-guide` | `public/fair-guide.html`, a standalone page outside the site layout. Employer data is the list at the top of its script (`ROLES`, `PLANS`, `E`). |
+| Career-fair guide at `/fair-guide` | `public/fair-guide.html`, a standalone page outside the site layout. Each fair is an employer list plus an entry in `FAIRS` at the top of its script; the comment there lists the fields. Link to one fair with `/fair-guide#<fair id>`. |
 
 ### Adding a project
 
