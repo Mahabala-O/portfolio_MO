@@ -132,6 +132,9 @@ footer p { margin: 0; }
 .fair-tabs button { height: 30px; padding: 0 12px; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; cursor: pointer; font-size: 13px; color: var(--muted); }
 .fair-tabs button:hover { color: var(--ink); }
 .fair-tabs button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.fair-tabs .when { opacity: .7; }
+.notice { margin: 4px 0 0; padding: 8px 12px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; color: var(--ink); font-size: 13.5px; max-width: 80ch; }
+.detail h4 .asof { text-transform: none; letter-spacing: 0; }
 .found { display: grid; gap: 4px; max-width: 90ch; }
 .found a { white-space: nowrap; }
 .detail .found .auth { color: var(--muted); font-size: 13px; }
@@ -161,6 +164,7 @@ footer p { margin: 0; }
     <p class="eyebrow" id="eyebrow"></p>
     <h1>Fall Fair Analyst Guide</h1>
     <p class="sub" id="sub"></p>
+    <p class="notice" id="notice" hidden></p>
   </header>
 
   <div class="filters">
@@ -207,6 +211,8 @@ footer p { margin: 0; }
 
 <script>
 // FAIR DATA. To add a fair, add its employer list below and an entry at the top of FAIRS.
+// In FAIRS, date is the fair day and checked is when its employer notes were gathered (both YYYY-MM-DD);
+// the page works out "in 3 days", "today" or "past" from them, so nothing else needs a date update.
 // Each employer: n (name), web, hq, cat, plan ("first", "stop" or "other"), roles (keys of ROLES), rec.
 // "first" and "stop" employers also have lead and ask. Optional: found (roles seen on its careers
 // pages), link (an example posting), auth (work authorization notes), defense (true for defense and
@@ -580,12 +586,12 @@ const FALL = [
 ];
 const FAIRS = [
   { id: "stem-oct-2026", tab: "STEM Fair · Oct 15", name: "Fall STEM Career & Internship Fair", date: "2026-10-15",
-    when: "Thu, Oct 15, 2026 · 10 am–2 pm", place: "UCI Student Center", employers: STEM,
+    when: "Thu, Oct 15, 2026 · 10 am–2 pm", hours: "10 am–2 pm", place: "UCI Student Center", checked: "2026-10-12", employers: STEM,
     sub: "For business analytics students looking for full-time roles: all {n} employers at the fair, ranked by whether they have analyst, business operations or operations teams that hire master's grads. Select a row to see those teams, where they are, and what to ask at the table.",
     labels: { rec: "At the fair", found: "Full-time analyst roles" },
     source: "Built from the fair's Handshake employer list on Oct 12, 2026, when careers pages and job boards were also checked for full-time analyst roles. Postings change often. Defense and military employers, and most construction and engineering firms, weren't researched. Leonardo DRS has two entries on Handshake and is listed once here." },
   { id: "career-oct-2026", tab: "Career Fair · Oct 8", name: "Fall Career & Internship Fair", date: "2026-10-08",
-    when: "Thu, Oct 8, 2026 · 10 am–2 pm", place: "UCI Student Center", employers: FALL,
+    when: "Thu, Oct 8, 2026 · 10 am–2 pm", hours: "10 am–2 pm", place: "UCI Student Center", checked: "2026-10-07", employers: FALL,
     sub: "For business analytics students: all {n} employers at the fair, ranked by how likely they are to hire analysts. Select a row to see what an employer is recruiting for, which skills to highlight, and a question to ask at their table.",
     labels: { rec: "Recruiting for", found: "On their careers page" },
     source: "Built from the fair's Handshake employer list on Oct 7, 2026. RTX appears twice on Handshake (RTX and RTX – Raytheon) and is listed once here." }
@@ -606,17 +612,23 @@ function initials(name) {
   return (words[0][0] + (words[1] ? words[1][0] : words[0][1] || "")).toUpperCase();
 }
 
-function localDate() {
-  const d = new Date();
-  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+function parseDay(iso) { const [y, m, d] = iso.split("-").map(Number); return new Date(y, m - 1, d); }
+function fmtDay(iso) { const d = parseDay(iso); return `${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`; }
+function daysUntil(iso) {
+  const now = new Date();
+  return Math.round((parseDay(iso) - new Date(now.getFullYear(), now.getMonth(), now.getDate())) / 86400000);
+}
+function status(f) {
+  const n = daysUntil(f.date);
+  return n < 0 ? "Past" : n === 0 ? "Today" : n === 1 ? "Tomorrow" : `In ${n} days`;
 }
 
 // Opens the fair named in the link (#id), else the next upcoming fair, else the most recent one.
 function pickFair() {
   const named = FAIRS.find(f => "#" + f.id === location.hash);
   if (named) return named;
-  const today = localDate();
-  const upcoming = FAIRS.filter(f => f.date >= today).sort((a, b) => a.date.localeCompare(b.date));
+  const upcoming = FAIRS.filter(f => daysUntil(f.date) >= 0).sort((a, b) => a.date.localeCompare(b.date));
   return upcoming[0] || [...FAIRS].sort((a, b) => b.date.localeCompare(a.date))[0];
 }
 
@@ -645,10 +657,16 @@ const pool = () => fair.employers.filter(e => !(hideDefense && e.defense));
 function setupFair() {
   const E = fair.employers;
   document.getElementById("fair-tabs").innerHTML = FAIRS.map(f =>
-    `<button type="button" data-fair="${f.id}" aria-pressed="${f === fair}">${esc(f.tab)}</button>`).join("");
+    `<button type="button" data-fair="${f.id}" aria-pressed="${f === fair}">${esc(f.tab)}<span class="when"> · ${status(f)}</span></button>`).join("");
   document.getElementById("eyebrow").textContent = `UCI ${fair.name} · ${fair.when} · ${fair.place}`;
   document.getElementById("sub").textContent = fair.sub.replace("{n}", E.length);
   document.getElementById("source").textContent = fair.source;
+  const days = daysUntil(fair.date);
+  const notice = document.getElementById("notice");
+  notice.hidden = days > 0;
+  notice.textContent = days === 0
+    ? `The fair is today, ${fair.hours}, at the ${fair.place}.`
+    : `This fair took place on ${fmtDay(fair.date)}. Employer notes were checked on ${fmtDay(fair.checked)} and may be out of date, so use them for follow-ups and check careers sites for current openings.`;
   document.getElementById("defense-toggle").hidden = !E.some(e => e.defense);
   const counts = Object.keys(ROLES).map(r => [r, E.filter(e => e.roles.includes(r)).length]).filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1]);
   document.getElementById("role").innerHTML = `<option value="">All analyst roles</option>` +
@@ -699,7 +717,7 @@ function item(e) {
   const on = saved.has(k);
   const planLabel = PLANS[e.plan];
   const found = e.found || e.auth ? `<div class="found">
-      ${e.found ? `<h4>${fair.labels.found}</h4><p>${esc(e.found)}${e.link ? ` <a href="${esc(e.link)}" target="_blank" rel="noopener">Example posting ↗</a>` : ""}</p>` : ""}
+      ${e.found ? `<h4>${fair.labels.found} <span class="asof">· as of ${fmtDay(fair.checked)}</span></h4><p>${esc(e.found)}${e.link ? ` <a href="${esc(e.link)}" target="_blank" rel="noopener">Example posting ↗</a>` : ""}</p>` : ""}
       ${e.auth ? `<p class="auth">${esc(e.auth)}</p>` : ""}
     </div>` : "";
   const detail = e.plan === "other"
