@@ -12,7 +12,9 @@ export default withNextra({
       { source: '/posts/:slug*', destination: '/projects', permanent: true },
       { source: '/tags/:tag*', destination: '/projects', permanent: true },
       // Temporary: the Photos page was removed but may come back.
-      { source: '/photos', destination: '/', permanent: false }
+      { source: '/photos', destination: '/', permanent: false },
+      // Short link for the Merage Fall Talent Expo section of the career-fair guide
+      { source: '/talent-expo', destination: '/fair-guide#merage-expo-oct-2026', permanent: false }
     ]
   },
   async rewrites() {
