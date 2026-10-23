@@ -84,6 +84,7 @@ h1 { font: 600 24px/1.2 var(--font-body); letter-spacing: -.015em; margin: 0; }
 .thead { padding: 0 12px 0 16px; height: 36px; border-bottom: 1px solid var(--line); font-size: 12px; color: var(--muted); }
 .thead button { border: 0; background: none; padding: 0; cursor: pointer; color: inherit; display: inline-flex; align-items: center; gap: 4px; }
 .thead button:hover, .thead button[data-active="true"] { color: var(--ink); }
+.thead .sorts { display: inline-flex; gap: 14px; }
 .thead .arrow { font-family: var(--font-mono); font-size: 11px; }
 .list { list-style: none; margin: 0; padding: 0; }
 .item + .item { border-top: 1px solid var(--line); }
@@ -116,6 +117,15 @@ h1 { font: 600 24px/1.2 var(--font-body); letter-spacing: -.015em; margin: 0; }
 .detail-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
 .detail-grid.two { grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr); }
 .about { max-width: 90ch; }
+.expo { max-width: 90ch; }
+.expo dl { margin: 0; display: grid; gap: 6px; }
+.expo dl > div { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr); gap: 12px; }
+.expo dt { color: var(--muted); font-size: 13px; }
+.expo dd { margin: 0; }
+.reps { margin: 0; padding: 0; list-style: none; display: grid; gap: 2px; }
+.rep { font-weight: 500; }
+.alum { font: 400 11.5px/1 var(--font-mono); color: var(--first); border: 1px solid var(--line); border-radius: 4px; padding: 2px 5px; margin-left: 4px; white-space: nowrap; }
+@media (max-width: 480px) { .expo dl > div { grid-template-columns: minmax(0, 1fr); gap: 0; } }
 .detail-grid.single { grid-template-columns: minmax(0, 1fr); max-width: 60ch; }
 .detail h4 { margin: 0 0 3px; font: 500 11px/1.4 var(--font-mono); text-transform: uppercase; letter-spacing: .06em; color: var(--faint); }
 .detail p { margin: 0; color: var(--ink); line-height: 1.5; }
@@ -191,7 +201,7 @@ footer p { margin: 0; }
 
   <div class="table">
     <div class="thead cols">
-      <span><button type="button" data-sort="name">Employer <span class="arrow"></span></button></span>
+      <span class="sorts"><button type="button" data-sort="name">Employer <span class="arrow"></span></button><button type="button" data-sort="table" id="sort-table" hidden>Table <span class="arrow"></span></button></span>
       <span class="c-plan"><button type="button" data-sort="plan">Plan <span class="arrow"></span></button></span>
       <span class="c-roles">Analyst roles</span>
       <span></span><span></span>
@@ -220,7 +230,8 @@ footer p { margin: 0; }
 // the page works out "in 3 days", "today" or "past" from them, so nothing else needs a date update.
 // Each employer: n (name), web, hq, cat, plan ("first", "stop" or "other"), roles (keys of ROLES), rec.
 // "first" and "stop" employers also have lead and ask (one question, or a list of them). Optional: found (roles seen on its careers
-// pages), link (an example posting), auth (work authorization notes), defense (true for defense and
+// pages), link (an example posting), auth (work authorization notes), expo (table, goals, programs,
+// functions and reps from an event's employer sheet), defense (true for defense and
 // military employers), hs (Handshake employer id, the number in app.joinhandshake.com/e/<id>).
 const ROLES = {
   data: "Data analyst",
@@ -238,120 +249,140 @@ const PLANS = { first: "Visit first", stop: "Worth a stop", other: "Other roles"
 
 const MERAGE = [
   // Visit first: analyst or operations teams that hire new grads
-  { n: "Cotality", web: "https://www.cotality.com", hq: "Irvine, CA", cat: "Property data & analytics", plan: "first", roles: ["data", "fin", "biz", "ops"],
+  { n: "Cotality", web: "https://www.cotality.com", hq: "Irvine, CA", cat: "Property data & analytics", expo: {"table": 12, "late": false, "goals": ["Summer 2027 internships and full-time roles", "Building a talent pipeline"], "programs": "MBA, BA, MSBA", "functions": "Data Analytics, Operations, Real Estate", "reps": [["Emma Khachikian", "Sr. Professional, Talent Acquisition", ""], ["Madison Foletta", "Associate Professional, Information Security", "Merage alum"], ["Sofia Perez de Tudela", "Associate Business Analyst", "UCI alum"], ["Brooklyn Glugosh", "Technical Product Management Intern", "Merage alum"]]}, plan: "first", roles: ["data", "fin", "biz", "ops"],
     rec: "Property data and analytics company, formerly CoreLogic. Best known for Matrix, the MLS software many real estate agents use, Realist property records, and valuation, risk and insurance-claims tools for lenders and insurers. Headquartered in Irvine.",
     found: "Irvine has posted Financial Analyst roles (mid-level, about $65K–88K), and business analyst is one of the most-interviewed roles there. Past candidates point to its Operation Services group as an entry-level path. No posting aimed at new master's grads was found.",
     lead: "SQL, Tableau or Power BI, real estate or mortgage data, Excel modeling.",
     ask: ["Cotality sits on a huge amount of property and mortgage data. Which teams in Irvine turn that into products or insights, and where do business and data analysts fit in?",
           "Do people join those teams right after a master's program, or usually through Operation Services first? Who would be good to follow up with?"] },
-  { n: "Mattel", web: "https://jobs.mattel.com", hq: "El Segundo, CA", cat: "Toys & entertainment", plan: "first", roles: ["mkt", "fin", "ops", "data"],
+  { n: "Mattel", web: "https://jobs.mattel.com", hq: "El Segundo, CA", cat: "Toys & entertainment", expo: {"table": 26, "late": false, "goals": ["Summer 2027 internships and full-time roles"], "programs": "MBA, BA", "functions": "Finance, Marketing, Operations, Sales, Supply Chain", "reps": [["Jennifer Herrera", "Early & Emerging Talent Associate", ""]]}, plan: "first", roles: ["mkt", "fin", "ops", "data"],
     rec: "Toy and entertainment company behind Barbie, Hot Wheels, Fisher-Price, American Girl, UNO and Polly Pocket, plus films and games built on those brands. Headquartered in El Segundo.",
     found: "El Segundo openings include Associate Marketing Analyst for Hot Wheels ($60K–76K), Associate Financial Analyst in Sales Finance, Ecommerce Planning Analyst ($75K–92K), Sales Planning & Analytics Analyst ($70K–95K), Global Business Insights Analyst and Senior Forecasting Analyst for Walmart. The Associate titles are the closest to entry level.",
     link: "https://jobs.mattel.com/en/job/el-segundo/associate-marketing-analyst-hot-wheels/2015/93967463504",
     lead: "Excel and SQL, Power BI or Tableau, retail sales or e-commerce data.",
     ask: ["I saw roles like Associate Marketing Analyst on Hot Wheels and a forecasting analyst for Walmart. How do the brand teams and sales planning work together heading into the holiday season?",
           "Do associate analyst roles open up for spring master's grads, and who should I follow up with?"] },
-  { n: "Skechers", web: "https://www.skechers.com", hq: "Manhattan Beach, CA", cat: "Footwear & apparel", plan: "first", roles: ["ops", "mkt", "biz", "fin"],
+  { n: "Skechers", web: "https://www.skechers.com", hq: "Manhattan Beach, CA", cat: "Footwear & apparel", expo: {"table": 11, "late": false, "goals": ["Immediate full-time openings", "Building a talent pipeline"], "programs": "BA", "functions": "Accounting, Data Analytics, Finance, Human Resources, Marketing", "reps": [["Jill Sears", "Corporate Recruiter, Campus", ""], ["Kinjal Mehta", "Corporate Recruiter", ""]]}, plan: "first", roles: ["ops", "mkt", "biz", "fin"],
     rec: "Global footwear company known for comfort features like Hands Free Slip-ins, Arch Fit and Max Cushioning, sold through its own stores, wholesale partners and online. Headquartered in Manhattan Beach.",
     found: "Manhattan Beach roles include Business Analyst II for product development operations ($85K–98K, 1–3 years of footwear experience preferred), Analyst, Ecommerce Experience (conversion and customer journey analysis), Pricing Analyst ($85K–105K, 2+ years) and Merchandise Planner. Most ask for some experience.",
     lead: "E-commerce and conversion metrics, Excel and SQL, merchandise or pricing analysis.",
     ask: ["With so much growth coming from features like Hands Free Slip-ins, how do the merchandising and e-commerce teams use sales data to decide which styles to expand?",
           "Which analyst teams are open to new master's grads, and who should I follow up with?"] },
-  { n: "Automobile Club of Southern California", web: "https://careers.ace.aaa.com", hq: "Costa Mesa, CA", cat: "Insurance & member services", plan: "first", roles: ["data", "ops", "risk"],
+  { n: "Automobile Club of Southern California", web: "https://careers.ace.aaa.com", hq: "Costa Mesa, CA", cat: "Insurance & member services", expo: {"table": 2, "late": false, "goals": ["Summer 2027 internships and full-time roles"], "programs": "EMBA, MBA, BA, MFin, MSBA, MPAc", "functions": "Accounting, Business Development, Data Analytics, Finance, Sales", "reps": [["Victor Ruiz", "University Talent Acquisition", ""]]}, plan: "first", roles: ["data", "ops", "risk"],
     rec: "The AAA club for Southern California: roadside assistance, auto and home insurance, travel booking and DMV services for members. Headquartered in Costa Mesa.",
     found: "Costa Mesa analyst roles include Data Analyst for call center analytics ($73K–97K, hybrid), Data Analyst, Claims (SQL, Tableau and forecasting; $75K–100K) and Senior Operations Analysts working in AWS, Snowflake and Tableau. Most are mid-level.",
     lead: "SQL, Tableau, Snowflake, forecasting, call center or claims data.",
     ask: ["Your claims and call center analysts seem to work in SQL, Tableau and Snowflake. What problems are they focused on right now, like call volumes, claim cycle times or member retention?",
           "Does the club hire analysts straight from master's programs, and who should I follow up with?"] },
-  { n: "East West Bank", web: "https://careers-eastwestbank.icims.com/jobs/search", hq: "Pasadena, CA", cat: "Banking", plan: "first", roles: ["risk", "fin", "data", "ops"],
+  { n: "East West Bank", web: "https://careers-eastwestbank.icims.com/jobs/search", hq: "Pasadena, CA", cat: "Banking", expo: {"table": 6, "late": false, "goals": ["Immediate full-time openings", "Summer 2027 internships and full-time roles", "Building a talent pipeline"], "programs": "EMBA, MBA, BA, MFin, MSBA, MPAc, MIE, MiM", "functions": "Accounting, Data Analytics, Finance, Operations", "reps": [["Vianca DePaz", "AVP, Senior Recruiter", ""], ["Bon Li", "AVP, Loan Operations Supervisor", "Merage alum"], ["Gloria Lee", "SVP, Senior Director of Loan & Trader Operations", ""]]}, plan: "first", roles: ["risk", "fin", "data", "ops"],
     rec: "Bank focused on US–Asia businesses and communities, offering commercial lending, trade finance, treasury services and personal banking. Headquartered in Pasadena.",
     found: "Pasadena roles include Credit Analyst ($71K–120K) and Senior Credit Analyst. Its 24-month Treasury Rotational Program recruits STEM-oriented grads, with rotations that include analytics and data, and a Banking Operations Management Trainee program places people in El Monte or Pasadena. Both current classes started July 2026, so watch for the next intake.",
     link: "https://careers-eastwestbank.icims.com/jobs/12943/treasury-rotational-program/job",
     lead: "Financial statement analysis, Excel modeling, SQL, risk or treasury coursework.",
     ask: ["I saw the Treasury Rotational Program includes rotations in analytics and data. What kinds of projects do people work on there, like liquidity forecasting or interest-rate risk?",
           "When does the next class usually open, and does the bank also hire credit analysts from master's programs?"] },
-  { n: "JPMorgan Private Bank", web: "https://privatebank.jpmorgan.com/nam/en/about-us/campus-recruiting", hq: "New York, NY", cat: "Wealth management", plan: "first", roles: ["fin", "biz"],
+  { n: "JPMorgan Private Bank", web: "https://privatebank.jpmorgan.com/nam/en/about-us/campus-recruiting", hq: "New York, NY", cat: "Wealth management", expo: {"table": 4, "late": false, "goals": ["Summer 2027 internships and full-time roles", "Building a talent pipeline"], "programs": "BA", "functions": "Finance", "reps": [["Thomas Wunsch", "Analyst", "UCI alum"], ["Devon Huang", "Analyst", "Merage alum"], ["Leland Bartikofsky", "Analyst", "UCI alum"]]}, plan: "stop", roles: ["fin", "biz"],
     rec: "J.P. Morgan's wealth management business for high-net-worth families, covering investing, banking, lending, and estate and trust planning. Its Southern California offices include Los Angeles, Irvine and Westlake Village.",
     found: "Hires new grads into a full-time, two-year US Private Bank Analyst Program that rotates across Private Bank businesses; top performers can move up to Associate. 2027 postings list Los Angeles, Irvine and Westlake Village. The summer program is open to undergraduate and master's students (not MBAs), with applications opening Jan 1, 2027.",
     link: "https://privatebank.jpmorgan.com/nam/en/about-us/analyst-recruiting-program",
     lead: "Excel and financial modeling, portfolio or markets coursework, client communication.",
     ask: ["For analysts in the Irvine or Los Angeles offices, how much of the work is portfolio analysis and reporting for advisors versus preparing for client meetings?",
           "Do master's grads usually come in through the summer program, or can they apply straight to the full-time Analyst Program? Who should I follow up with?"] },
-  { n: "Tarsus Pharmaceuticals", web: "https://tarsusrx.com", hq: "Irvine, CA", cat: "Pharma", plan: "first", roles: ["fin", "biz", "mkt"],
+  { n: "Tarsus Pharmaceuticals", web: "https://tarsusrx.com", hq: "Irvine, CA", cat: "Pharma", expo: {"table": 27, "late": false, "goals": ["Summer 2027 internships and full-time roles", "Building a talent pipeline"], "programs": "MBA, BA, MSBA, MSBTM, MIE", "functions": "Business Development, Data Analytics, Finance, Marketing, Product Management, Strategy", "reps": [["Sydney Roberts", "Talent Specialist", ""], ["Laura Ludwig Hogan", "Human Resources Manager", ""]]}, plan: "first", roles: ["fin", "biz", "mkt"],
     rec: "Eye-care drug company whose main product is XDEMVY, the first FDA-approved treatment for Demodex blepharitis (eyelid mites). XDEMVY sales were $451 million in 2025, up more than 150%. Headquartered in Irvine.",
     found: "Irvine openings include Senior Analyst, Finance ($94K–131K; annual plan and board reporting), Analyst II, Business Development ($84K–118K) and Associate Director, Market Intelligence. Analyst roles so far are mid-level.",
     lead: "Financial modeling, Excel, prescription or market data, clear presentations.",
     ask: ["XDEMVY has grown fast since launch. How do the finance and market intelligence teams track demand across eye care practices, and which data do they rely on most?",
           "As the company grows, do you expect to hire analysts out of master's programs? Who should I follow up with?"] },
 
+  { n: "Pioneer Circuits", web: "https://pioneercircuits.com/careers/jobs", hq: "Santa Ana, CA", cat: "Electronics manufacturing", expo: {"table": 19, "late": false, "goals": ["Immediate full-time openings", "Summer 2027 internships and full-time roles", "Building a talent pipeline"], "programs": "MBA, MSBA, MIE", "functions": "Accounting, Data Analytics, Marketing, Operations, Product Management, Strategy, Supply Chain", "reps": [["Will Wollack", "Director of Technology & Innovation", "Merage alum"], ["Tom Haseth", "Talent Acquisition Specialist", ""]]}, plan: "first", roles: ["ops", "data", "biz"],
+    rec: "Makes flexible and rigid-flex circuit boards for aerospace, space, medical and defense customers in Santa Ana.",
+    found: "At the expo it lists immediate full-time openings and names MSBA students for data analytics, operations, supply chain and strategy roles. Openings found online were engineering, planning, buyer and inspection roles in Santa Ana.",
+    lead: "Supply chain or operations data, Excel and SQL, process improvement.",
+    ask: ["Flex circuits for aerospace and medical customers are often low-volume and custom. How does the operations team use data to plan production and keep lead times on track?",
+          "Which of the analytics or supply chain openings fit someone finishing a master's, and who should I follow up with?"] },
+
   // Worth a stop: analyst roles exist or are likely, but the fit for new grads is unclear
-  { n: "Hugel Aesthetics", web: "", hq: "Newport Beach, CA", cat: "Aesthetics", plan: "stop", roles: ["mkt", "biz"],
+  { n: "Hugel Aesthetics", web: "", hq: "Newport Beach, CA", cat: "Aesthetics", expo: {"table": 24, "late": false, "goals": ["Immediate full-time openings", "Building a talent pipeline"], "programs": "EMBA, MBA, BA, MSBA, MPAc, MIE, MiM", "functions": "Marketing, Sales, Customer Operations, Analytics, Finance", "reps": [["Chelsea Frey", "Senior Director, Human Resources", "UCI alum"]]}, plan: "first", roles: ["mkt", "biz"],
     rec: "North American arm of Korea's Hugel, which makes Letybo (letibotulinumtoxinA), an FDA-approved botulinum toxin for frown lines that competes with Botox. Based in Newport Beach.",
     found: "Openings found were sales and medical roles, such as account managers and medical science liaisons. No analyst roles were found, but the US business is still building out after Letybo's launch.",
     lead: "Commercial or sales analytics, Excel, interest in aesthetics.",
     ask: ["Letybo is going up against Botox, Dysport and others. How is the US team measuring how the launch is going with aesthetic practices?",
           "As the commercial team grows, do you expect to add analysts in Newport Beach? Who should I follow up with?"] },
-  { n: "County of Orange", web: "https://hrs.ocgov.com/careers/explore-your-possibilities", hq: "Santa Ana, CA", cat: "Government", plan: "stop", roles: ["pub", "data", "fin"],
+  { n: "County of Orange", web: "https://hrs.ocgov.com/careers/explore-your-possibilities", hq: "Santa Ana, CA", cat: "Government", expo: {"table": 5, "late": false, "goals": ["Immediate full-time openings", "Summer 2027 internships and full-time roles"], "programs": "EMBA, MBA, BA, MFin, MSBA", "functions": "Accounting, Business Development, Data Analytics, Operations", "reps": [["Joanne Li", "Human Resources Specialist", ""], ["Gazala Yerunkar", "Human Resources Specialist", ""]]}, plan: "first", roles: ["pub", "data", "fin"],
     rec: "Regional government for 3.2 million residents, with 22 departments including the Health Care Agency, Social Services, OC Public Works and John Wayne Airport.",
     found: "Recent analyst postings include Senior Research Analyst for Child Support Services ($87K–118K), Public Information and Affairs Analyst and Data Analytics Manager. Eligible lists can fill similar or lower-level jobs countywide; entry-level analyst titles weren't confirmed.",
     lead: "Excel and SQL, dashboards, program evaluation, interest in public service.",
     ask: ["Which departments lean most on analysts, for example the Health Care Agency or Social Services, and what kinds of questions do they work on?",
           "Which job titles should a new master's grad apply for, and how do the eligible lists work? Who should I follow up with?"] },
-  { n: "CDTFA", web: "https://www.cdtfa.ca.gov/", hq: "Sacramento, CA", cat: "Government", plan: "stop", roles: ["pub", "fin"],
+  { n: "CDTFA", web: "https://www.cdtfa.ca.gov/", hq: "Sacramento, CA", cat: "Government", expo: {"table": 17, "late": false, "goals": ["Immediate full-time openings", "Building a talent pipeline"], "programs": "MBA, BA, MFin, MPAc, MiM", "functions": "Accounting, Business Development, Finance, Human Resources, Marketing, Operations", "reps": [["Johnny Castro", "Tax Auditor", ""], ["Nehemiah Yap", "Business Tax Compliance Specialist", ""]]}, plan: "stop", roles: ["pub", "fin"],
     rec: "California Department of Tax and Fee Administration: runs sales and use tax and more than 40 other taxes and fees, such as fuel, cannabis and cigarette taxes. It has field offices across the state, including Irvine.",
     found: "Hires entry-level Business Taxes Representatives, who inspect businesses for tax compliance, in offices that include Irvine, starting around $5,400 a month with a four-year degree. Analyst jobs go through CalCareers and usually need a state exam first.",
     lead: "Accounting and business coursework, Excel, attention to detail.",
     ask: ["How does CDTFA use data to decide which businesses to inspect or audit?",
           "Besides Business Taxes Representative, which analyst job titles should a master's grad look at, and who should I follow up with?"] },
-  { n: "United Way Orange County", web: "https://www.unitedwayoc.org", hq: "Irvine, CA", cat: "Nonprofit", plan: "stop", roles: ["data", "pub"],
+  { n: "United Way Orange County", web: "https://www.unitedwayoc.org", hq: "Irvine, CA", cat: "Nonprofit", expo: {"table": 9, "late": false, "goals": ["Building a talent pipeline"], "programs": "All Programs", "functions": "Accounting, Business Development, CSR, Data Analytics, Finance, Operations", "reps": [["Ashley Erhardt", "Program Specialist", ""]]}, plan: "stop", roles: ["data", "pub"],
     rec: "Nonprofit focused on housing and homelessness, student success and financial security in Orange County. It also runs 211OC, the county's referral line for social services.",
     found: "Has an HMIS Data Analyst role on its 211OC team in Irvine, keeping homeless-services data accurate and producing reports for service planning and policy, plus a Database Manager opening.",
     link: "https://www.unitedwayoc.org/wp-content/uploads/2026/04/HMIS-Data-Analyst-211OC.pdf",
     lead: "SQL or Excel, data cleaning, reporting, interest in social impact.",
     ask: ["The HMIS Data Analyst role mentions turning homeless-services data into insights for policy. What questions do partners bring to that data team most often?",
           "Do you hire data analysts right out of master's programs, and who should I follow up with?"] },
-  { n: "Hewlett Packard Enterprise", web: "https://careers.hpe.com/", hq: "Spring, TX", cat: "Tech", plan: "stop", roles: ["ops", "biz", "sys"],
+  { n: "Hewlett Packard Enterprise", web: "https://careers.hpe.com/", hq: "Spring, TX", cat: "Tech", expo: {"table": 7, "late": false, "goals": ["Summer 2027 internships and full-time roles"], "programs": "MBA, BA", "functions": "Business Development, Marketing, Human Resources, Sales, Supply Chain", "reps": [["Cristina Sandoval", "University Partnership & Program Manager", ""], ["Tara Tulip", "Recruiter", ""], ["Joey Lee", "", ""], ["Atharva Tembhe", "", ""]]}, plan: "stop", roles: ["ops", "biz", "sys"],
     rec: "Sells data center servers (ProLiant), storage, networking (Aruba and Juniper) and the GreenLake hybrid cloud platform. Headquartered near Houston.",
     found: "Business Operations Analyst I and II roles (supply chain and operations) mostly ask for 2–6 years. The graduate analyst roles found were outside the US. HPE Labs has a business analyst internship in AI and data science.",
     lead: "Supply chain or operations analysis, Excel, Python.",
     ask: ["As more customers buy through GreenLake subscriptions and Juniper joins the networking business, how has the business operations team's forecasting and order work changed?",
           "Do US business operations teams hire master's grads? Who should I follow up with?"] },
-  { n: "First Citizens Bank", web: "https://www.firstcitizens.com", hq: "Raleigh, NC", cat: "Banking", plan: "stop", roles: ["risk", "fin"],
+  { n: "First Citizens Bank", web: "https://www.firstcitizens.com", hq: "Raleigh, NC", cat: "Banking", expo: {"table": 13, "late": false, "goals": ["Summer 2027 internships and full-time roles", "Building a talent pipeline"], "programs": "BA", "functions": "Accounting, Business Development, Data Analytics, Finance", "reps": [["Lee Morrison", "Director & Relationship Manager", "Merage alum"], ["Brian Dosher", "Managing Director", ""], ["Katrin Engel", "Managing Director", ""]]}, plan: "stop", roles: ["risk", "fin"],
     rec: "Large US bank that grew by acquiring CIT and Silicon Valley Bank. It offers commercial and personal banking, equipment and project finance, and banking for startups and investors through SVB.",
     found: "Hires new grads into its Associate Development Program (rotational credit training in Boston and San Francisco; a March 2027 San Francisco class closed Oct 10, 2026) and an Analyst Development Program for commercial bank underwriting. No Southern California analyst roles were found.",
     lead: "Financial statement analysis, credit and Excel modeling, interest in startups or project finance.",
     ask: ["With SVB now part of First Citizens, how do credit analysts approach underwriting startups compared with traditional commercial borrowers?",
           "Will there be another Associate Development Program class for 2027 grads, and who should I follow up with?"] },
-  { n: "COOP Careers", web: "http://coopcareers.org", hq: "San Francisco, CA", cat: "Career program", plan: "stop", roles: ["data", "mkt", "fin"],
+  { n: "COOP Careers", web: "http://coopcareers.org", hq: "San Francisco, CA", cat: "Career program", expo: {"table": 20, "late": false, "goals": ["Building a talent pipeline"], "programs": "BA", "functions": "Data Analytics, Marketing", "reps": [["Maranatha Croomes", "Recruiting Manager", ""], ["Bree Glover", "Senior Manager of Recruiting", ""]]}, plan: "stop", roles: ["data", "mkt", "fin"],
     rec: "Nonprofit that runs free fellowships for first-generation college grads, with Data Analytics, Digital Marketing and Financial Services tracks.",
     found: "Not an employer: the fellowship trains fellows and connects them with hiring partners. It's aimed at first-gen grads facing underemployment, so check whether master's students qualify.",
     lead: "First-gen background, interest in analytics.",
     ask: ["Which employers have hired fellows from the Data Analytics track recently, and into what roles?",
           "Can someone finishing a master's program join, and when does the next cohort start?"] },
-  { n: "American Lending Center (ALC)", web: "", hq: "Irvine, CA", cat: "Lending", plan: "stop", roles: ["risk", "fin"],
+  { n: "American Lending Center (ALC)", web: "", hq: "Irvine, CA", cat: "Lending", expo: {"table": 1, "late": false, "goals": ["Building a talent pipeline"], "programs": "BA, MSBA", "functions": "Business Development, Data Analytics, Marketing, Real Estate", "reps": [["Cindy Morales", "Human Resources Director", ""], ["Junman Zhang", "Director of Communications", "Merage alum"], ["Sergio Rodriguez", "Accounting Associate", "Merage alum"], ["Allison Lam", "Administrative Coordinator", "UCI alum"], ["Jane Lai", "Director of Investments Assessment", ""], ["Diksha Bokade", "Senior Marketing Specialist", ""]]}, plan: "first", roles: ["risk", "fin"],
     rec: "Mission-driven, non-bank small business lender making SBA 7(a), SBA 504 and state-backed (SSBCI) loans. Headquartered in Irvine.",
     found: "No openings were found. Because it originates and underwrites its own SBA loans, credit and underwriting analysts are its likeliest analyst roles.",
     lead: "Financial statement analysis, credit analysis, Excel.",
     ask: ["Since ALC underwrites its own SBA loans, what does a credit or underwriting analyst look at most closely for a small business borrower?",
           "Do you hire analysts out of master's programs, and who should I follow up with?"] },
-  { n: "Sunwest Bank", web: "https://www.sunwestbank.com", hq: "Irvine, CA", cat: "Banking", plan: "stop", roles: ["risk", "fin"],
+  { n: "Sunwest Bank", web: "https://www.sunwestbank.com", hq: "Irvine, CA", cat: "Banking", expo: {"table": 3, "late": false, "goals": ["Immediate full-time openings", "Summer 2027 internships and full-time roles", "Building a talent pipeline"], "programs": "EMBA, MBA, BA, MFin, MSBA, MPAc, MIE", "functions": "Accounting, Business Development, Data Analytics, Finance, Marketing, Sales", "reps": [["Elmer Sanguinson", "VP, Learning & Development", ""], ["Danielle Cortez", "AVP, Senior Corporate Recruiter", ""], ["Jackson Christie", "Credit Analyst", ""], ["Alex Carr", "Credit Analyst", ""]]}, plan: "first", roles: ["risk", "fin"],
     rec: "Business-focused bank serving companies in California, Arizona, Idaho and Utah, with commercial lending, treasury and specialty finance. Headquartered in Irvine, though one report says it's moving its headquarters to Sandy, Utah.",
     found: "Posted a Commercial Credit Analyst role in summer 2026 that has since closed. No other analyst openings were found.",
     lead: "Financial statement analysis, credit modeling, Excel.",
     ask: ["What kinds of businesses make up most of Sunwest's lending, and how do credit analysts support the relationship managers?",
           "Will analyst roles stay in Irvine, and do you hire from master's programs? Who should I follow up with?"] },
 
+  { n: "Applied Medical", web: "https://appliedmedical.com/internships", hq: "Rancho Santa Margarita, CA", cat: "Medical devices", expo: {"table": 25, "late": false, "goals": ["Immediate full-time openings", "Building a talent pipeline"], "programs": "MBA, MSBTM", "functions": "Operations, Product Management, Supply Chain", "reps": [["Cameron De La Torre", "Clinical Development Operations Manager", "Merage alum"], ["Randy Pena", "Clinical Development Analyst", "Merage alum"], ["Manasvi Vardham", "Business Intelligence Analyst", "Merage alum"], ["Radhika Girish", "Associate Product Manager, Clinical Development", "Merage alum"]]}, plan: "stop", roles: ["biz", "ops", "sys", "data"],
+    rec: "Makes minimally invasive surgery products such as Kii trocars, GelPort hand access and the Voyant electrosurgical system, and designs and builds most of them in-house. Based in Rancho Santa Margarita.",
+    found: "Rancho Santa Margarita postings include an entry-level Software Asset Management Analyst and experienced SAP business and functional analysts. Its expo reps include a Business Intelligence Analyst, and it's recruiting for operations, product management and supply chain.",
+    lead: "Process analysis, SAP or other ERP exposure, BI dashboards.",
+    ask: ["Since Applied Medical designs, builds and sells its own products, how does the business intelligence team support decisions from production planning to pricing?",
+          "Which business teams hire entry-level analysts, and do they consider master's grads? Who should I follow up with?"] },
+  { n: "Gala Capital Partners", web: "", hq: "Costa Mesa, CA", cat: "Private equity", expo: {"table": 22, "late": false, "goals": ["Building a talent pipeline"], "programs": "MBA, BA, MFin, MSBA, MPAc", "functions": "Accounting, Data Analytics, Finance", "reps": [["John Dang", "Senior Associate", "Merage alum"]]}, plan: "stop", roles: ["fin", "data"],
+    rec: "Private equity firm that buys franchised restaurant chains and software companies. Its brands include Mooyah Burgers, Cicis Pizza, Famous Dave's, Rusty Taco and Dunn Brothers Coffee. Based in Costa Mesa.",
+    found: "No openings were found online. At the expo it's building a pipeline for accounting, data analytics and finance roles and lists MSBA among its target programs.",
+    lead: "Financial modeling, restaurant or franchise unit data, Excel and SQL.",
+    ask: ["With several restaurant franchisors in the portfolio, how does the team use store-level data to compare brands and spot what's working?",
+          "Do you bring on analysts from master's programs, and who should I follow up with?"] },
+
   // Other roles: no analyst hiring found, or too little information
-  { n: "A.I. Foods Corporation", web: "http://aifoodscorp.com", hq: "Los Angeles, CA", cat: "Food manufacturing", plan: "other", roles: [], rec: "Filipino and Asian food maker and wholesaler: frozen lumpia and longanisa, bottled preserves, noodles and frozen vegetables. No analyst roles were found." },
-  { n: "Best Babie", web: "", hq: "", cat: "Details not found", plan: "other", roles: [], rec: "Couldn't find reliable details about this employer. Ask what the company does and which roles it's hiring for." },
-  { n: "C3 Tech", web: "", hq: "Santa Ana, CA", cat: "IT services", plan: "other", roles: [], rec: "Family-owned IT services and office technology company: managed IT, cybersecurity, networking, and copier and print services for Orange County businesses. Roughly 10–49 employees." },
-  { n: "Elihome", web: "", hq: "Newport Beach, CA", cat: "Consumer products", plan: "other", roles: [], rec: "Appears to be a Newport Beach brand selling kitchen tools such as cutting boards and spatula sets, based on a business directory. Details couldn't be confirmed." },
-  { n: "Fashion Meets Feelings", web: "", hq: "", cat: "Details not found", plan: "other", roles: [], rec: "Couldn't find reliable details about this employer. Ask what the company does and which roles it's hiring for." },
-  { n: "Linkhome", web: "", hq: "Irvine, CA", cat: "Real estate tech", plan: "other", roles: [], rec: "Small, publicly listed real estate company (LHAI) that pairs AI home search with brokerage, cash offers, rental management and renovation. No analyst roles were found." },
-  { n: "Modern Woodmen of America", web: "https://www.modernwoodmen.org/careers/", hq: "Rock Island, IL", cat: "Insurance", plan: "other", roles: [], rec: "Member-owned fraternal life insurer offering life insurance, annuities and financial planning. Its campus recruiting is mostly for financial representatives, which are sales roles." },
-  { n: "Northwestern Mutual", web: "https://www.northwesternmutual.com", hq: "Milwaukee, WI", cat: "Insurance & wealth", plan: "other", roles: [], rec: "Life insurance and wealth management company. Its campus recruiting is mostly for financial representative roles and internships, which are sales jobs." },
-  { n: "Pioneer Circuits", web: "https://pioneercircuits.com/careers/jobs", hq: "Santa Ana, CA", cat: "Electronics manufacturing", plan: "other", roles: [], rec: "Makes flexible and rigid-flex circuit boards for aerospace, space, medical and defense customers. Openings found were engineering, planning, buyer and inspection roles." },
-  { n: "Sperry Commercial", web: "", hq: "Irvine, CA", cat: "Commercial real estate", plan: "other", roles: [], rec: "Network of affiliated commercial real estate brokerages for sales, leasing and investment sales, headquartered in Irvine. Roles are mostly brokerage." }
+  { n: "A.I. Foods Corporation", web: "http://aifoodscorp.com", hq: "Los Angeles, CA", cat: "Food manufacturing", expo: {"table": 21, "late": false, "goals": ["Immediate full-time openings", "Building a talent pipeline"], "programs": "EMBA, MBA, BA, MiM", "functions": "Operations", "reps": [["Alexandra Martinez", "Human Resources", ""], ["Clarissa Takakawa", "President", ""]]}, plan: "other", roles: [], rec: "Filipino and Asian food maker and wholesaler: frozen lumpia and longanisa, bottled preserves, noodles and frozen vegetables. No analyst roles were found." },
+  { n: "Best Babie", web: "", hq: "", cat: "Details not found", expo: {"table": 23, "late": false, "goals": ["Immediate full-time openings", "Summer 2027 internships and full-time roles", "Building a talent pipeline"], "programs": "MBA, BA, EMBA, MPAc, MIE, MiM", "functions": "Accounting, Business Development, Marketing, Operations, Product Management, Sales", "reps": [["Wayne Wang", "Director", "Merage alum"], ["Coco Chou", "Executive Assistant", "Merage alum"]]}, plan: "other", roles: [], rec: "Couldn't find reliable details about this employer. Ask what the company does and which roles it's hiring for." },
+  { n: "C3 Tech", web: "", hq: "Santa Ana, CA", cat: "IT services", expo: {"table": 14, "late": false, "goals": ["Immediate full-time openings", "Building a talent pipeline"], "programs": "EMBA, MBA, BA, MIE, MiM", "functions": "Business Development, Sales", "reps": [["Jared Tolentino", "Client Success & Marketing Coordinator", ""], ["Davis Tran", "Chief Operations Officer", ""]]}, plan: "other", roles: [], rec: "Family-owned IT services and office technology company: managed IT, cybersecurity, networking, and copier and print services for Orange County businesses. Roughly 10–49 employees." },
+  { n: "Elihome", web: "", hq: "Newport Beach, CA", cat: "Consumer products", expo: {"table": 16, "late": false, "goals": ["Summer 2027 internships and full-time roles", "Building a talent pipeline"], "programs": "MBA, BA, MIE, MiM", "functions": "Marketing", "reps": [["Yiyu (Judy) Deng", "Growth Marketing Manager", ""], ["James Ge", "CEO & Founder", ""]]}, plan: "other", roles: [], rec: "Appears to be a Newport Beach brand selling kitchen tools such as cutting boards and spatula sets, based on a business directory. Details couldn't be confirmed." },
+  { n: "Fashion Meets Feelings", web: "", hq: "", cat: "Details not found", plan: "other", roles: [], rec: "Couldn't find reliable details about this employer, and it isn't on the Career Center's table list, so it may not attend." },
+  { n: "Linkhome", web: "", hq: "Irvine, CA", cat: "Real estate tech", expo: {"table": 18, "late": false, "goals": ["Summer 2027 internships and full-time roles", "Building a talent pipeline"], "programs": "BA, MIE", "functions": "Business Development, Real Estate, Sales", "reps": [["Joshua Lin", "Account Manager, Wholesale", "Merage alum"], ["Yuan Gao", "Hiring Manager", ""]]}, plan: "other", roles: [], rec: "Small, publicly listed real estate company (LHAI) that pairs AI home search with brokerage, cash offers, rental management and renovation. No analyst roles were found." },
+  { n: "Modern Woodmen of America", web: "https://www.modernwoodmen.org/careers/", hq: "Rock Island, IL", cat: "Insurance", expo: {"table": 10, "late": false, "goals": ["Immediate full-time openings", "Summer 2027 internships and full-time roles"], "programs": "EMBA, MBA, BA, MFin, MSBA, MPAc, MIE, MiM", "functions": "Finance", "reps": [["Hector Romo", "Managing Director", ""], ["Dwight Amantine-Taylor", "Business Development Officer", "Merage alum"]]}, plan: "other", roles: [], rec: "Member-owned fraternal life insurer offering life insurance, annuities and financial planning. Its campus recruiting is mostly for financial representatives, which are sales roles." },
+  { n: "Northwestern Mutual", web: "https://www.northwesternmutual.com", hq: "Milwaukee, WI", cat: "Insurance & wealth", expo: {"table": 15, "late": false, "goals": ["Immediate full-time openings", "Building a talent pipeline"], "programs": "MBA, BA", "functions": "Accounting, Business Development, Finance, Marketing, Real Estate, Sales", "reps": [["Juliana Sandoval", "Campus Talent Acquisition Specialist", ""]]}, plan: "other", roles: [], rec: "Life insurance and wealth management company. Its campus recruiting is mostly for financial representative roles and internships, which are sales jobs." },
+    { n: "Sperry Commercial", web: "", hq: "Irvine, CA", cat: "Commercial real estate", expo: {"table": 8, "late": false, "goals": ["Immediate full-time openings", "Summer 2027 internships and full-time roles", "Building a talent pipeline"], "programs": "EMBA, MBA, BA, MFin", "functions": "Real Estate, Sales", "reps": [["Connor Dean", "Business Development Manager", ""], ["Gabrielle Gillen", "Marketing Manager", ""]]}, plan: "other", roles: [], rec: "Network of affiliated commercial real estate brokerages for sales, leasing and investment sales, headquartered in Irvine. Roles are mostly brokerage." },
+  { n: "Temu", web: "https://www.temu.com", hq: "Boston, MA", cat: "E-commerce", expo: {"table": 28, "late": true, "goals": ["Immediate full-time openings", "Summer 2027 internships and full-time roles", "Building a talent pipeline"], "programs": "EMBA, MBA, BA, MFin, MSBA, MIE, MiM", "functions": "Business Development, Sales", "reps": [["Alex Skalmowski", "Business Development Manager", "Merage alum"], ["Matthew Irvine", "Business Development Manager", "UCI alum"], ["David Sun", "Sr Mgr, Business Development", "Merage alum"]]}, plan: "other", roles: [], rec: "Online marketplace owned by PDD Holdings that sells low-priced goods, mostly shipped from overseas sellers. At the expo it's recruiting for business development and sales." }
 ];
 
 const STEM = [
@@ -704,7 +735,7 @@ const FAIRS = [
     details: "Open to current Merage students in BA, MBA and specialty master's programs · Business smart attire",
     sub: "For business analytics students looking for full-time roles: all {n} confirmed employers, ranked by whether they have analyst, business operations or operations teams that hire master's grads. Select a row to see those teams, where they are, and what to ask at the table.",
     labels: { rec: "About the company", found: "Full-time analyst roles" },
-    source: "Built from the Merage Career Center's confirmed employer list on Oct 19, 2026, when careers pages and job boards were also checked for full-time analyst roles. More employers may be added on Handshake before the event, and postings change often." },
+    source: "Built from the Merage Career Center's employer list on Oct 19, 2026, when careers pages and job boards were also checked for full-time analyst roles. Table numbers, hiring goals, target programs, functions and representatives come from the Career Center's employer information sheet, added Oct 23, 2026. Postings change often." },
   { id: "stem-oct-2026", tab: "STEM Fair · Oct 15", name: "Fall STEM Career & Internship Fair", date: "2026-10-15",
     when: "Thu, Oct 15, 2026 · 10 am–2 pm", hours: "10 am–2 pm", place: "UCI Student Center", checked: "2026-10-12", employers: STEM,
     sub: "For business analytics students looking for full-time roles: all {n} employers at the fair, ranked by whether they have analyst, business operations or operations teams that hire master's grads. Select a row to see those teams, where they are, and what to ask at the table.",
@@ -791,6 +822,8 @@ function setupFair() {
     ? `The event is today, ${fair.hours}, at the ${fair.place}.`
     : `This event took place on ${fmtDay(fair.date)}. Employer notes were checked on ${fmtDay(fair.checked)} and may be out of date, so use them for follow-ups and check careers sites for current openings.`;
   document.getElementById("defense-toggle").hidden = !E.some(e => e.defense);
+  document.getElementById("sort-table").hidden = !E.some(e => e.expo);
+  if (state.sort === "table" && !E.some(e => e.expo)) { state.sort = "plan"; state.dir = 1; }
   const counts = Object.keys(ROLES).map(r => [r, E.filter(e => e.roles.includes(r)).length]).filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1]);
   document.getElementById("role").innerHTML = `<option value="">All analyst roles</option>` +
     counts.map(([r, n]) => `<option value="${r}">${esc(ROLES[r])} (${n})</option>`).join("");
@@ -812,7 +845,8 @@ function matches(e) {
   if (state.role && !e.roles.includes(state.role)) return false;
   if (state.savedOnly && !saved.has(keyOf(e))) return false;
   if (state.q) {
-    const hay = [e.n, e.cat, e.hq, e.rec, e.found || "", ...e.roles.map(r => ROLES[r])].join(" ").toLowerCase();
+    const hay = [e.n, e.cat, e.hq, e.rec, e.found || "", ...e.roles.map(r => ROLES[r]),
+      e.expo ? `table ${e.expo.table} ${e.expo.programs} ${e.expo.functions} ${e.expo.reps.map(r => r.join(" ")).join(" ")}` : ""].join(" ").toLowerCase();
     return state.q.split(/\s+/).every(w => hay.includes(w));
   }
   return true;
@@ -820,8 +854,9 @@ function matches(e) {
 
 function sorted(list) {
   const byName = (a, b) => a.n.localeCompare(b.n);
-  return list.sort((a, b) => state.sort === "name"
-    ? state.dir * byName(a, b)
+  const byTable = (a, b) => ((a.expo ? a.expo.table : 999) - (b.expo ? b.expo.table : 999)) || byName(a, b);
+  return list.sort((a, b) => state.sort === "name" ? state.dir * byName(a, b)
+    : state.sort === "table" ? state.dir * byTable(a, b)
     : state.dir * (PLAN_ORDER[a.plan] - PLAN_ORDER[b.plan]) || byName(a, b));
 }
 
@@ -831,6 +866,19 @@ function tags(e, limit, full) {
   const shown = limit ? list.slice(0, limit) : list;
   const more = list.length - shown.length;
   return shown.map(r => `<span class="tag${r === state.role ? " on" : ""}">${esc(full ? ROLES[r] : SHORT[r])}</span>`).join("") + (more > 0 ? `<span class="tag">+${more}</span>` : "");
+}
+
+function expoBlock(e) {
+  if (!e.expo) return "";
+  const x = e.expo;
+  const reps = x.reps.map(([who, title, alum]) => `<li><span class="rep">${esc(who)}</span>${title ? `, ${esc(title)}` : ""}${alum ? ` <span class="alum">${esc(alum)}</span>` : ""}</li>`).join("");
+  return `<div class="expo"><h4>At the expo · Table ${x.table}${x.late ? " (late add)" : ""}</h4>
+    <dl>
+      <div><dt>Recruiting for</dt><dd>${esc(x.goals.join(" · "))}</dd></div>
+      <div><dt>Programs</dt><dd>${esc(x.programs)}</dd></div>
+      <div><dt>Functions</dt><dd>${esc(x.functions)}</dd></div>
+      ${reps ? `<div><dt>Representatives</dt><dd><ul class="reps">${reps}</ul></dd></div>` : ""}
+    </dl></div>`;
 }
 
 function item(e) {
@@ -844,9 +892,10 @@ function item(e) {
       ${e.auth ? `<p class="auth">${esc(e.auth)}</p>` : ""}
     </div>` : "";
   const detail = e.plan === "other"
-    ? `<div class="detail-grid single"><div><h4>${fair.labels.rec}</h4><p>${esc(e.rec)}</p></div></div>`
+    ? `<div class="detail-grid single"><div><h4>${fair.labels.rec}</h4><p>${esc(e.rec)}</p></div></div>${expoBlock(e)}`
     : `<div class="detail-roles"><h4>Analyst roles</h4><div class="roles">${tags(e, 0, true)}</div></div>
        <div class="about"><h4>${fair.labels.rec}</h4><p>${esc(e.rec)}</p></div>
+       ${expoBlock(e)}
        ${found}
        <div class="detail-grid two">
          <div><h4>Skills to highlight</h4><p>${esc(e.lead)}</p></div>
@@ -861,7 +910,7 @@ function item(e) {
           <span class="logo" aria-hidden="true">${esc(initials(e.n))}</span>
           <span class="emp-text">
             <span class="emp-name">${esc(e.n)}</span>
-            <span class="emp-meta"><span class="m-plan"><span class="dot ${e.plan}"></span>${planLabel} ·</span>${esc([e.cat, e.hq].filter(Boolean).join(" · "))}</span>
+            <span class="emp-meta"><span class="m-plan"><span class="dot ${e.plan}"></span>${planLabel} ·</span>${esc([e.expo ? `Table ${e.expo.table}` : "", e.cat, e.hq].filter(Boolean).join(" · "))}</span>
           </span>
         </span>
         <span class="plan c-plan"><span class="dot ${e.plan}"></span>${planLabel}</span>
