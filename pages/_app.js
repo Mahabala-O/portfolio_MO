@@ -18,6 +18,12 @@ export default function Nextra({ Component, pageProps }) {
           href="/feed.xml"
         />
         <link
+          rel="alternate"
+          type="text/markdown"
+          title="Summary for AI assistants"
+          href="/llms.txt"
+        />
+        <link
           rel="preload"
           href="/fonts/Inter-roman.latin.var.woff2"
           as="font"
