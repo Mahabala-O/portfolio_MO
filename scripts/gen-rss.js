@@ -47,6 +47,8 @@ async function generate() {
     `${SITE_URL}/projects`,
     `${SITE_URL}/resume`,
     `${SITE_URL}/llms.txt`,
+    `${SITE_URL}/llms-full.txt`,
+    `${SITE_URL}/resume.json`,
     `${SITE_URL}/fair-guide`,
     ...allPosts.map((post) => post.url)
   ]

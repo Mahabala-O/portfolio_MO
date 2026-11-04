@@ -105,6 +105,16 @@ html.dark {
 .site-footer a:hover {
   color: var(--link);
 }
+/* "For agents" links sit on their own line under the social links */
+.site-footer nav.agents {
+  flex-basis: 100%;
+  gap: 0.25rem 1rem;
+  font-size: 0.8125rem;
+}
+.site-footer nav.agents span {
+  color: var(--muted);
+  font-variation-settings: 'wght' 600;
+}
 
 ._prose img {
   border-radius: 6px;

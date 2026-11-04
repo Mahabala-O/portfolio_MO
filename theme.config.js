@@ -51,8 +51,17 @@ export default {
           GitHub
         </a>
         <a href={LINKS.email}>Email</a>
-        <a href="/llms.txt" title="A summary of this site for AI assistants">
+      </nav>
+      <nav aria-label="For agents" className="agents">
+        <span>For agents</span>
+        <a href="/llms.txt" title="A short summary of this site for AI assistants">
           llms.txt
+        </a>
+        <a href="/llms-full.txt" title="Every page of this site as one Markdown file">
+          Full site as Markdown
+        </a>
+        <a href="/resume.json" title="Resume in the JSON Resume format">
+          Resume as JSON
         </a>
       </nav>
     </footer>

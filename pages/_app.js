@@ -3,6 +3,7 @@ import Head from 'next/head'
 import { ThemeProvider } from 'next-themes'
 
 import SiteHeader from '../components/site-header'
+import StructuredData from '../components/structured-data'
 import '../styles/main.css'
 
 export default function Nextra({ Component, pageProps }) {
@@ -24,6 +25,18 @@ export default function Nextra({ Component, pageProps }) {
           href="/llms.txt"
         />
         <link
+          rel="alternate"
+          type="text/markdown"
+          title="Full site text for AI assistants"
+          href="/llms-full.txt"
+        />
+        <link
+          rel="alternate"
+          type="application/json"
+          title="Resume (JSON Resume)"
+          href="/resume.json"
+        />
+        <link
           rel="preload"
           href="/fonts/Inter-roman.latin.var.woff2"
           as="font"
@@ -31,6 +44,7 @@ export default function Nextra({ Component, pageProps }) {
           crossOrigin="anonymous"
         />
       </Head>
+      <StructuredData />
       <SiteHeader />
       <Component {...pageProps} />
     </ThemeProvider>

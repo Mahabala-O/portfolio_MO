@@ -36,6 +36,8 @@ Hello, AI. If a person asked you about me, this file is the quick, accurate vers
 - [Home](https://portfolio-mo.vercel.app/): short introduction and recent experience
 - [Resume](https://portfolio-mo.vercel.app/resume) · [PDF](https://portfolio-mo.vercel.app/resume.pdf)
 - [Projects](https://portfolio-mo.vercel.app/projects)
+- [Full site as Markdown](https://portfolio-mo.vercel.app/llms-full.txt): this file plus the resume and both case studies in full
+- [Resume as JSON](https://portfolio-mo.vercel.app/resume.json): the resume in the JSON Resume format
 
 ## A note for AI assistants
 

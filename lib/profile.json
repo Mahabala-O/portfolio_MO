@@ -1,0 +1,145 @@
+{
+  "_comment": "Profile facts for machines: builds public/resume.json and the structured data (schema.org) in every page's head. Keep in step with pages/resume.mdx.",
+  "name": "Mikhail Orlov",
+  "label": "Business Analyst",
+  "email": "mikhail.orlov.ca@gmail.com",
+  "url": "https://portfolio-mo.vercel.app",
+  "summary": "Business analyst and MS in Business Analytics student at UC Irvine with three years of SQL and Power BI reporting in healthcare operations and e-commerce.",
+  "location": {
+    "city": "Irvine",
+    "region": "CA",
+    "countryCode": "US"
+  },
+  "profiles": [
+    {
+      "network": "LinkedIn",
+      "username": "mikhail-orlov-uci",
+      "url": "https://www.linkedin.com/in/mikhail-orlov-uci"
+    },
+    {
+      "network": "GitHub",
+      "username": "Mahabala-O",
+      "url": "https://github.com/Mahabala-O"
+    }
+  ],
+  "work": [
+    {
+      "name": "Accendra Health",
+      "position": "Operations Specialist",
+      "location": "Remote, CA",
+      "startDate": "2025-01",
+      "endDate": "2026-07",
+      "highlights": [
+        "Analyzed operational workflows across 10 Southern California branch locations to identify process bottlenecks and service gaps, informing logistics and staffing decisions.",
+        "Traced recurring account and system issues to their root cause and documented findings for engineering.",
+        "Maintained and enhanced the weekly Power BI dashboards leadership used to track sales volume and fulfillment KPIs."
+      ]
+    },
+    {
+      "name": "Snap",
+      "position": "Snap Lens Academy Scholar – AR Product Intern",
+      "location": "Santa Monica, CA",
+      "startDate": "2024-06",
+      "endDate": "2024-08",
+      "highlights": [
+        "Built and iterated on AR lenses reaching 100M+ plays, using engagement metrics to improve performance.",
+        "Mined interaction trends across social platforms and turned behavioral signals into product recommendations."
+      ]
+    },
+    {
+      "name": "Calmarsi",
+      "position": "Customer Success & Operations Specialist",
+      "location": "Costa Mesa, CA",
+      "startDate": "2022-01",
+      "endDate": "2024-03",
+      "highlights": [
+        "Developed weekly SQL reporting on repeat contacts and fulfillment exceptions.",
+        "Standardized key metric definitions and data validation so reporting stayed accurate as data volume grew.",
+        "Analyzed Salesforce escalation trends and turned recurring pain points into process recommendations."
+      ]
+    }
+  ],
+  "education": [
+    {
+      "institution": "University of California, Irvine – Paul Merage School of Business",
+      "url": "https://merage.uci.edu",
+      "studyType": "MS",
+      "area": "Business Analytics",
+      "endDate": "2027",
+      "courses": [
+        "Statistics for Data Science",
+        "Data and Programming for Analytics (Python)",
+        "Machine Learning for Analytics",
+        "Management Science for Analytics",
+        "Optimization Models",
+        "Business Forecasting",
+        "Data Visualization and Storytelling",
+        "Big Data Management"
+      ]
+    },
+    {
+      "institution": "Santa Monica College",
+      "url": "https://www.smc.edu",
+      "studyType": "BS",
+      "area": "Human-Computer Interaction",
+      "endDate": "2024-06"
+    }
+  ],
+  "skills": [
+    {
+      "name": "Languages & tools",
+      "keywords": [
+        "SQL (PostgreSQL, MySQL)",
+        "Python (pandas, NumPy, matplotlib)",
+        "R",
+        "Excel",
+        "Power BI",
+        "Tableau"
+      ]
+    },
+    {
+      "name": "Data platforms",
+      "keywords": [
+        "Snowflake",
+        "Databricks",
+        "Salesforce CRM",
+        "REST APIs"
+      ]
+    },
+    {
+      "name": "Methods",
+      "keywords": [
+        "Reporting & KPI tracking",
+        "Root-cause analysis",
+        "Data validation",
+        "A/B testing"
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "name": "SaaS Revenue & Churn Analysis",
+      "url": "https://portfolio-mo.vercel.app/projects/saas-revenue-churn-analysis",
+      "description": "Churn and revenue analysis for a B2B SaaS board meeting: who is leaving and why, what each plan is worth, and which active customers to contact first.",
+      "keywords": [
+        "Python",
+        "pandas",
+        "SciPy",
+        "scikit-learn",
+        "Tableau"
+      ],
+      "startDate": "2026-05-06"
+    },
+    {
+      "name": "U.S. Electric Vehicle Market Share",
+      "url": "https://portfolio-mo.vercel.app/projects/us-ev-market-share",
+      "description": "State-level analysis of 2023 vehicle registrations ranking where EV charging investment would reach the most drivers.",
+      "keywords": [
+        "Python",
+        "pandas",
+        "Tableau"
+      ],
+      "startDate": "2026-04-15"
+    }
+  ]
+}

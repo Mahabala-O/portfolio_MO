@@ -6,7 +6,7 @@
   },
   "scripts": {
     "dev": "next",
-    "build": "node ./scripts/gen-rss.js && next build",
+    "build": "node ./scripts/gen-rss.js && node ./scripts/gen-agent-files.js && next build",
     "start": "next start"
   },
   "dependencies": {
