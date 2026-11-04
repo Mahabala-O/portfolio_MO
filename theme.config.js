@@ -51,6 +51,9 @@ export default {
           GitHub
         </a>
         <a href={LINKS.email}>Email</a>
+        <a href="/llms.txt" title="A summary of this site for AI assistants">
+          llms.txt
+        </a>
       </nav>
     </footer>
   )
