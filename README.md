@@ -12,6 +12,7 @@ Personal portfolio at [portfolio-mo.vercel.app](https://portfolio-mo.vercel.app)
 | Header navigation | `NAV` in `components/site-header.js` |
 | Colors for light and dark mode | CSS variables at the top of `styles/main.css` |
 | Career-fair guide at `/fair-guide` | `public/fair-guide.html`, a standalone page outside the site layout. Each fair is an employer list plus an entry in `FAIRS` at the top of its script; the comment there lists the fields. Link to one fair with `/fair-guide#<fair id>`; `/talent-expo` is a short link (in `next.config.mjs`) to the Merage Fall Talent Expo. |
+| SQL skills check at `/sql-lab` | `public/sql-lab.html`, a standalone page (not linked from the site, `noindex`) that runs SQLite in the browser via sql.js. Tasks and concept checks live in `TASKS` and `CONCEPTS` between the `/*BANK*/` markers; each task's `ref` query defines the right answer, and each `hidden` entry adds rows on top of the sample data to test an edge case. |
 
 ### Adding a project
 
