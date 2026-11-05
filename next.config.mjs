@@ -20,7 +20,9 @@ export default withNextra({
   async rewrites() {
     return [
       // Standalone career-fair guide (public/fair-guide.html), served without the site layout.
-      { source: '/fair-guide', destination: '/fair-guide.html' }
+      { source: '/fair-guide', destination: '/fair-guide.html' },
+      // Standalone SQL skills check (public/sql-lab.html), not linked from the site and not indexed.
+      { source: '/sql-lab', destination: '/sql-lab.html' }
     ]
   }
 })
