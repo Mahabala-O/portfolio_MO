@@ -1,7 +1,7 @@
 // Answers used by harness.js, per task id.
 //   good: alternative correct answers that must pass every test.
 //   bad:  wrong answers as [query, start of the name of the test that must catch it] (null = any test).
-// The wrong answers include the real mistakes from the first run of the diagnostic.
+// Wrong answers are common real mistakes; add new ones here as they turn up.
 module.exports = {
  'never-ordered': {
    good: { notexists: `SELECT name FROM customers c WHERE NOT EXISTS (SELECT 1 FROM orders o WHERE o.customer_id = c.id)` },
@@ -17,10 +17,10 @@ module.exports = {
           hard3: [`SELECT customer_id FROM customer_purchases GROUP BY customer_id HAVING COUNT(DISTINCT product_key) = 3`, 'Product 8'] } },
  'above-dept-avg': {
    good: { join: `SELECT e.name, e.dept, e.salary, ROUND(a.av,2) AS dept_avg FROM employees e JOIN (SELECT dept, AVG(salary) av FROM employees GROUP BY dept) a ON a.dept=e.dept WHERE e.salary > a.av ORDER BY e.dept, e.salary DESC`,
-           mine: `with averages as(select name, dept, salary, round(avg(salary) over (partition by dept), 2) as dept_avg from employees) select name, dept, salary, dept_avg from averages where salary > dept_avg order by dept, salary desc` },
+           roundInCte: `with averages as(select name, dept, salary, round(avg(salary) over (partition by dept), 2) as dept_avg from employees) select name, dept, salary, dept_avg from averages where salary > dept_avg order by dept, salary desc` },
    bad: { gte: [`SELECT e.name, e.dept, e.salary, ROUND(a.av,2) AS dept_avg FROM employees e JOIN (SELECT dept, AVG(salary) av FROM employees GROUP BY dept) a ON a.dept=e.dept WHERE e.salary >= a.av ORDER BY e.dept, e.salary DESC`, 'Legal'] } },
  'manager-reports': {
-   good: { mine: `select e2.name, count(e2.name) as report_count from employee e1 join employee e2 on e1.manager_id = e2.id group by e2.id having count(e2.id) >= 2 order by report_count desc, e2.name` },
+   good: { groupById: `select e2.name, count(e2.name) as report_count from employee e1 join employee e2 on e1.manager_id = e2.id group by e2.id having count(e2.id) >= 2 order by report_count desc, e2.name` },
    bad: { byname: [`SELECT m.name, COUNT(*) report_count FROM employee e JOIN employee m ON m.id=e.manager_id GROUP BY m.name HAVING COUNT(*)>=2 ORDER BY report_count DESC, m.name`, 'Two different managers both named Uma'],
           leftorphan: [`SELECT m.name, x.c AS report_count FROM (SELECT manager_id, COUNT(*) c FROM employee WHERE manager_id IS NOT NULL GROUP BY manager_id HAVING COUNT(*)>=2) x LEFT JOIN employee m ON m.id=x.manager_id ORDER BY x.c DESC, m.name`, 'Zoe and Ari'],
           noorder: [`select e2.name, count(e2.name) as report_count from employee e1 join employee e2 on e1.manager_id = e2.id group by e2.id having count(e2.id) >= 2`, 'Sample'] } },
@@ -53,7 +53,7 @@ module.exports = {
  'order-gaps': {
    good: { span: `SELECT customer_id, ROUND(DATEDIFF(MAX(order_date), MIN(order_date))*1.0/(COUNT(*)-1),1) AS avg_gap_days FROM orders GROUP BY customer_id HAVING COUNT(*)>=2 ORDER BY customer_id` },
    bad: { byid: [`WITH g AS (SELECT customer_id, DATEDIFF(order_date, LAG(order_date) OVER (PARTITION BY customer_id ORDER BY order_id)) gap FROM orders) SELECT customer_id, ROUND(AVG(gap),1) AS avg_gap_days FROM g WHERE gap IS NOT NULL GROUP BY customer_id ORDER BY customer_id`, "Customer 5's"],
-          mine: [`with dif_dat as (select customer_id, DATEDIFF(order_date, LAG(order_date) OVER (PARTITION BY customer_id ORDER BY order_date)) as date_diff from orders where customer_id in (select customer_id from orders group by customer_id having count(customer_id) > 1)) select customer_id, avg(date_diff) from dif_dat group by customer_id`, 'Sample'] } },
+          noRoundNoAlias: [`with dif_dat as (select customer_id, DATEDIFF(order_date, LAG(order_date) OVER (PARTITION BY customer_id ORDER BY order_date)) as date_diff from orders where customer_id in (select customer_id from orders group by customer_id having count(customer_id) > 1)) select customer_id, avg(date_diff) from dif_dat group by customer_id`, 'Sample'] } },
  'longest-streak': {
    good: { mysql: `WITH d AS (SELECT DISTINCT user_id, login_date FROM logins), g AS (SELECT user_id, DATE_SUB(login_date, INTERVAL ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY login_date) DAY) grp FROM d) SELECT user_id, MAX(c) AS longest_streak FROM (SELECT user_id, grp, COUNT(*) c FROM g GROUP BY user_id, grp) GROUP BY user_id ORDER BY user_id` },
    bad: { nodistinct: [`WITH g AS (SELECT user_id, julianday(login_date) - ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY login_date) grp FROM logins) SELECT user_id, MAX(c) AS longest_streak FROM (SELECT user_id, grp, COUNT(*) c FROM g GROUP BY user_id, grp) GROUP BY user_id ORDER BY user_id`, 'Users 1, 2 and 3'],
