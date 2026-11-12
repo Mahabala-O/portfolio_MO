@@ -1,67 +1,67 @@
 ---
 title: SQL Lab
 date: 2026/11/12
-description: A SQL diagnostic and practice tool that runs in the browser. It finds where your SQL breaks down, then trains those gaps with problems checked the way an interviewer would. Open source, and built to be copied.
+description: A free, open-source tool for improving at SQL interview problems. A diagnostic identifies where your SQL breaks down, and a practice set trains those gaps with problems graded the way an interviewer would grade them.
 tools: JavaScript, SQL (MySQL, SQLite)
 highlight: Finds the gaps in your SQL, then trains them with interview-style practice problems
 ---
 
 **Live:** [Diagnostic ↗](/sql-lab) · [Practice ↗](/sql-practice) · **Code:** [github.com/Mahabala-O/sql-lab ↗](https://github.com/Mahabala-O/sql-lab) · **Tools:** JavaScript, SQLite (sql.js, WebAssembly), MySQL syntax
 
-SQL Lab is a free tool for getting better at SQL interview problems. A diagnostic of 14 LeetCode-style tasks shows where your SQL breaks down. A practice set then trains those gaps one topic at a time, with problems that start easy and build up. Everything runs in the browser, and anyone can copy it to build practice around their own gaps.
+SQL Lab is a free tool for improving at SQL interview problems. A diagnostic of 14 LeetCode-style tasks pinpoints where your SQL breaks down. A practice set then trains those gaps one topic at a time, starting with easy problems and building to hard ones. It runs entirely in the browser, and anyone can copy it to build practice around their own gaps.
 
 ## Summary
 
-- **A diagnostic and a practice set in one tool.** The diagnostic has 14 query tasks and 11 concept checks and ends in a skill report. The practice page has topics that go from Easy to Hard, each starting with a lesson.
-- **Checked like an interview.** Column names have to match the prompt, a requested order needs an `ORDER BY`, and a missing `ROUND` fails. Hidden tests probe the edge cases that break medium-level answers: ties, NULLs, duplicates, and month or leap-year boundaries.
-- **Open source, and meant to be copied.** Anyone can fork it, take the diagnostic, and add practice topics for their own gaps, with an AI assistant writing the first draft and the checks catching its mistakes.
-- **The tests are tested.** An automated check removes each requirement from the reference solution, one at a time, and confirms that some test notices. All 134 requirements across 22 problems are covered.
+- **Diagnose, then practice.** The diagnostic combines 14 query tasks with 11 concept checks and ends in a skill report. The practice set is organized by topic, and each topic opens with a lesson and moves from Easy to Hard.
+- **Graded like an interview.** Column names must match the prompt, a requested sort order requires an `ORDER BY`, and missing rounding counts as wrong. Hidden tests target the edge cases that trip up medium-level answers: ties, NULLs, duplicate rows, and month and leap-year boundaries.
+- **Built to be reused.** The project is an open-source template. Anyone can copy it, take the diagnostic, and add topics for their own gaps, using an AI assistant for the first draft and the built-in checks to verify it.
+- **Every requirement is tested.** An automated check confirms that each requirement in every prompt is enforced by at least one test: 134 requirements across 22 problems.
 
-## Why I built it
+## The problem
 
-I could solve most of LeetCode's easy database problems, but the mediums took me much longer, especially anything with window functions. I didn't know exactly which parts were the problem. "Practise more SQL" wasn't a plan, so I built something that would tell me what to practise.
+I could solve most of LeetCode's easy database problems, but medium problems took me far longer, especially those involving window functions. I couldn't say exactly which concepts were slowing me down, and "practice more SQL" isn't a plan. I wanted a tool that would tell me precisely what to work on.
 
-The diagnostic gave me that. My first run pointed at one pattern in particular: ranking rows that are themselves totals (find the top product in each category, by sales, with tie-breaks). That's the core of problems like *Seasonal Sales Analysis*, so it became the first practice topic.
+My first diagnostic run answered that. It pointed to one pattern above all: ranking rows that are themselves aggregates, such as finding the top-selling product in each category with tie-breaks. That pattern is the core of problems like *Seasonal Sales Analysis*, so it became the first practice topic.
 
 ## How it works
 
-Each problem has sample data, a reference solution, and hidden tests that add a few rows to probe one specific mistake. When a hidden test fails, it opens as a tab: you can see the rows it added and run your query against just that data until it passes.
+Every problem includes sample data, a reference solution, and hidden tests. Each hidden test adds a few rows designed to expose one specific mistake. When a hidden test fails, it opens as its own tab, showing the rows it added and letting you run your query against that data until it passes.
 
-![A hidden test that failed, opened as a tab: the query groups by product name, so two different products called Tee are counted as one](/images/sql-lab/failed-test.png)
+![A failed hidden test opened as a tab. The query groups by product name, so two different products named Tee are counted as one.](/images/sql-lab/failed-test.png)
 
-Each topic starts with a worked example. The lesson runs it live and shows the output of every step, so you can see exactly what the ranking step receives. The same "show one step" menu is available in every problem.
+Each topic begins with a worked example. The lesson runs the query live and shows the output of every step, so you can see exactly what each stage of the query receives. The same step-by-step view is available in every problem.
 
-![The lesson for "Aggregate, then rank": the worked example and the output of each step](/images/sql-lab/lesson.png)
+![The lesson for "Aggregate, then rank," showing the worked example and the output of each step](/images/sql-lab/lesson.png)
 
-Problems get harder one element at a time. The second problem gives you the whole query except the ranking step. Later ones add a join, a bucket built with `CASE`, a second tie-break, a second window function. Solved problems stay in the list with your best time, so you can come back and solve them again.
+Problems increase in difficulty one element at a time. The second problem provides the full query except for the ranking step; later problems add a join, a `CASE` bucket, a second tie-break, and a second window function. Solved problems stay in the list with your best time, so you can return and solve them again.
 
-![The practice page's problem list, from Easy to Hard](/images/sql-lab/practice.png)
+![The practice set's problem list, from Easy to Hard](/images/sql-lab/practice.png)
 
-## Making sure the tests test everything
+## Testing the tests
 
-The first version of the diagnostic had a gap I only found by taking it: some correct-looking answers passed even though they were missing an `ORDER BY` or a `ROUND`. The sample data just happened to come out sorted, and the averages happened to be round numbers. When I audited it, 14 of the 44 requirements in the prompts had no test behind them.
+Taking the first version of the diagnostic revealed a flaw: some answers passed even though they omitted an `ORDER BY` or a `ROUND`, because the sample data happened to be sorted and the averages happened to be whole numbers. An audit showed that 14 of the 44 requirements in the prompts had no test enforcing them.
 
-So I added a check that does this audit automatically. For every problem, it breaks the reference solution one requirement at a time:
+I replaced that manual audit with an automated one. For every problem, the check breaks the reference solution one requirement at a time:
 
-- removes the final `ORDER BY`, and flips each sort key
+- removes the final `ORDER BY` and reverses each sort key
 - removes each `ROUND`
-- applies edits listed for that problem: drops a date filter, changes `>=` to `>`, swaps `DENSE_RANK` for `RANK`, groups by name instead of id
+- applies problem-specific changes, such as dropping a date filter, changing `>=` to `>`, swapping `DENSE_RANK` for `RANK`, or grouping by name instead of ID
 
-If no test then gives a wrong result, the check fails, and the problem can't ship until I add data where that requirement matters. Every problem now passes: 134 requirements across 22 problems. The same check runs on GitHub on every change.
+If no test catches a change, the check fails, and the problem doesn't ship until the data exercises that requirement. All 134 requirements across 22 problems now pass, and the check runs on GitHub with every change.
 
-Two more checks keep the content honest. Each problem has a list of known wrong answers (including mistakes I made myself) that must fail on a specific test, and alternative correct answers that must pass, so the tests don't only accept one way of writing a query.
+Two further checks protect the content. Each problem lists known wrong answers, including mistakes from my own attempts, that must fail a specific test. It also lists alternative correct answers that must pass, so the tests never accept only one way of writing a query.
 
-## Under the hood
+## Technical details
 
-- **SQLite runs in the browser** through sql.js (WebAssembly). There's no server: nothing is sent anywhere, and progress is saved on the device.
-- **MySQL syntax, as on LeetCode.** I rewrite MySQL functions like `QUARTER`, `DATEDIFF` and `DATE_ADD(d, INTERVAL 1 DAY)` into native SQLite expressions before a query runs. I first tried registering them as JavaScript functions, but sql.js returns every number from JavaScript as a float, so `CONCAT('Q', QUARTER(d))` came out as `'Q2.0'`.
-- **No expected output is typed by hand.** Every test only adds or removes rows, and the expected result comes from running the reference solution on the same data. The same goes for custom rows you add yourself.
-- **Plain HTML, CSS and JavaScript**, with no framework or build step, so a copy can be hosted anywhere, including free on GitHub Pages.
+- **SQLite in the browser.** The SQL engine runs client-side through sql.js (WebAssembly). There's no server, no data leaves the page, and progress is saved on the device.
+- **MySQL syntax, as on LeetCode.** MySQL functions such as `QUARTER`, `DATEDIFF`, and `DATE_ADD(d, INTERVAL 1 DAY)` are rewritten into native SQLite expressions before a query runs. Registering them as JavaScript functions wasn't an option: sql.js returns every JavaScript number as a float, so `CONCAT('Q', QUARTER(d))` produced `'Q2.0'`.
+- **No hand-typed answers.** Tests only add or remove rows. Expected results always come from running the reference solution on the same data, including any custom rows a user adds.
+- **No framework or build step.** The site is plain HTML, CSS, and JavaScript, so a copy can be hosted anywhere, including for free on GitHub Pages.
 
-## Make your own
+## Use it yourself
 
-The [repository](https://github.com/Mahabala-O/sql-lab) is a template. Copy it, turn on GitHub Pages, and take the diagnostic. The guide in `docs/tailor-with-ai.md` has the prompts for turning your results into a ranked list of gaps and then a practice topic for the first one. The checks then review the AI's draft: they flag any requirement without a test, any wrong answer the tests let through, and any correct answer they reject.
+The [repository](https://github.com/Mahabala-O/sql-lab) is a GitHub template. Copy it, enable GitHub Pages, and take the diagnostic. The guide in `docs/tailor-with-ai.md` provides prompts for turning your results into a ranked list of gaps, and then into a practice topic for the most important one. The built-in checks then review the draft, flagging any requirement without a test, any wrong answer that slips through, and any correct answer that's rejected.
 
 ## What's next
 
-Topics for NULLs and anti-joins, first and last events with date arithmetic, consecutive runs (gaps and islands), and window-function details such as default frames. After those: a view that shows how a window function partitions, orders and frames the rows, and a re-test to measure progress.
+Upcoming topics cover NULLs and anti-joins, first and last events with date arithmetic, consecutive runs (gaps and islands), and window-function details such as default frames. After that, I plan to add a visualization of how window functions partition, order, and frame rows, along with a re-test to measure progress.
