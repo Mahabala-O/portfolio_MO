@@ -1,4 +1,4 @@
-// Run: node scripts/sql-lab/harness.js   (exits 1 on any problem)
+// Usage: node harness.js   (exits 1 on any problem)
 // Checks that every reference solution passes all of its tests, that each wrong answer in probes.js is caught by the
 // test meant to catch it, and that each alternative correct answer is accepted.
 const load = require('./load.js');

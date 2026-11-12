@@ -1,0 +1,65 @@
+---
+title: SQL Lab
+date: 2026/11/12
+description: A SQL diagnostic and practice tool that runs in the browser. It finds where your SQL breaks down, then trains those gaps with problems checked the way an interviewer would. Open source, and built to be copied.
+tools: JavaScript, SQL (MySQL, SQLite)
+highlight: Every requirement in every prompt is backed by an automated test (134 across 22 problems)
+---
+
+**Live:** [Diagnostic ↗](/sql-lab) · [Practice ↗](/sql-practice) · **Code:** [github.com/Mahabala-O/sql-lab ↗](https://github.com/Mahabala-O/sql-lab) · **Tools:** JavaScript, SQLite (sql.js, WebAssembly), MySQL syntax
+
+## Summary
+
+- **A diagnostic and a practice set in one tool.** The diagnostic has 14 query tasks and 11 concept checks and ends in a skill report. The practice page has topics that go from Easy to Hard, each starting with a lesson.
+- **Checked like an interview.** Column names have to match the prompt, a requested order needs an `ORDER BY`, and a missing `ROUND` fails. Hidden tests probe the edge cases that break medium-level answers: ties, NULLs, duplicates, and month or leap-year boundaries.
+- **The tests are tested.** An automated check removes each requirement from the reference solution, one at a time, and confirms that some test notices. All 134 requirements across 22 problems are covered.
+- **Open source, and meant to be copied.** Anyone can fork it, take the diagnostic, and add practice topics for their own gaps, with an AI assistant writing the first draft and the checks catching its mistakes.
+
+## Why I built it
+
+I could solve most of LeetCode's easy database problems, but the mediums took me much longer, especially anything with window functions. I didn't know exactly which parts were the problem. "Practise more SQL" wasn't a plan, so I built something that would tell me what to practise.
+
+The diagnostic gave me that. My first run pointed at one pattern in particular: ranking rows that are themselves totals (find the top product in each category, by sales, with tie-breaks). That's the core of problems like *Seasonal Sales Analysis*, so it became the first practice topic.
+
+## How it works
+
+Each problem has sample data, a reference solution, and hidden tests that add a few rows to probe one specific mistake. When a hidden test fails, it opens as a tab: you can see the rows it added and run your query against just that data until it passes.
+
+![A hidden test that failed, opened as a tab: the query groups by product name, so two different products called Tee are counted as one](/images/sql-lab/failed-test.png)
+
+Each topic starts with a worked example. The lesson runs it live and shows the output of every step, so you can see exactly what the ranking step receives. The same "show one step" menu is available in every problem.
+
+![The lesson for "Aggregate, then rank": the worked example and the output of each step](/images/sql-lab/lesson.png)
+
+Problems get harder one element at a time. The second problem gives you the whole query except the ranking step. Later ones add a join, a bucket built with `CASE`, a second tie-break, a second window function. Solved problems stay in the list with your best time, so you can come back and solve them again.
+
+![The practice page's problem list, from Easy to Hard](/images/sql-lab/practice.png)
+
+## Making sure the tests test everything
+
+The first version of the diagnostic had a gap I only found by taking it: some correct-looking answers passed even though they were missing an `ORDER BY` or a `ROUND`. The sample data just happened to come out sorted, and the averages happened to be round numbers. When I audited it, 14 of the 44 requirements in the prompts had no test behind them.
+
+So I added a check that does this audit automatically. For every problem, it breaks the reference solution one requirement at a time:
+
+- removes the final `ORDER BY`, and flips each sort key
+- removes each `ROUND`
+- applies edits listed for that problem: drops a date filter, changes `>=` to `>`, swaps `DENSE_RANK` for `RANK`, groups by name instead of id
+
+If no test then gives a wrong result, the check fails, and the problem can't ship until I add data where that requirement matters. Every problem now passes: 134 requirements across 22 problems. The same check runs on GitHub on every change.
+
+Two more checks keep the content honest. Each problem has a list of known wrong answers (including mistakes I made myself) that must fail on a specific test, and alternative correct answers that must pass, so the tests don't only accept one way of writing a query.
+
+## Under the hood
+
+- **SQLite runs in the browser** through sql.js (WebAssembly). There's no server: nothing is sent anywhere, and progress is saved on the device.
+- **MySQL syntax, as on LeetCode.** I rewrite MySQL functions like `QUARTER`, `DATEDIFF` and `DATE_ADD(d, INTERVAL 1 DAY)` into native SQLite expressions before a query runs. I first tried registering them as JavaScript functions, but sql.js returns every number from JavaScript as a float, so `CONCAT('Q', QUARTER(d))` came out as `'Q2.0'`.
+- **No expected output is typed by hand.** Every test only adds or removes rows, and the expected result comes from running the reference solution on the same data. The same goes for custom rows you add yourself.
+- **Plain HTML, CSS and JavaScript**, with no framework or build step, so a copy can be hosted anywhere, including free on GitHub Pages.
+
+## Make your own
+
+The [repository](https://github.com/Mahabala-O/sql-lab) is a template. Copy it, turn on GitHub Pages, and take the diagnostic. The guide in `docs/tailor-with-ai.md` has the prompts for turning your results into a ranked list of gaps and then a practice topic for the first one. The checks then review the AI's draft: they flag any requirement without a test, any wrong answer the tests let through, and any correct answer they reject.
+
+## What's next
+
+Topics for NULLs and anti-joins, first and last events with date arithmetic, consecutive runs (gaps and islands), and window-function details such as default frames. After those: a view that shows how a window function partitions, orders and frames the rows, and a re-test to measure progress.

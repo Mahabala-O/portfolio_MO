@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="A SQL skills check: 14 LeetCode-style query tasks with hidden edge-case tests and 11 concept checks, run in the browser, ending in a skill map.">
-<meta name="robots" content="noindex">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <title>SQL Skills Check</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,7 +14,7 @@
 <body>
 <div class="page">
   <header>
-    <p class="eyebrow">SQL Lab · Diagnostic · <a href="sql-practice">Practice →</a></p>
+    <p class="eyebrow">SQL Lab · Diagnostic · <a href="sql-practice.html">Practice →</a></p>
     <h1>SQL skills check</h1>
     <p class="engine" id="engine">Loading the SQL engine…</p>
   </header>
@@ -68,7 +67,7 @@ function startHTML() {
   const touched = TASKS.some(t => state.tasks[t.id] && state.tasks[t.id].status !== 'untouched');
   return `<div class="card prompt">
   <h2>What this is</h2>
-  <p>A diagnostic, not a course. ${TASKS.length} query tasks in the style of LeetCode's database problems, from warm-ups to the window-function work behind problems like Seasonal Sales Analysis, then ${CONCEPTS.length} quick concept checks. The report maps what's solid and what's a gap. To train the gaps, use <a href="sql-practice">SQL Practice</a>.</p>
+  <p>A diagnostic, not a course. ${TASKS.length} query tasks in the style of LeetCode's database problems, from warm-ups to the window-function work behind problems like Seasonal Sales Analysis, then ${CONCEPTS.length} quick concept checks. The report maps what's solid and what's a gap. To train the gaps, use <a href="sql-practice.html">SQL Practice</a>.</p>
   <h3>How a task works</h3>
   <ul>
     <li><b>Run</b> shows your output next to the expected output for the data you have selected (the sample data, to start with).</li>
@@ -196,8 +195,8 @@ function renderReport(v) {
       <tbody>${TASKS.map((t, i) => { const s = state.tasks[t.id] || {}; return `<tr><td class="mono">${i + 1}</td><td><a href="#${t.id}" data-jump="${t.id}">${esc(t.title)}</a></td>
         <td>${L.STATUS[s.status || 'untouched']}</td><td class="mono hide-sm">${s.submits || 0}</td><td class="mono hide-sm">${s.hints || 0}</td><td class="mono hide-sm">${s.ms ? L.fmtMin(s.ms) : '–'}</td><td class="hide-sm">${s.feel || '–'}</td></tr>`; }).join('')}</tbody>
     </table></div>
-    <h3>Send this to Claude</h3>
-    <p class="note">Copy the summary (it includes your final query for each task) and paste it into the chat.</p>
+    <h3>Use your results</h3>
+    <p class="note">Copy the summary (it includes your final query for each task) and paste it into Claude or another AI assistant, or give it to a tutor, to plan what to practise next.</p>
     <div class="actions">
       <button class="btn primary" type="button" id="copy">Copy results</button>
       <button class="btn" type="button" id="dl">Download JSON</button>

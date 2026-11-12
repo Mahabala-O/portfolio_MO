@@ -1,7 +1,7 @@
-// Tasks and concept checks for the diagnostic at /sql-lab.
+// Tasks and concept checks for the diagnostic (sql-lab.html).
 // Each task: setup (schema + sample rows), ref (the reference query that defines the right answer), ordered (row order matters),
 // hidden (tests: extra SQL run on top of setup, each tagged with the skill it checks), and muts: [label, find, replace] edits that
-// each break one stated requirement of ref. scripts/sql-lab/mutate.js fails unless some test catches every one of them.
+// each break one stated requirement of ref. The mutate.js check fails unless some test catches every one of them.
 (function (root) {
 const SKILLS = {
   joins:   'Joins, self-joins & anti-joins',

@@ -1,7 +1,7 @@
-// Shared engine for /sql-lab (the diagnostic) and /sql-practice (the problem set).
+// Shared engine for sql-lab.html (the diagnostic) and sql-practice.html (the problem set).
 // Runs SQLite through sql.js, rewrites MySQL functions, judges a query against a task's tests,
 // and renders the task workspace (editor, test tabs, step runner, hints, solution).
-// Also loads in Node (module.exports) so scripts/sql-lab/*.js can check the task banks.
+// Also loads in Node (module.exports), so the checks (harness.js, mutate.js, …) can test the task banks.
 (function (root) {
 'use strict';
 

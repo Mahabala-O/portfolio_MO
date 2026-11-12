@@ -1,4 +1,4 @@
-// Run: node scripts/sql-lab/mutate.js   (exits 1 if any stated requirement has no test behind it)
+// Usage: node mutate.js   (exits 1 if any stated requirement has no test behind it)
 // For every task, breaks the reference solution one requirement at a time and checks that some test gives a wrong result.
 // Standard breaks: remove the final ORDER BY, flip each ORDER BY key, remove each ROUND. Task-specific ones come from the task's `muts`.
 const load = require('./load.js');
