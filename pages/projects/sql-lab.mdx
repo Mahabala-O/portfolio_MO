@@ -3,17 +3,19 @@ title: SQL Lab
 date: 2026/11/12
 description: A SQL diagnostic and practice tool that runs in the browser. It finds where your SQL breaks down, then trains those gaps with problems checked the way an interviewer would. Open source, and built to be copied.
 tools: JavaScript, SQL (MySQL, SQLite)
-highlight: Every requirement in every prompt is backed by an automated test (134 across 22 problems)
+highlight: Finds the gaps in your SQL, then trains them with interview-style practice problems
 ---
 
 **Live:** [Diagnostic ↗](/sql-lab) · [Practice ↗](/sql-practice) · **Code:** [github.com/Mahabala-O/sql-lab ↗](https://github.com/Mahabala-O/sql-lab) · **Tools:** JavaScript, SQLite (sql.js, WebAssembly), MySQL syntax
+
+SQL Lab is a free tool for getting better at SQL interview problems. A diagnostic of 14 LeetCode-style tasks shows where your SQL breaks down. A practice set then trains those gaps one topic at a time, with problems that start easy and build up. Everything runs in the browser, and anyone can copy it to build practice around their own gaps.
 
 ## Summary
 
 - **A diagnostic and a practice set in one tool.** The diagnostic has 14 query tasks and 11 concept checks and ends in a skill report. The practice page has topics that go from Easy to Hard, each starting with a lesson.
 - **Checked like an interview.** Column names have to match the prompt, a requested order needs an `ORDER BY`, and a missing `ROUND` fails. Hidden tests probe the edge cases that break medium-level answers: ties, NULLs, duplicates, and month or leap-year boundaries.
-- **The tests are tested.** An automated check removes each requirement from the reference solution, one at a time, and confirms that some test notices. All 134 requirements across 22 problems are covered.
 - **Open source, and meant to be copied.** Anyone can fork it, take the diagnostic, and add practice topics for their own gaps, with an AI assistant writing the first draft and the checks catching its mistakes.
+- **The tests are tested.** An automated check removes each requirement from the reference solution, one at a time, and confirms that some test notices. All 134 requirements across 22 problems are covered.
 
 ## Why I built it
 
