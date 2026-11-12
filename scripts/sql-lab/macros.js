@@ -1,4 +1,4 @@
-// Run: node scripts/sql-lab/macros.js   Spot-checks the MySQL-to-SQLite function rewriter and the query-shape helpers in core.js.
+// Usage: node macros.js   Spot-checks the MySQL-to-SQLite function rewriter and the query-shape helpers in core.js.
 const assert = require('assert');
 require('./load.js')().then(({ core }) => {
   const db = core.makeDb({ setup: 'CREATE TABLE t (x)' });

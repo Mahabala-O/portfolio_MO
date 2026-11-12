@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="SQL practice problems by topic, from easy to hard, with hidden edge-case tests. Runs in the browser.">
-<meta name="robots" content="noindex">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <title>SQL Practice</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,7 +14,7 @@
 <body>
 <div class="page">
   <header>
-    <p class="eyebrow">SQL Lab · Practice · <a href="sql-lab">Diagnostic →</a></p>
+    <p class="eyebrow">SQL Lab · Practice · <a href="sql-lab.html">Diagnostic →</a></p>
     <h1>SQL practice</h1>
     <p class="engine" id="engine">Loading the SQL engine…</p>
   </header>
@@ -74,7 +73,7 @@ function renderHome() {
   };
   view.innerHTML = `<div class="card prompt" style="margin-bottom:16px">
     <p>Problems are grouped by topic and go from easy to hard. Start each topic with its lesson. A solved problem stays here, so you can come back and solve it again; your times are kept.</p>
-    <p>Checked the way LeetCode and interviewers check: column names and order must match the prompt, a requested order needs an <code>ORDER BY</code>, and rounding counts. Every requirement in a prompt has a test behind it. Engine notes (MySQL functions, integer division) are on the <a href="sql-lab">diagnostic's start page</a>.</p>
+    <p>Checked the way LeetCode and interviewers check: column names and order must match the prompt, a requested order needs an <code>ORDER BY</code>, and rounding counts. Every requirement in a prompt has a test behind it. Engine notes (MySQL functions, integer division) are on the <a href="sql-lab.html">diagnostic's start page</a>.</p>
     <div class="actions"><button class="btn" type="button" id="exp">Export progress</button><button class="btn" type="button" id="imp">Import progress</button><input type="file" id="impfile" accept="application/json,.json" hidden><span id="impmsg" class="muted"></span></div>
   </div>
   ${TOPICS.map(topicHTML).join('')}

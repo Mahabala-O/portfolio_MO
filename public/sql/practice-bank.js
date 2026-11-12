@@ -1,7 +1,7 @@
-// Topics and problems for /sql-practice. A topic has a lesson (a worked example whose steps are run live),
+// Topics and problems for the practice page (sql-practice.html). A topic has a lesson (a worked example whose steps are run live),
 // quick checks, problems ordered from easiest to hardest, and LeetCode problems to try afterwards.
 // Problems use the same shape as the lab's tasks (see lab-bank.js): setup, ref, ordered, hidden, hints, explain, muts.
-// Rules for writing them are in docs/sql-lab-v2-plan.md; scripts/sql-lab/mutate.js enforces the main one.
+// The rules for writing them are in the project's docs (writing tasks); the mutate.js check enforces the main one.
 (function (root) {
 const TOPICS = [
 {

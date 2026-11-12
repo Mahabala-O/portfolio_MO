@@ -1,8 +1,8 @@
-// Run: node scripts/sql-lab/e2e.js [screenshot-dir]   (needs Playwright with Chromium, and sql.js installed as for the other checks)
+// Usage: node e2e.js [screenshot-dir]   (needs Playwright with Chromium, and sql.js installed as for the other checks)
 // Drives both pages in a headless browser: strict checks, failed-test tabs, step runner, custom data, report, lesson, solve again.
 const { chromium } = require('playwright');
 const path = require('path');
-const root = path.join(__dirname, '..', '..');
+const root = require('./load.js').root;
 const shots = process.argv[2];
 const file = f => 'file://' + path.join(root, 'public', f);
 let failures = 0;
@@ -110,6 +110,16 @@ const shot = async (page, name) => { if (shots) await page.screenshot({ path: pa
   await page.goto(file('sql-practice.html')); await page.waitForSelector('table.list');
   check('practice: home shows the solve', /Solved/.test(await page.locator('table.list tbody tr').nth(1).textContent()) && /1 of 8 problems solved/.test(await page.textContent('.topic')), await page.locator('table.list tbody tr').nth(1).textContent());
   check('practice: no page errors', page.errors.length === 0, page.errors.join(' | '));
+
+  /* ---- Landing page (only in the standalone project) ---- */
+  if (require('fs').existsSync(path.join(root, 'public', 'index.html'))) {
+    const ctx = await browser.newContext();
+    const home = await ctx.newPage();
+    await home.goto(file('index.html'));
+    const links = await home.locator('a.btn').evaluateAll(as => as.map(a => a.getAttribute('href')));
+    check('landing: links to both pages', links.join('|') === 'sql-lab.html|sql-practice.html', links);
+    await ctx.close();
+  }
 
   /* ---- Phone width ---- */
   for (const [name, url] of [['lab', file('sql-lab.html') + '#moving-avg'], ['practice home', file('sql-practice.html')], ['practice problem', file('sql-practice.html') + '#agg-rank/peak-station']]) {
