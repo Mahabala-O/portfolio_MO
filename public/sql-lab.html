@@ -10,157 +10,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
-<style>
-:root {
-  --bg: #FAFAFA; --surface: #FFFFFF; --surface-2: #F5F5F6; --ink: #18181B; --muted: #71717A; --faint: #A1A1AA;
-  --line: #E6E6E9; --accent: #2563EB; --pass: #15803D; --warn: #B45309; --fail: #B91C1C;
-  --pass-bg: #F0FDF4; --warn-bg: #FFFBEB; --fail-bg: #FEF2F2;
-  --font-body: "Geist", "Segoe UI", system-ui, -apple-system, sans-serif;
-  --font-mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-  color-scheme: light;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #0B0B0C; --surface: #111113; --surface-2: #18181B; --ink: #F4F4F5; --muted: #A1A1AA; --faint: #71717A;
-    --line: #26262B; --accent: #7EA6FF; --pass: #4ADE80; --warn: #FBBF24; --fail: #F87171;
-    --pass-bg: #0F2417; --warn-bg: #2A2110; --fail-bg: #2A1214; color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #0B0B0C; --surface: #111113; --surface-2: #18181B; --ink: #F4F4F5; --muted: #A1A1AA; --faint: #71717A;
-  --line: #26262B; --accent: #7EA6FF; --pass: #4ADE80; --warn: #FBBF24; --fail: #F87171;
-  --pass-bg: #0F2417; --warn-bg: #2A2110; --fail-bg: #2A1214; color-scheme: dark;
-}
-* { box-sizing: border-box; }
-[hidden] { display: none !important; }
-html { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
-body { margin: 0; background: var(--bg); color: var(--ink); font: 400 14px/1.55 var(--font-body); -webkit-font-smoothing: antialiased; }
-button, input, select, textarea { font: inherit; color: inherit; }
-a { color: var(--accent); text-decoration: none; }
-a:hover { text-decoration: underline; }
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
-code, pre, .mono { font-family: var(--font-mono); font-size: 12.5px; }
-p code, li code, td code { background: var(--surface-2); border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; }
-
-.page { max-width: 1040px; margin: 0 auto; padding-inline: clamp(16px, 4vw, 32px); padding-block: 28px 64px; }
-header { display: grid; gap: 4px; margin-bottom: 16px; }
-.eyebrow { font: 400 12px/1.4 var(--font-mono); color: var(--muted); margin: 0; }
-h1 { font: 600 24px/1.2 var(--font-body); letter-spacing: -.015em; margin: 0; }
-h2 { font: 600 18px/1.3 var(--font-body); letter-spacing: -.01em; margin: 0 0 8px; }
-h3 { font: 600 14px/1.4 var(--font-body); margin: 18px 0 6px; }
-.muted { color: var(--muted); }
-.engine { font: 400 12px/1.4 var(--font-mono); color: var(--muted); }
-.engine.err { color: var(--fail); }
-
-/* Stepper */
-nav.steps { position: sticky; top: 0; z-index: 5; background: var(--bg); padding: 8px 0; margin-bottom: 16px; border-bottom: 1px solid var(--line); display: flex; gap: 4px; overflow-x: auto; scrollbar-width: thin; }
-nav.steps button { flex: none; height: 30px; min-width: 30px; padding: 0 9px; border-radius: 7px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; font: 500 12px/1 var(--font-mono); color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
-nav.steps button:hover { color: var(--ink); }
-nav.steps button[aria-current="true"] { border-color: var(--ink); color: var(--ink); }
-nav.steps button.passed { background: var(--pass-bg); color: var(--pass); border-color: color-mix(in srgb, var(--pass) 35%, transparent); }
-nav.steps button.gaveup { background: var(--fail-bg); color: var(--fail); border-color: color-mix(in srgb, var(--fail) 35%, transparent); }
-nav.steps button.attempted { background: var(--warn-bg); color: var(--warn); border-color: color-mix(in srgb, var(--warn) 35%, transparent); }
-nav.steps .sep { flex: none; width: 1px; background: var(--line); margin: 4px 4px; }
-
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: clamp(16px, 3vw, 24px); }
-.meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 8px; }
-.tag { font: 400 11.5px/1 var(--font-mono); padding: 4px 7px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
-.tag.level { color: var(--ink); }
-.prompt p { margin: 0 0 8px; max-width: 75ch; }
-.prompt ul { margin: 0 0 8px; padding-left: 20px; max-width: 75ch; }
-
-/* Data tables */
-.tables { display: flex; flex-wrap: wrap; gap: 12px; margin: 6px 0 4px; }
-.tbl { min-width: 0; max-width: 100%; }
-.tbl .cap { font: 500 12px/1.4 var(--font-mono); margin-bottom: 4px; }
-.tbl .cap span { color: var(--faint); font-weight: 400; }
-.scroll { overflow-x: auto; width: fit-content; max-width: 100%; border: 1px solid var(--line); border-radius: 8px; }
-.scroll.wide { width: auto; border: 0; }
-table.grid { border-collapse: collapse; font: 400 12.5px/1.4 var(--font-mono); font-variant-numeric: tabular-nums; }
-table.grid th, table.grid td { padding: 4px 10px; text-align: left; white-space: nowrap; border-bottom: 1px solid var(--line); }
-table.grid th { background: var(--surface-2); font-weight: 500; color: var(--muted); }
-table.grid tr:last-child td { border-bottom: 0; }
-table.grid td.null { color: var(--faint); font-style: italic; }
-table.grid td.num { text-align: right; }
-table.grid tr.bad td { background: var(--fail-bg); }
-.empty { padding: 8px 10px; color: var(--faint); font: 400 12.5px/1.4 var(--font-mono); }
-details.data > summary { cursor: pointer; color: var(--muted); font-size: 13px; margin: 10px 0 4px; }
-
-/* Editor */
-.editor-wrap { margin-top: 16px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface-2); }
-.editor-bar { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; font: 400 11.5px/1.4 var(--font-mono); color: var(--faint); border-bottom: 1px solid var(--line); gap: 8px; }
-textarea.sql { display: block; width: 100%; min-height: 200px; resize: vertical; border: 0; background: transparent; padding: 12px; font: 400 13px/1.6 var(--font-mono); tab-size: 2; outline: none; white-space: pre; overflow-x: auto; }
-.actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; align-items: center; }
-.btn { height: 34px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
-.btn:hover { border-color: var(--faint); }
-.btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
-.btn.primary:hover { opacity: .9; }
-.btn:disabled { opacity: .45; cursor: not-allowed; }
-.btn .k { font: 400 11px/1 var(--font-mono); opacity: .6; }
-.spacer { flex: 1; }
-
-.out { margin-top: 14px; display: grid; gap: 12px; }
-.msg { padding: 10px 12px; border-radius: 8px; border: 1px solid var(--line); font-size: 13.5px; }
-.msg.pass { background: var(--pass-bg); color: var(--pass); border-color: color-mix(in srgb, var(--pass) 30%, transparent); }
-.msg.fail { background: var(--fail-bg); color: var(--fail); border-color: color-mix(in srgb, var(--fail) 30%, transparent); }
-.msg.warn { background: var(--warn-bg); color: var(--warn); border-color: color-mix(in srgb, var(--warn) 30%, transparent); }
-.msg b { font-weight: 600; }
-.msg pre { margin: 6px 0 0; white-space: pre-wrap; color: var(--ink); }
-.pair { display: flex; flex-wrap: wrap; gap: 12px; }
-.pair > div { min-width: 0; max-width: 100%; }
-.label { font: 500 12px/1.4 var(--font-mono); color: var(--muted); margin-bottom: 4px; }
-.cases { display: grid; gap: 6px; }
-.case { display: flex; gap: 8px; align-items: baseline; font-size: 13px; }
-.dot { flex: none; width: 8px; height: 8px; border-radius: 50%; display: inline-block; transform: translateY(-1px); }
-.dot.pass { background: var(--pass); } .dot.fail { background: var(--fail); } .dot.skip { background: var(--faint); }
-.hint { background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 13.5px; }
-.hint b { font-weight: 600; }
-pre.solution { background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 12px; overflow-x: auto; margin: 6px 0; line-height: 1.6; }
-.feel { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px; }
-.feel button { height: 30px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; }
-.feel button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
-
-/* Concepts */
-.q { padding: 16px 0; border-top: 1px solid var(--line); }
-.q:first-of-type { border-top: 0; padding-top: 4px; }
-.q pre { background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; overflow-x: auto; margin: 6px 0 10px; }
-.choices { display: grid; gap: 6px; }
-.choice { text-align: left; border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 8px 12px; cursor: pointer; display: flex; gap: 10px; align-items: baseline; }
-.choice:hover:not(:disabled) { border-color: var(--faint); }
-.choice:disabled { cursor: default; }
-.choice .letter { font: 500 12px/1 var(--font-mono); color: var(--faint); }
-.choice.right { border-color: var(--pass); background: var(--pass-bg); }
-.choice.wrong { border-color: var(--fail); background: var(--fail-bg); }
-.explain { margin-top: 8px; font-size: 13.5px; color: var(--muted); max-width: 75ch; }
-
-/* Report */
-.skills { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-.skills th, .skills td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
-.skills th { font: 500 12px/1.4 var(--font-mono); color: var(--muted); }
-.bar { width: 120px; height: 6px; border-radius: 3px; background: var(--surface-2); overflow: hidden; display: inline-block; vertical-align: middle; }
-.bar i { display: block; height: 100%; background: var(--ink); }
-.verdict { font: 500 12px/1 var(--font-mono); padding: 4px 8px; border-radius: 999px; white-space: nowrap; }
-.verdict.solid { color: var(--pass); background: var(--pass-bg); }
-.verdict.shaky { color: var(--warn); background: var(--warn-bg); }
-.verdict.gap { color: var(--fail); background: var(--fail-bg); }
-.verdict.none { color: var(--faint); background: var(--surface-2); }
-.stats { display: flex; flex-wrap: wrap; gap: 24px; margin: 4px 0 18px; }
-.stat .n { font: 600 22px/1.2 var(--font-body); font-variant-numeric: tabular-nums; }
-.stat .l { font-size: 12.5px; color: var(--muted); }
-.note { font-size: 13px; color: var(--muted); max-width: 75ch; }
-ul.tight { margin: 4px 0 0; padding-left: 20px; }
-ul.tight li { margin: 2px 0; }
-@media (max-width: 640px) {
-  .skills .hide-sm { display: none; }
-  .bar { width: 60px; }
-  .btn .k { display: none; }
-}
-</style>
+<link rel="stylesheet" href="sql/core.css">
 </head>
 <body>
 <div class="page">
   <header>
-    <p class="eyebrow">SQL Lab · Diagnostic v1</p>
+    <p class="eyebrow">SQL Lab · Diagnostic · <a href="sql-practice">Practice →</a></p>
     <h1>SQL skills check</h1>
     <p class="engine" id="engine">Loading the SQL engine…</p>
   </header>
@@ -169,707 +24,34 @@ ul.tight li { margin: 2px 0; }
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sql.js@1.10.3/dist/sql-wasm.js"></script>
+<script src="sql/core.js"></script>
+<script src="sql/lab-bank.js"></script>
 <script>
-/*BANK*/
-// Each task: setup (schema + sample rows), ref (reference query that defines the right answer),
-// hidden (extra SQL run on top of setup, checked against ref on the same data), ordered (row order matters).
-const SKILLS = {
-  joins:   'Joins, self-joins & anti-joins',
-  agg:     'GROUP BY, HAVING & conditional aggregation',
-  sub:     'Subqueries & CTEs',
-  nulls:   'NULLs & edge cases',
-  rank:    'Window: ROW_NUMBER / RANK / DENSE_RANK',
-  winagg:  'Window: aggregates with PARTITION BY',
-  laglead: 'Window: LAG / LEAD',
-  frames:  'Window: frames, running & moving calcs',
-  dates:   'Dates & time',
-  islands: 'Consecutive runs (gaps & islands)'
-};
+// The diagnostic: tasks and concept checks from sql/lab-bank.js, the task workspace from sql/core.js, and a report.
+const L = SQLLab, { SKILLS, TASKS, CONCEPTS } = LAB_BANK, { esc, inl } = L;
 
-const TASKS = [
-{
-  id: 'never-ordered', title: 'Customers who never ordered', level: 'Warm-up', skills: ['joins', 'nulls'],
-  prompt: `<p>Return the <code>name</code> of every customer who has never placed an order, in any order.</p>`,
-  setup: `
-CREATE TABLE customers (id INTEGER PRIMARY KEY, name TEXT);
-CREATE TABLE orders (id INTEGER PRIMARY KEY, customer_id INTEGER, amount INTEGER);
-INSERT INTO customers VALUES (1,'Ana'),(2,'Ben'),(3,'Cai'),(4,'Dee'),(5,'Eli');
-INSERT INTO orders VALUES (1,1,30),(2,3,25),(3,1,40),(4,5,12);`,
-  ref: `SELECT c.name
-FROM customers c
-LEFT JOIN orders o ON o.customer_id = c.id
-WHERE o.id IS NULL;`,
-  hidden: [
-    { name: 'A guest-checkout order whose customer_id is NULL', sql: `INSERT INTO orders VALUES (5, NULL, 18);` },
-    { name: 'Every customer has ordered (expect no rows)', sql: `INSERT INTO orders VALUES (6,2,10),(7,4,5);` }
-  ],
-  hints: [
-    'Two common shapes: LEFT JOIN orders and keep rows where the order side is NULL, or WHERE NOT EXISTS (…).',
-    '<code>NOT IN (SELECT customer_id …)</code> looks right but returns nothing if the subquery contains a single NULL, because <code>x NOT IN (…, NULL)</code> is never true.'
-  ],
-  explain: 'The anti-join. LEFT JOIN + IS NULL and NOT EXISTS are NULL-safe; NOT IN is not, which is what the guest-checkout test catches.'
-},
-{
-  id: 'dept-high-earners', title: 'High earners by department', level: 'Easy', skills: ['agg'],
-  prompt: `<p>For each department, report <code>dept</code>, <code>headcount</code>, <code>high_earners</code> (employees with salary of at least 100000) and <code>pct_high</code>: the percentage of the department that are high earners, rounded to 1 decimal.</p><p>Order by <code>dept</code>.</p>`,
-  setup: `
-CREATE TABLE employees (id INTEGER PRIMARY KEY, name TEXT, dept TEXT, salary INTEGER);
-INSERT INTO employees VALUES
- (1,'Ava','Eng',120000),(2,'Bo','Eng',95000),(3,'Cy','Eng',100000),(4,'Di','Eng',130000),
- (5,'Ed','Sales',60000),(6,'Fay','Sales',105000),(7,'Gus','Sales',70000),
- (8,'Hal','Ops',50000),(9,'Ida','Ops',55000);`,
-  ref: `SELECT dept,
-       COUNT(*) AS headcount,
-       SUM(CASE WHEN salary >= 100000 THEN 1 ELSE 0 END) AS high_earners,
-       ROUND(100.0 * SUM(CASE WHEN salary >= 100000 THEN 1 ELSE 0 END) / COUNT(*), 1) AS pct_high
-FROM employees
-GROUP BY dept
-ORDER BY dept;`,
-  ordered: true,
-  hidden: [
-    { name: 'A one-person department where that person is a high earner', sql: `INSERT INTO employees VALUES (10,'Jo','Legal',150000);` },
-    { name: 'A salary just under the line (99999)', sql: `INSERT INTO employees VALUES (11,'Kim','Ops',99999);` }
-  ],
-  hints: [
-    'Conditional aggregation: <code>SUM(CASE WHEN … THEN 1 ELSE 0 END)</code> counts the rows that match inside each group.',
-    'If Sales shows 33.0 instead of 33.3, that is integer division. Multiply by <code>100.0</code> before dividing.'
-  ],
-  explain: 'SUM(CASE …) inside GROUP BY lets one pass compute several counts per group. The 100.0 forces decimal division.'
-},
-{
-  id: 'bought-all', title: 'Customers who bought every product', level: 'Medium', skills: ['agg', 'sub'],
-  prompt: `<p>Return the <code>customer_id</code> of every customer who has bought <em>every</em> product in the <code>product</code> table, in any order.</p>`,
-  setup: `
-CREATE TABLE product (product_key INTEGER PRIMARY KEY);
-CREATE TABLE customer_purchases (customer_id INTEGER, product_key INTEGER);
-INSERT INTO product VALUES (5),(6),(7);
-INSERT INTO customer_purchases VALUES (1,5),(1,6),(1,7),(2,5),(2,6),(3,6),(3,7),(3,5);`,
-  ref: `SELECT customer_id
-FROM customer_purchases
-GROUP BY customer_id
-HAVING COUNT(DISTINCT product_key) = (SELECT COUNT(*) FROM product);`,
-  hidden: [
-    { name: 'A customer who bought the same product several times', sql: `INSERT INTO customer_purchases VALUES (4,5),(4,5),(4,6);` },
-    { name: 'A new product nobody has bought yet (expect no rows)', sql: `INSERT INTO product VALUES (8);` }
-  ],
-  hints: [
-    'Group purchases by customer and compare how many products each customer covers with how many products exist.',
-    'Count <code>DISTINCT product_key</code>, and get the total from a subquery rather than typing 3.'
-  ],
-  explain: '"Has all of X" is usually COUNT(DISTINCT …) = (SELECT COUNT(*) …) in HAVING. DISTINCT handles repeat purchases; the subquery keeps it correct when the catalog changes.'
-},
-{
-  id: 'above-dept-avg', title: 'Paid above the department average', level: 'Medium', skills: ['sub', 'winagg'],
-  prompt: `<p>Return <code>name</code>, <code>dept</code>, <code>salary</code> and <code>dept_avg</code> (the department's average salary, rounded to 2 decimals) for every employee paid <em>strictly more</em> than their department's average.</p><p>Order by <code>dept</code>, then <code>salary</code> descending.</p>`,
-  setup: `
-CREATE TABLE employees (id INTEGER PRIMARY KEY, name TEXT, dept TEXT, salary INTEGER);
-INSERT INTO employees VALUES
- (1,'Ava','Eng',120000),(2,'Bo','Eng',95000),(3,'Cy','Eng',100000),(4,'Di','Eng',130000),
- (5,'Ed','Sales',60000),(6,'Fay','Sales',105000),(7,'Gus','Sales',70000),
- (8,'Hal','Ops',50000),(9,'Ida','Ops',55000);`,
-  ref: `WITH e AS (
-  SELECT name, dept, salary, AVG(salary) OVER (PARTITION BY dept) AS dept_avg
-  FROM employees
-)
-SELECT name, dept, salary, ROUND(dept_avg, 2) AS dept_avg
-FROM e
-WHERE salary > dept_avg
-ORDER BY dept, salary DESC;`,
-  ordered: true,
-  hidden: [
-    { name: 'A department where everyone earns the same (no one is above average)', sql: `INSERT INTO employees VALUES (10,'Jo','Legal',90000),(11,'Kai','Legal',90000);` },
-    { name: 'A one-person department', sql: `INSERT INTO employees VALUES (12,'Lu','HR',70000);` }
-  ],
-  hints: [
-    'You need each row next to an aggregate of its group. Options: join to a GROUP BY subquery, a correlated subquery, or <code>AVG(salary) OVER (PARTITION BY dept)</code>.',
-    'A window function cannot go in WHERE. Compute it in a CTE, then filter in the outer query.'
-  ],
-  explain: 'AVG(...) OVER (PARTITION BY dept) keeps every row and adds the group average beside it, which GROUP BY cannot do. Because WHERE runs before window functions, the filter goes one level out.'
-},
-{
-  id: 'manager-reports', title: 'Managers with two or more reports', level: 'Medium', skills: ['joins', 'agg'],
-  prompt: `<p>Each employee's <code>manager_id</code> is another employee's <code>id</code>. Return the <code>name</code> of every manager with at least two direct reports, and their <code>report_count</code>.</p><p>Order by <code>report_count</code> descending, then <code>name</code>.</p>`,
-  setup: `
-CREATE TABLE employee (id INTEGER PRIMARY KEY, name TEXT, manager_id INTEGER);
-INSERT INTO employee VALUES (1,'Rita',NULL),(2,'Sam',1),(3,'Tom',1),(4,'Uma',1),(5,'Vic',2),(6,'Wes',2),(7,'Xi',3);`,
-  ref: `SELECT m.name, COUNT(*) AS report_count
-FROM employee e
-JOIN employee m ON m.id = e.manager_id
-GROUP BY m.id, m.name
-HAVING COUNT(*) >= 2
-ORDER BY report_count DESC, m.name;`,
-  ordered: true,
-  hidden: [
-    { name: 'Two different managers who share a name, one report each', sql: `INSERT INTO employee VALUES (8,'Tom',1),(9,'Yan',8);` },
-    { name: 'Two people report to a manager id that is not in the table', sql: `INSERT INTO employee VALUES (10,'Zoe',99),(11,'Ari',99);` }
-  ],
-  hints: [
-    'Join the table to itself: one copy plays the employee, the other the manager.',
-    'Group by the manager\'s <code>id</code>, not just their name. Names are not unique.'
-  ],
-  explain: 'A self-join turns manager_id into a name. Grouping by the key (id) rather than a label (name) is the habit the duplicate-name test checks.'
-},
-{
-  id: 'latest-login', title: 'Each user\'s latest login', level: 'Medium', skills: ['rank'],
-  prompt: `<p>For each user, return their most recent login: <code>user_id</code>, <code>login_at</code>, <code>device</code>. If two of a user's logins share the same timestamp, take the one with the larger <code>login_id</code>.</p><p>Order by <code>user_id</code>.</p>`,
-  setup: `
-CREATE TABLE logins (login_id INTEGER PRIMARY KEY, user_id INTEGER, login_at TEXT, device TEXT);
-INSERT INTO logins VALUES
- (1,1,'2025-03-01 09:00:00','web'),(2,1,'2025-03-02 18:30:00','ios'),
- (3,2,'2025-03-01 07:15:00','android'),(4,2,'2025-02-27 22:00:00','web'),
- (5,3,'2025-03-03 12:00:00','web');`,
-  ref: `WITH r AS (
-  SELECT *, ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY login_at DESC, login_id DESC) AS rn
-  FROM logins
-)
-SELECT user_id, login_at, device
-FROM r
-WHERE rn = 1
-ORDER BY user_id;`,
-  ordered: true,
-  hidden: [
-    { name: 'Two logins for one user at exactly the same time', sql: `INSERT INTO logins VALUES (6,3,'2025-03-03 12:00:00','ipad');` },
-    { name: 'A newer login_id with an older timestamp', sql: `INSERT INTO logins VALUES (7,1,'2025-01-01 08:00:00','android');` }
-  ],
-  hints: [
-    'Number each user\'s logins from newest to oldest and keep number 1.',
-    '<code>ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY login_at DESC, login_id DESC)</code>. The second ORDER BY key breaks ties.'
-  ],
-  explain: '"Latest row per group" is ROW_NUMBER() + PARTITION BY + filter rn = 1. Joining back on MAX(login_at) returns two rows when timestamps tie; MAX(login_id) assumes ids follow time.'
-},
-{
-  id: 'top-three', title: 'Top three salaries per department', level: 'Medium', skills: ['rank'],
-  prompt: `<p>A high earner is anyone whose salary is among the top three <em>distinct</em> salaries in their department. Return <code>dept</code>, <code>name</code>, <code>salary</code> for every high earner.</p><p>Order by <code>dept</code>, <code>salary</code> descending, then <code>name</code>.</p>`,
-  setup: `
-CREATE TABLE employee (id INTEGER PRIMARY KEY, name TEXT, dept TEXT, salary INTEGER);
-INSERT INTO employee VALUES
- (1,'Ann','Eng',90000),(2,'Ben','Eng',90000),(3,'Cat','Eng',85000),(4,'Dan','Eng',80000),(5,'Eve','Eng',70000),
- (6,'Fox','Sales',60000),(7,'Gil','Sales',55000),(8,'Hap','Sales',50000),(9,'Ivy','Sales',45000);`,
-  ref: `WITH r AS (
-  SELECT dept, name, salary, DENSE_RANK() OVER (PARTITION BY dept ORDER BY salary DESC) AS rnk
-  FROM employee
-)
-SELECT dept, name, salary
-FROM r
-WHERE rnk <= 3
-ORDER BY dept, salary DESC, name;`,
-  ordered: true,
-  hidden: [
-    { name: 'A department with only two people', sql: `INSERT INTO employee VALUES (10,'Jay','IT',70000),(11,'Kit','IT',65000);` },
-    { name: 'A tie at third place', sql: `INSERT INTO employee VALUES (12,'Lee','Sales',50000);` }
-  ],
-  hints: [
-    '"Top three distinct salaries" means ties share a position and the next salary is still #2 or #3, not skipped.',
-    'Compare what ROW_NUMBER, RANK and DENSE_RANK give Eng: 90000, 90000, 85000, 80000. Only one returns 1, 1, 2, 3.'
-  ],
-  explain: 'DENSE_RANK leaves no gaps after ties (1,1,2,3); RANK does (1,1,3,4); ROW_NUMBER ignores ties (1,2,3,4). The wording "distinct salaries" picks DENSE_RANK.'
-},
-{
-  id: 'category-share', title: 'Product share of category revenue', level: 'Medium', skills: ['winagg', 'agg'],
-  prompt: `<p>Each row in <code>order_lines</code> is one sale. For every product return <code>category</code>, <code>product</code>, <code>product_revenue</code> (its total revenue), <code>category_revenue</code> (its category's total revenue) and <code>share_pct</code> = product revenue as a percentage of category revenue, rounded to 1 decimal.</p><p>Order by <code>category</code>, then <code>share_pct</code> descending.</p>`,
-  setup: `
-CREATE TABLE order_lines (line_id INTEGER PRIMARY KEY, product TEXT, category TEXT, revenue INTEGER);
-INSERT INTO order_lines VALUES
- (1,'Laptop','Electronics',1200),(2,'Laptop','Electronics',800),(3,'Phone','Electronics',900),
- (4,'Phone','Electronics',600),(5,'Cable','Electronics',50),
- (6,'Desk','Furniture',300),(7,'Desk','Furniture',300),(8,'Chair','Furniture',200);`,
-  ref: `SELECT category,
-       product,
-       SUM(revenue) AS product_revenue,
-       SUM(SUM(revenue)) OVER (PARTITION BY category) AS category_revenue,
-       ROUND(100.0 * SUM(revenue) / SUM(SUM(revenue)) OVER (PARTITION BY category), 1) AS share_pct
-FROM order_lines
-GROUP BY category, product
-ORDER BY category, share_pct DESC;`,
-  ordered: true,
-  hidden: [
-    { name: 'A category with a single product', sql: `INSERT INTO order_lines VALUES (9,'Mug','Kitchen',12);` }
-  ],
-  hints: [
-    'Two levels of totals: first per product (GROUP BY), then per category across those product rows.',
-    'A window function can wrap an aggregate: <code>SUM(SUM(revenue)) OVER (PARTITION BY category)</code>. Or do the GROUP BY in a CTE and window over the CTE.'
-  ],
-  explain: 'Window functions run after GROUP BY, so they can aggregate the aggregated rows. This "percent of total" pattern is the core of most share and mix questions.'
-},
-{
-  id: 'mom-revenue', title: 'Month-over-month revenue', level: 'Medium', skills: ['laglead', 'dates'],
-  prompt: `<p>Using only orders placed in 2025, return one row per month: <code>month</code> as <code>'YYYY-MM'</code>, <code>revenue</code> (sum of <code>amount</code>), <code>prev_revenue</code> (the previous month's revenue; NULL for the first month) and <code>pct_change</code> = percentage change from the previous month, rounded to 1 decimal (NULL for the first month).</p><p>Assume every month in range has at least one order. Order by <code>month</code>.</p>`,
-  setup: `
-CREATE TABLE orders (order_id INTEGER PRIMARY KEY, order_date TEXT, amount INTEGER);
-INSERT INTO orders VALUES
- (1,'2025-01-05',100),(2,'2025-01-20',200),(3,'2025-02-03',450),
- (4,'2025-03-11',160),(5,'2025-03-28',200),(6,'2025-04-02',360);`,
-  ref: `WITH m AS (
-  SELECT strftime('%Y-%m', order_date) AS month, SUM(amount) AS revenue
-  FROM orders
-  WHERE order_date >= '2025-01-01' AND order_date < '2026-01-01'
-  GROUP BY month
-)
-SELECT month,
-       revenue,
-       LAG(revenue) OVER (ORDER BY month) AS prev_revenue,
-       ROUND(100.0 * (revenue - LAG(revenue) OVER (ORDER BY month)) / LAG(revenue) OVER (ORDER BY month), 1) AS pct_change
-FROM m
-ORDER BY month;`,
-  ordered: true,
-  hidden: [
-    { name: 'Orders from December 2024 and January 2026 (must be left out)', sql: `INSERT INTO orders VALUES (7,'2024-12-30',500),(8,'2026-01-02',50);` },
-    { name: 'The rest of 2025 (May to December)', sql: `INSERT INTO orders VALUES (9,'2025-05-09',300),(10,'2025-06-14',330),(11,'2025-07-01',300),(12,'2025-08-21',420),(13,'2025-09-30',420),(14,'2025-10-02',210),(15,'2025-11-17',630),(16,'2025-12-24',700);` }
-  ],
-  hints: [
-    'Step 1: total per month in a CTE (<code>DATE_FORMAT(order_date, \'%Y-%m\')</code> or <code>strftime(\'%Y-%m\', order_date)</code>). Step 2: look back one row.',
-    '<code>LAG(revenue) OVER (ORDER BY month)</code> gives the previous row\'s value. Filter to 2025 before the LAG, so January has nothing to look back to.'
-  ],
-  explain: 'Aggregate first, then LAG over the aggregated rows. Filtering in the CTE matters: if December 2024 were still there, January\'s prev_revenue would be 500 instead of NULL.'
-},
-{
-  id: 'moving-avg', title: 'Running total and 3-day moving average', level: 'Medium+', skills: ['frames', 'winagg'],
-  prompt: `<p>Each row in <code>sales</code> is one transaction; a store can have several on the same day. For each store and each day it had sales, return <code>store</code>, <code>sale_date</code>, <code>daily_total</code>, <code>running_total</code> (the store's cumulative total through that day) and <code>avg_3day</code>: the average <code>daily_total</code> of that day and the store's two previous sales days (fewer at the start), rounded to 2 decimals.</p><p>Days with no sales are not rows and do not count. Order by <code>store</code>, <code>sale_date</code>.</p>`,
-  setup: `
-CREATE TABLE sales (sale_id INTEGER PRIMARY KEY, store TEXT, sale_date TEXT, amount INTEGER);
-INSERT INTO sales VALUES
- (1,'A','2025-01-01',100),(2,'A','2025-01-01',50),(3,'A','2025-01-02',200),(4,'A','2025-01-04',100),
- (5,'A','2025-01-05',250),(6,'A','2025-01-05',50),(7,'B','2025-01-01',80),(8,'B','2025-01-03',120);`,
-  ref: `WITH d AS (
-  SELECT store, sale_date, SUM(amount) AS daily_total
-  FROM sales
-  GROUP BY store, sale_date
-)
-SELECT store,
-       sale_date,
-       daily_total,
-       SUM(daily_total) OVER (PARTITION BY store ORDER BY sale_date) AS running_total,
-       ROUND(AVG(daily_total) OVER (PARTITION BY store ORDER BY sale_date
-                                    ROWS BETWEEN 2 PRECEDING AND CURRENT ROW), 2) AS avg_3day
-FROM d
-ORDER BY store, sale_date;`,
-  ordered: true,
-  hidden: [
-    { name: 'A store with five sales days (the window has to drop old days)', sql: `INSERT INTO sales VALUES (9,'C','2025-02-01',10),(10,'C','2025-02-02',20),(11,'C','2025-02-03',30),(12,'C','2025-02-04',40),(13,'C','2025-02-05',50);` },
-    { name: 'A store with a single day', sql: `INSERT INTO sales VALUES (14,'D','2025-03-01',99);` }
-  ],
-  hints: [
-    'Get to one row per store per day first (GROUP BY in a CTE). Windows over raw transactions count the same day twice.',
-    'Running total: <code>SUM(…) OVER (PARTITION BY store ORDER BY sale_date)</code>. Moving average: add the frame <code>ROWS BETWEEN 2 PRECEDING AND CURRENT ROW</code>.'
-  ],
-  explain: 'The frame clause decides which rows a window sees. With ORDER BY and no frame you get "everything up to here" (running total); ROWS BETWEEN 2 PRECEDING AND CURRENT ROW gives a fixed 3-row window.'
-},
-{
-  id: 'day1-retention', title: 'Next-day retention', level: 'Medium', skills: ['dates', 'sub'],
-  prompt: `<p>Return the <code>fraction</code> of players who logged in again on the day right after their <em>first</em> login, rounded to 2 decimals. Each row in <code>activity</code> is one day a player logged in.</p>`,
-  setup: `
-CREATE TABLE activity (player_id INTEGER, event_date TEXT, games_played INTEGER, PRIMARY KEY (player_id, event_date));
-INSERT INTO activity VALUES
- (1,'2025-03-01',5),(1,'2025-03-02',6),
- (2,'2025-03-05',1),
- (3,'2025-03-01',3),(3,'2025-03-04',2),(3,'2025-03-05',4);`,
-  ref: `WITH f AS (
-  SELECT player_id, MIN(event_date) AS first_day
-  FROM activity
-  GROUP BY player_id
-)
-SELECT ROUND(1.0 * COUNT(a.player_id) / (SELECT COUNT(*) FROM f), 2) AS fraction
-FROM f
-LEFT JOIN activity a
-  ON a.player_id = f.player_id AND a.event_date = date(f.first_day, '+1 day');`,
-  hidden: [
-    { name: 'A player whose next day crosses a month boundary (Feb 28 → Mar 1)', sql: `INSERT INTO activity VALUES (4,'2025-02-28',1),(4,'2025-03-01',1);` },
-    { name: 'Leap year: Feb 28 → Feb 29 counts, Feb 28 → Mar 1 does not', sql: `INSERT INTO activity VALUES (5,'2024-02-28',1),(5,'2024-02-29',1),(6,'2024-02-28',1),(6,'2024-03-01',1);` }
-  ],
-  hints: [
-    'Find each player\'s first day (MIN per player), then check whether they have a row exactly one day later.',
-    'Use real date arithmetic: <code>DATEDIFF(a, b) = 1</code>, <code>DATE_ADD(d, INTERVAL 1 DAY)</code>. Divide by the number of players, with <code>1.0 *</code> to avoid integer division.'
-  ],
-  explain: 'Anchor on the first day, then test the very next calendar day. Player 3 has two consecutive days, but not right after their first, so they do not count.'
-},
-{
-  id: 'order-gaps', title: 'Average days between orders', level: 'Medium', skills: ['laglead', 'dates'],
-  prompt: `<p>For each customer with at least two orders, return <code>customer_id</code> and <code>avg_gap_days</code>: the average number of days between one order and that customer's next order, rounded to 1 decimal.</p><p>Order by <code>customer_id</code>.</p>`,
-  setup: `
-CREATE TABLE orders (order_id INTEGER PRIMARY KEY, customer_id INTEGER, order_date TEXT);
-INSERT INTO orders VALUES
- (1,1,'2025-01-01'),(2,1,'2025-01-11'),(3,1,'2025-01-31'),
- (4,2,'2025-02-01'),(5,2,'2025-03-01'),
- (6,3,'2025-01-15');`,
-  ref: `WITH g AS (
-  SELECT customer_id,
-         julianday(order_date) - julianday(LAG(order_date) OVER (PARTITION BY customer_id ORDER BY order_date)) AS gap
-  FROM orders
-)
-SELECT customer_id, ROUND(AVG(gap), 1) AS avg_gap_days
-FROM g
-WHERE gap IS NOT NULL
-GROUP BY customer_id
-ORDER BY customer_id;`,
-  ordered: true,
-  hidden: [
-    { name: 'Two orders on the same day (a gap of 0)', sql: `INSERT INTO orders VALUES (7,4,'2025-03-10'),(8,4,'2025-03-10'),(9,4,'2025-03-16');` },
-    { name: 'Orders whose ids are not in date order', sql: `INSERT INTO orders VALUES (20,5,'2025-05-20'),(21,5,'2025-05-01'),(22,5,'2025-05-10');` }
-  ],
-  hints: [
-    'Put each order next to the customer\'s previous order: <code>LAG(order_date) OVER (PARTITION BY customer_id ORDER BY order_date)</code>.',
-    'The gap is <code>DATEDIFF(order_date, prev_date)</code>. The first order has no previous one (NULL), and AVG skips NULLs.'
-  ],
-  explain: 'LAG with PARTITION BY compares each row with the previous row of the same customer. Ordering by date, not id, is what the second test checks. (Shortcut: (last − first) / (n − 1) gives the same average.)'
-},
-{
-  id: 'longest-streak', title: 'Longest login streak', level: 'Hard', skills: ['islands', 'rank', 'dates'],
-  prompt: `<p>For each user, return <code>user_id</code> and <code>longest_streak</code>: the most consecutive calendar days on which they logged in at least once. A user can log in more than once a day.</p><p>Order by <code>user_id</code>.</p>`,
-  setup: `
-CREATE TABLE logins (user_id INTEGER, login_date TEXT);
-INSERT INTO logins VALUES
- (1,'2025-01-01'),(1,'2025-01-02'),(1,'2025-01-03'),(1,'2025-01-05'),(1,'2025-01-06'),
- (2,'2025-01-10'),
- (3,'2025-01-02'),(3,'2025-01-04'),(3,'2025-01-05'),(3,'2025-01-06'),(3,'2025-01-07');`,
-  ref: `WITH d AS (
-  SELECT DISTINCT user_id, login_date FROM logins
-), g AS (
-  SELECT user_id,
-         julianday(login_date) - ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY login_date) AS grp
-  FROM d
-), runs AS (
-  SELECT user_id, COUNT(*) AS len FROM g GROUP BY user_id, grp
-)
-SELECT user_id, MAX(len) AS longest_streak
-FROM runs
-GROUP BY user_id
-ORDER BY user_id;`,
-  ordered: true,
-  hidden: [
-    { name: 'Several logins on the same day', sql: `INSERT INTO logins VALUES (1,'2025-01-02'),(3,'2025-01-05'),(2,'2025-01-10');` },
-    { name: 'A streak that crosses a month boundary', sql: `INSERT INTO logins VALUES (4,'2025-01-30'),(4,'2025-01-31'),(4,'2025-02-01'),(4,'2025-02-02'),(4,'2025-02-05');` }
-  ],
-  hints: [
-    'Classic trick: for consecutive dates, <em>date minus its row number</em> stays constant. Each constant value is one streak.',
-    'Remove duplicate days first (SELECT DISTINCT), then <code>julianday(login_date) - ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY login_date)</code> (or <code>DATE_SUB(login_date, INTERVAL rn DAY)</code>), group by it, count, take the max.'
-  ],
-  explain: 'Gaps and islands: on consecutive days, the date and the row number both go up by one, so their difference labels the run. Duplicates break the trick, which is why DISTINCT comes first.'
-},
-{
-  id: 'quarter-champion', title: 'Top store each quarter', level: 'Medium+', skills: ['rank', 'agg', 'dates'],
-  prompt: `<p>Revenue is <code>quantity * unit_price</code>. For each quarter of 2025 that has sales, return <code>quarter</code> (<code>'Q1'</code> to <code>'Q4'</code>), the <code>store</code> with the highest revenue that quarter, and that <code>revenue</code>.</p><p>If stores tie on revenue, the one with more total <code>quantity</code> wins; if still tied, the store that comes first alphabetically. Order by <code>quarter</code>.</p>`,
-  setup: `
-CREATE TABLE sales (sale_id INTEGER PRIMARY KEY, sale_date TEXT, store TEXT, quantity INTEGER, unit_price INTEGER);
-INSERT INTO sales VALUES
- (1,'2025-01-15','Downtown',10,20),(2,'2025-02-02','Downtown',5,10),(3,'2025-03-09','Harbor',20,10),(4,'2025-03-30','Mall',3,100),
- (5,'2025-04-11','Downtown',20,20),(6,'2025-06-20','Harbor',40,10),
- (7,'2025-07-04','Harbor',25,20),(8,'2025-09-12','Mall',10,10);`,
-  ref: `WITH q AS (
-  SELECT 'Q' || ((CAST(strftime('%m', sale_date) AS INTEGER) + 2) / 3) AS quarter,
-         store,
-         SUM(quantity * unit_price) AS revenue,
-         SUM(quantity) AS qty
-  FROM sales
-  WHERE sale_date >= '2025-01-01' AND sale_date < '2026-01-01'
-  GROUP BY quarter, store
-), r AS (
-  SELECT *, ROW_NUMBER() OVER (PARTITION BY quarter ORDER BY revenue DESC, qty DESC, store) AS rn
-  FROM q
-)
-SELECT quarter, store, revenue
-FROM r
-WHERE rn = 1
-ORDER BY quarter;`,
-  ordered: true,
-  hidden: [
-    { name: 'Sales from 2024 and 2026 (must be ignored)', sql: `INSERT INTO sales VALUES (9,'2024-11-10','Mall',100,100),(10,'2026-02-01','Harbor',100,10);` },
-    { name: 'Q4: tied on revenue and quantity, so alphabetical wins', sql: `INSERT INTO sales VALUES (11,'2025-10-05','Pier',10,10),(12,'2025-11-20','Bay',10,10);` }
-  ],
-  hints: [
-    'Three steps: label each sale with its quarter (<code>QUARTER(sale_date)</code> or a CASE on the month), total revenue and quantity per quarter and store, then pick one store per quarter.',
-    'Picking one per group with tie-breaks is <code>ROW_NUMBER() OVER (PARTITION BY quarter ORDER BY revenue DESC, qty DESC, store)</code>, filtered to 1.'
-  ],
-  explain: 'This is the shape of Seasonal Sales Analysis: bucket → aggregate → rank inside each bucket with tie-breaks → keep #1. PARTITION BY restarts the numbering for each quarter.'
-}
-];
-
-const CONCEPTS = [
-{ id: 'c-rank', skill: 'rank',
-  q: 'Salaries ordered from highest: 300, 300, 200, 100. Which function numbers them 1, 1, 2, 3?',
-  choices: ['ROW_NUMBER()', 'RANK()', 'DENSE_RANK()', 'NTILE(3)'], answer: 2,
-  why: 'DENSE_RANK gives 1, 1, 2, 3. RANK gives 1, 1, 3, 4 (it skips after a tie). ROW_NUMBER gives 1, 2, 3, 4 (ties get arbitrary order).' },
-{ id: 'c-partition', skill: 'winagg',
-  q: '`emp` has 10 rows across 3 departments. How many rows does this return?',
-  code: 'SELECT dept, SUM(salary) OVER (PARTITION BY dept) AS dept_total\nFROM emp;',
-  choices: ['3', '10', '1', 'It depends on ORDER BY'], answer: 1,
-  why: 'Window functions never collapse rows: every one of the 10 rows comes back, each carrying its department total. GROUP BY dept would return 3.' },
-{ id: 'c-frame', skill: 'frames',
-  q: 'Rows (day, amt): (1, 10), (2, 20), (2, 30), (3, 40). What is the running_total on the row (2, 20)?',
-  code: 'SELECT day, amt, SUM(amt) OVER (ORDER BY day) AS running_total\nFROM t;',
-  choices: ['30', '60', '20', 'Error: day is not unique'], answer: 1,
-  why: 'With ORDER BY and no frame, the default is RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW, which includes every row that ties with the current one. Both day-2 rows get 10 + 20 + 30 = 60. Use ROWS BETWEEN … for row-by-row behavior, or aggregate per day first.' },
-{ id: 'c-order', skill: 'sub',
-  q: 'Why does this fail?',
-  code: 'SELECT name, ROW_NUMBER() OVER (PARTITION BY dept ORDER BY salary DESC) AS rn\nFROM emp\nWHERE rn = 1;',
-  choices: ['ROW_NUMBER needs an explicit frame', 'WHERE is evaluated before SELECT, so rn (and any window function) does not exist yet', 'You must write HAVING rn = 1 instead', 'PARTITION BY cannot be combined with ORDER BY'], answer: 1,
-  why: 'Logical order is FROM → WHERE → GROUP BY → HAVING → SELECT (window functions run here) → ORDER BY → LIMIT. To filter on a window result, compute it in a CTE or subquery and filter outside.' },
-{ id: 'c-logical', skill: 'agg',
-  q: 'Which is the logical order a query is evaluated in?',
-  choices: ['SELECT → FROM → WHERE → GROUP BY → HAVING → ORDER BY', 'FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY', 'FROM → GROUP BY → WHERE → HAVING → SELECT → ORDER BY', 'FROM → WHERE → SELECT → GROUP BY → HAVING → ORDER BY'], answer: 1,
-  why: 'FROM/JOIN, then WHERE filters rows, GROUP BY forms groups, HAVING filters groups, SELECT computes columns (and windows), ORDER BY sorts, LIMIT cuts. This order explains most "why can\'t I use that here" errors.' },
-{ id: 'c-count', skill: 'nulls',
-  q: 'Column `bonus` holds 100, NULL, 200, NULL. What are COUNT(*), COUNT(bonus) and AVG(bonus)?',
-  choices: ['4, 4, 75', '4, 2, 150', '2, 2, 150', '4, 2, 75'], answer: 1,
-  why: 'COUNT(*) counts rows; COUNT(col) and AVG(col) skip NULLs. So AVG is (100 + 200) / 2 = 150. If NULL should mean 0, use AVG(COALESCE(bonus, 0)) = 75.' },
-{ id: 'c-leftwhere', skill: 'joins',
-  q: 'What happens to customers who have no orders?',
-  code: 'SELECT c.name, o.amount\nFROM customers c\nLEFT JOIN orders o ON o.customer_id = c.id\nWHERE o.amount > 50;',
-  choices: ['They appear with amount = NULL', 'They are dropped: the WHERE on o.amount turns this into an inner join', 'They appear once per order', 'Error: you cannot filter a LEFT JOIN'], answer: 1,
-  why: 'For customers with no orders, o.amount is NULL, and NULL > 50 is not true, so WHERE removes them. To keep them, move the condition into the join: ON o.customer_id = c.id AND o.amount > 50.' },
-{ id: 'c-notin', skill: 'nulls',
-  q: 'Some employees have manager_id = NULL. What does this return?',
-  code: 'SELECT name FROM employee\nWHERE id NOT IN (SELECT manager_id FROM employee);',
-  choices: ['Everyone who manages no one', 'No rows at all', 'An error', 'Everyone except the NULL rows'], answer: 1,
-  why: 'id NOT IN (1, 2, NULL) means id <> 1 AND id <> 2 AND id <> NULL. The last part is unknown, so the whole thing is never true. Use NOT EXISTS, or filter NULLs out of the subquery.' },
-{ id: 'c-lag', skill: 'laglead',
-  q: 'What does this return on each customer\'s first order?',
-  code: 'LAG(amount, 1, 0) OVER (PARTITION BY customer_id ORDER BY order_date)',
-  choices: ['NULL', '0', 'The previous customer\'s last amount', 'The row\'s own amount'], answer: 1,
-  why: 'LAG(expr, offset, default): when there is no row `offset` back inside the partition, it returns the default, here 0. Without a default you get NULL. PARTITION BY stops it from reaching into another customer.' },
-{ id: 'c-movavg', skill: 'frames',
-  q: 'Which frame gives a 3-row moving average that ends at the current row?',
-  code: 'AVG(x) OVER (ORDER BY d  ???  )',
-  choices: ['ROWS BETWEEN 3 PRECEDING AND CURRENT ROW', 'ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING', 'ROWS BETWEEN 2 PRECEDING AND CURRENT ROW', 'RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW'], answer: 2,
-  why: '2 preceding + the current row = 3 rows. 3 PRECEDING is 4 rows; 1 PRECEDING AND 1 FOLLOWING is centered; UNBOUNDED PRECEDING is a running average.' },
-{ id: 'c-islands', skill: 'islands',
-  q: 'Login days 1, 2, 3, 5, 6 get ROW_NUMBER() 1, 2, 3, 4, 5. What is day − row_number for each, and how many streaks is that?',
-  choices: ['0, 0, 0, 1, 1: two streaks', '1, 1, 1, 1, 1: one streak', '0, 0, 0, 0, 0: one streak', '1, 2, 3, 4, 5: five streaks'], answer: 0,
-  why: 'Within a run of consecutive days, day and row number both rise by 1, so the difference is constant. A gap bumps it. Group by the difference to get each streak.' }
-];
-/*END BANK*/
-
-/* ---------- MySQL-style helpers registered on every database ---------- */
-function parseD(v) {
-  if (v === null || v === undefined) return null;
-  const m = String(v).match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2}))?)?/);
-  if (!m) return null;
-  return new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0), +(m[6] || 0)));
-}
-const pad = n => String(n).padStart(2, '0');
-const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-// Functions that return numbers or dates are rewritten into native SQLite expressions before a query runs
-// (sql.js would hand back JS numbers as floats, so CONCAT('Q', QUARTER(d)) would give 'Q2.0').
-const int = e => `CAST(${e} AS INTEGER)`;
-const UNITS = { DAY: ['days', 1], WEEK: ['days', 7], MONTH: ['months', 1], YEAR: ['years', 1], HOUR: ['hours', 1], MINUTE: ['minutes', 1], SECOND: ['seconds', 1] };
-function shift(d, iv, sign) {
-  const m = iv.match(/^\s*INTERVAL\s+([\s\S]+?)\s+(DAY|WEEK|MONTH|YEAR|HOUR|MINUTE|SECOND)S?\s*$/i);
-  const [unit, mult] = m ? UNITS[m[2].toUpperCase()] : UNITS.DAY;
-  const n = `(${sign}(${m ? m[1] : iv})${mult === 1 ? '' : ' * ' + mult})`;
-  return `${['hours', 'minutes', 'seconds'].includes(unit) ? 'datetime' : 'date'}(${d}, ${n} || ' ${unit}')`;
-}
-const MACROS = {
-  YEAR: [1, a => int(`strftime('%Y', ${a[0]})`)],
-  MONTH: [1, a => int(`strftime('%m', ${a[0]})`)],
-  DAY: [1, a => int(`strftime('%d', ${a[0]})`)],
-  DAYOFMONTH: [1, a => int(`strftime('%d', ${a[0]})`)],
-  QUARTER: [1, a => `((${int(`strftime('%m', ${a[0]})`)} + 2) / 3)`],
-  DAYOFWEEK: [1, a => `(${int(`strftime('%w', ${a[0]})`)} + 1)`],
-  WEEKDAY: [1, a => `((${int(`strftime('%w', ${a[0]})`)} + 6) % 7)`],
-  DATEDIFF: [2, a => int(`(julianday(date(${a[0]})) - julianday(date(${a[1]})))`)],
-  DATE_ADD: [2, a => shift(a[0], a[1], '')],
-  ADDDATE: [2, a => shift(a[0], a[1], '')],
-  DATE_SUB: [2, a => shift(a[0], a[1], '-')],
-  SUBDATE: [2, a => shift(a[0], a[1], '-')],
-  LAST_DAY: [1, a => `date(${a[0]}, 'start of month', '+1 month', '-1 day')`],
-  IF: [3, a => `iif(${a[0]}, ${a[1]}, ${a[2]})`],
-  LEFT: [2, a => `substr(${a[0]}, 1, ${a[1]})`],
-  RIGHT: [2, a => `substr(${a[0]}, -(${a[1]}))`],
-  GREATEST: [0, a => `max(${a.join(', ')})`],
-  LEAST: [0, a => `min(${a.join(', ')})`]
-};
-// Index just past a string literal, quoted identifier or comment starting at i, or -1.
-function skipQuoted(s, i) {
-  const c = s[i];
-  if (c === "'" || c === '"' || c === '`') {
-    let j = i + 1;
-    while (j < s.length) { if (s[j] === c) { if (s[j + 1] === c) { j += 2; continue; } return j + 1; } j++; }
-    return s.length;
-  }
-  if (c === '-' && s[i + 1] === '-') { const j = s.indexOf('\n', i); return j < 0 ? s.length : j; }
-  if (c === '/' && s[i + 1] === '*') { const j = s.indexOf('*/', i + 2); return j < 0 ? s.length : j + 2; }
-  return -1;
-}
-function splitArgs(s) {
-  const out = []; let depth = 0, start = 0;
-  for (let i = 0; i < s.length; i++) {
-    const k = skipQuoted(s, i); if (k >= 0) { i = k - 1; continue; }
-    if (s[i] === '(') depth++; else if (s[i] === ')') depth--;
-    else if (s[i] === ',' && depth === 0) { out.push(s.slice(start, i)); start = i + 1; }
-  }
-  out.push(s.slice(start));
-  return out.map(a => a.trim());
-}
-function expandMacros(sql) {
-  let out = '', i = 0;
-  while (i < sql.length) {
-    const k = skipQuoted(sql, i);
-    if (k >= 0) { out += sql.slice(i, k); i = k; continue; }
-    const w = /^[A-Za-z_][A-Za-z0-9_]*/.exec(sql.slice(i, i + 64));
-    if (!w || (i > 0 && /[A-Za-z0-9_$]/.test(sql[i - 1]))) { out += sql[i++]; continue; }
-    const name = w[0].toUpperCase(), macro = MACROS[name];
-    let p = i + w[0].length;
-    while (/\s/.test(sql[p] || '')) p++;
-    if (!macro || sql[p] !== '(' || /\.\s*$/.test(out)) { out += w[0]; i += w[0].length; continue; }
-    let depth = 0, j = p;
-    for (; j < sql.length; j++) {
-      const q = skipQuoted(sql, j); if (q >= 0) { j = q - 1; continue; }
-      if (sql[j] === '(') depth++;
-      else if (sql[j] === ')' && --depth === 0) break;
-    }
-    if (j >= sql.length) { out += sql.slice(i); break; }
-    const inner = sql.slice(p + 1, j);
-    const args = inner.trim() ? splitArgs(inner).map(expandMacros) : [];
-    if (macro[0] && args.length !== macro[0]) throw new Error(`${name}() takes ${macro[0]} argument${macro[0] > 1 ? 's' : ''}, got ${args.length}.`);
-    out += macro[1](args);
-    i = j + 1;
-  }
-  return out;
-}
-// String-returning helpers can stay as JavaScript functions.
-function addCompat(db) {
-  const f = (name, fn) => db.create_function(name, fn);
-  f('DAYNAME', v => { const d = parseD(v); return d ? DAYS[d.getUTCDay()] : null; });
-  f('MONTHNAME', v => { const d = parseD(v); return d ? MONTHS[d.getUTCMonth()] : null; });
-  f('DATE_FORMAT', (v, fmt) => { const d = parseD(v); if (!d || fmt === null) return null;
-    const map = { Y: d.getUTCFullYear(), y: String(d.getUTCFullYear()).slice(2), m: pad(d.getUTCMonth() + 1), c: d.getUTCMonth() + 1,
-      d: pad(d.getUTCDate()), e: d.getUTCDate(), M: MONTHS[d.getUTCMonth()], b: MONTHS[d.getUTCMonth()].slice(0, 3),
-      W: DAYS[d.getUTCDay()], a: DAYS[d.getUTCDay()].slice(0, 3), H: pad(d.getUTCHours()), i: pad(d.getUTCMinutes()), s: pad(d.getUTCSeconds()), '%': '%' };
-    return String(fmt).replace(/%(.)/g, (m, k) => (k in map ? map[k] : m)); });
-}
-
-/* ---------- Running and checking queries ---------- */
-let SQL = null;
-function makeDb(task, extra) {
-  const db = new SQL.Database();
-  addCompat(db);
-  db.exec(task.setup);
-  if (extra) db.exec(extra);
-  return db;
-}
-function runQuery(db, sql) {
-  let last = null;
-  for (const st of db.iterateStatements(expandMacros(sql))) {
-    const columns = st.getColumnNames();
-    const rows = [];
-    while (st.step()) rows.push(st.get());
-    if (columns.length) last = { columns, rows };
-  }
-  if (!last) throw new Error('No result set. Write a SELECT (or WITH … SELECT) query.');
-  return last;
-}
-function norm(v) {
-  if (v === null || v === undefined) return null;
-  if (typeof v === 'number') return Math.round(v * 100) / 100;
-  if (typeof v === 'string' && /^-?\d+(\.\d+)?$/.test(v.trim())) return Math.round(Number(v) * 100) / 100;
-  return String(v);
-}
-const rowKey = r => JSON.stringify(r.map(norm));
-// Returns { ok, msg, badRows:Set(index in user result) }
-function compare(user, exp, ordered) {
-  if (user.columns.length !== exp.columns.length)
-    return { ok: false, msg: `Expected ${exp.columns.length} column${exp.columns.length > 1 ? 's' : ''} (${exp.columns.join(', ')}), got ${user.columns.length} (${user.columns.join(', ')}).` };
-  let rows = user.rows;
-  const lc = a => a.map(c => String(c).toLowerCase());
-  const ue = lc(user.columns), ee = lc(exp.columns);
-  if (ue.join() !== ee.join() && [...ue].sort().join() === [...ee].sort().join()) {
-    const idx = ee.map(c => ue.indexOf(c));
-    rows = rows.map(r => idx.map(i => r[i]));
-  }
-  const ek = exp.rows.map(rowKey), uk = rows.map(rowKey);
-  const bad = new Set();
-  if (ordered) {
-    uk.forEach((k, i) => { if (k !== ek[i]) bad.add(i); });
-  } else {
-    const pool = new Map();
-    ek.forEach(k => pool.set(k, (pool.get(k) || 0) + 1));
-    uk.forEach((k, i) => { const n = pool.get(k) || 0; if (n) pool.set(k, n - 1); else bad.add(i); });
-  }
-  if (uk.length !== ek.length) return { ok: false, msg: `Expected ${ek.length} row${ek.length === 1 ? '' : 's'}, got ${uk.length}.`, bad };
-  if (bad.size) {
-    if (ordered) {
-      const sameSet = [...uk].sort().join('|') === [...ek].sort().join('|');
-      if (sameSet) return { ok: false, msg: 'Right rows, wrong order. Check your ORDER BY against the prompt.', bad };
-    }
-    return { ok: false, msg: `${bad.size} row${bad.size === 1 ? '' : 's'} differ from the expected output (highlighted).`, bad };
-  }
-  return { ok: true };
-}
-function expectedFor(task, extra) {
-  const db = makeDb(task, extra);
-  try { return runQuery(db, task.ref); } finally { db.close(); }
-}
-function userFor(task, extra, sql) {
-  const db = makeDb(task, extra);
-  try { return runQuery(db, sql); } finally { db.close(); }
-}
-
-/* ---------- State ---------- */
-const KEY = 'sql-lab-diagnostic-v1';
+/* ---------- State (this version's answers are kept apart from the first version's) ---------- */
+const KEY = 'sql-lab-diagnostic-v2';
 let state = { tasks: {}, concepts: {}, started: null };
 try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.tasks) state = s; } catch (e) {}
-function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
-function ts(id) {
-  if (!state.tasks[id]) state.tasks[id] = { sql: '', status: 'untouched', runs: 0, submits: 0, hints: 0, ms: 0, feel: null, failedCases: [], solvedSubmits: null };
-  return state.tasks[id];
-}
-const done = t => t.status === 'passed' || t.status === 'gaveup';
-
-/* ---------- Timer: counts only while a task is open, the tab is visible, and it is not finished ---------- */
-let timing = null;
-function tick() {
-  if (!timing) return;
-  const now = Date.now();
-  const t = ts(timing.id);
-  if (!document.hidden && !done(t)) t.ms += Math.min(now - timing.at, 60000);
-  timing.at = now;
-}
-setInterval(() => { tick(); save(); }, 5000);
-document.addEventListener('visibilitychange', () => { if (timing) timing.at = Date.now(); });
-
-/* ---------- Rendering helpers ---------- */
-const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const inl = s => esc(s).replace(/`([^`]+)`/g, '<code>$1</code>');
-function gridHTML(res, bad) {
-  if (!res) return '';
-  const head = '<tr>' + res.columns.map(c => `<th>${esc(c)}</th>`).join('') + '</tr>';
-  const body = res.rows.length ? res.rows.map((r, i) => `<tr${bad && bad.has(i) ? ' class="bad"' : ''}>` + r.map(v =>
-    v === null ? '<td class="null">null</td>' : `<td${typeof v === 'number' ? ' class="num"' : ''}>${esc(typeof v === 'number' ? +v.toFixed(6) : v)}</td>`).join('') + '</tr>').join('') : '';
-  return `<div class="scroll"><table class="grid"><thead>${head}</thead><tbody>${body}</tbody></table>${res.rows.length ? '' : '<div class="empty">(no rows)</div>'}</div>`;
-}
-function tablesHTML(task) {
-  const db = makeDb(task);
-  try {
-    const names = runQuery(db, "SELECT name FROM sqlite_master WHERE type='table' ORDER BY rowid").rows.map(r => r[0]);
-    return names.map(n => {
-      const cols = runQuery(db, `PRAGMA table_info(${n})`).rows.map(r => `${r[1]} ${String(r[2]).toLowerCase()}`);
-      const data = runQuery(db, `SELECT * FROM ${n}`);
-      return `<div class="tbl"><div class="cap">${esc(n)} <span>(${esc(cols.join(', '))})</span></div>${gridHTML(data)}</div>`;
-    }).join('');
-  } finally { db.close(); }
-}
-const statusLabel = { untouched: 'Not started', attempted: 'Attempted', passed: 'Passed', gaveup: 'Saw solution' };
-const fmtMin = ms => (ms < 60000 ? '< 1 min' : Math.round(ms / 60000) + ' min');
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} };
+const ts = id => state.tasks[id] || (state.tasks[id] = L.blankState());
 
 /* ---------- Navigation ---------- */
-let current = 'start';
+let current = 'start', workspace = null;
 function renderSteps() {
   const nav = document.getElementById('steps');
   const b = (id, label, cls, title) => `<button type="button" data-go="${id}" class="${cls || ''}" ${current === id ? 'aria-current="true"' : ''} title="${esc(title || label)}">${label}</button>`;
-  let h = b('start', 'Start');
-  h += '<span class="sep"></span>';
+  let h = b('start', 'Start') + '<span class="sep"></span>';
   TASKS.forEach((t, i) => { const s = state.tasks[t.id]; h += b(t.id, String(i + 1), s ? s.status : '', `${i + 1}. ${t.title}`); });
-  h += '<span class="sep"></span>';
-  const answered = CONCEPTS.filter(c => c.id in state.concepts).length;
-  h += b('concepts', `Concepts <span class="muted">${answered}/${CONCEPTS.length}</span>`);
-  h += b('report', 'Report');
+  h += '<span class="sep"></span>' + b('concepts', `Concepts <span class="muted">${CONCEPTS.filter(c => c.id in state.concepts).length}/${CONCEPTS.length}</span>`) + b('report', 'Report');
   nav.innerHTML = h;
   const cur = nav.querySelector('[aria-current="true"]');
   if (cur) cur.scrollIntoView({ block: 'nearest', inline: 'nearest' });
 }
 document.getElementById('steps').addEventListener('click', e => { const el = e.target.closest('[data-go]'); if (el) go(el.dataset.go); });
 function go(id) {
-  tick(); timing = null; save();
+  if (workspace) { workspace.destroy(); workspace = null; }
   current = id;
   try { history.replaceState(null, '', '#' + id); } catch (e) {}
   renderSteps();
@@ -886,161 +68,63 @@ function startHTML() {
   const touched = TASKS.some(t => state.tasks[t.id] && state.tasks[t.id].status !== 'untouched');
   return `<div class="card prompt">
   <h2>What this is</h2>
-  <p>A diagnostic, not a course. ${TASKS.length} query tasks in the style of LeetCode's database problems, from warm-ups to the window-function work behind problems like Seasonal Sales Analysis, then ${CONCEPTS.length} quick concept checks. The report at the end maps what's solid and what's a gap, so the next version can drill the gaps.</p>
+  <p>A diagnostic, not a course. ${TASKS.length} query tasks in the style of LeetCode's database problems, from warm-ups to the window-function work behind problems like Seasonal Sales Analysis, then ${CONCEPTS.length} quick concept checks. The report maps what's solid and what's a gap. To train the gaps, use <a href="sql-practice">SQL Practice</a>.</p>
   <h3>How a task works</h3>
   <ul>
-    <li><b>Run</b> shows your output next to the expected output on the sample data.</li>
-    <li><b>Submit</b> also checks hidden tests: extra rows that probe edge cases (ties, NULLs, duplicates, date boundaries). A failing test tells you what it was.</li>
-    <li>Hints and "show solution" are there when you're stuck. They're recorded, and that's fine: an honest map is the point. Try for 10–15 minutes before you open the solution.</li>
-    <li>Column names don't need to match; column order and values do. Numbers are compared to 2 decimals.</li>
+    <li><b>Run</b> shows your output next to the expected output for the data you have selected (the sample data, to start with).</li>
+    <li><b>Submit</b> also checks hidden tests: extra rows that probe edge cases (ties, NULLs, duplicates, date boundaries). A hidden test that fails opens as a tab, so you can Run against it while you fix your query. "Custom data" lets you add rows of your own.</li>
+    <li>If your query uses CTEs, the menu next to Run shows the output of any one step.</li>
+    <li>Hints and "show solution" are there when you're stuck. They're recorded, and that's fine: an honest map is the point.</li>
   </ul>
-  <h3>The engine is SQLite, with MySQL-style helpers</h3>
+  <h3>Checked the way LeetCode and interviewers check</h3>
+  <ul>
+    <li><b>Column names and their order must match the prompt</b> (letter case doesn't matter). Name computed columns with <code>AS</code>.</li>
+    <li><b>If the prompt asks for an order, your final query needs an <code>ORDER BY</code></b>, even when the rows happen to come out sorted.</li>
+    <li><b>Rounding is checked.</b> "Rounded to 1 decimal" means <code>ROUND(…, 1)</code>.</li>
+    <li>Every requirement in a prompt has a test behind it.</li>
+  </ul>
+  <h3>The engine is SQLite, with MySQL functions</h3>
   <ul>
     <li>Window functions, CTEs, <code>CASE</code>, <code>COALESCE</code>, <code>IFNULL</code> and <code>LIMIT</code> work as on LeetCode.</li>
-    <li>MySQL functions you can use: <code>YEAR</code>, <code>MONTH</code>, <code>DAY</code>, <code>QUARTER</code>, <code>DATEDIFF(a, b)</code>, <code>DATE_ADD(d, INTERVAL 1 DAY)</code>, <code>DATE_SUB</code>, <code>DATE_FORMAT(d, '%Y-%m')</code>, <code>LAST_DAY</code>, <code>DAYNAME</code>, <code>IF</code>, <code>LEFT</code>, <code>RIGHT</code>, <code>CONCAT</code>, <code>GREATEST</code>, <code>LEAST</code>.</li>
+    <li>MySQL functions you can use: <code>YEAR</code>, <code>MONTH</code>, <code>DAY</code>, <code>HOUR</code>, <code>QUARTER</code>, <code>DATEDIFF(a, b)</code>, <code>DATE_ADD(d, INTERVAL 1 DAY)</code>, <code>DATE_SUB</code>, <code>DATE_FORMAT(d, '%Y-%m')</code>, <code>LAST_DAY</code>, <code>DAYNAME</code>, <code>IF</code>, <code>LEFT</code>, <code>RIGHT</code>, <code>CONCAT</code>, <code>GREATEST</code>, <code>LEAST</code>.</li>
     <li>Dates are stored as text like <code>'2025-03-01'</code>, so they sort and compare correctly as strings.</li>
-    <li>One difference to watch: integer ÷ integer is an integer here (<code>1/3 = 0</code>, as in Postgres), so write <code>1.0 * a / b</code>. And <code>d + INTERVAL 1 DAY</code> isn't supported; use <code>DATE_ADD</code>.</li>
+    <li>Two differences from MySQL: integer ÷ integer is an integer here (<code>1/3 = 0</code>), so write <code>1.0 * a / b</code>; and <code>d + INTERVAL 1 DAY</code> isn't supported, so use <code>DATE_ADD</code>.</li>
   </ul>
   <p class="muted">Progress saves in this browser as you go. Shortcuts in the editor: ⌘/Ctrl + Enter runs, ⌘/Ctrl + Shift + Enter submits.</p>
-  <div class="actions"><button class="btn primary" type="button" id="begin" ${SQL ? '' : 'disabled'}>${touched ? 'Continue' : 'Start with task 1'}</button>
+  <div class="actions"><button class="btn primary" type="button" id="begin" ${L.ready() ? '' : 'disabled'}>${touched ? 'Continue' : 'Start with task 1'}</button>
   <button class="btn" type="button" data-jump="report">See report</button></div>
   </div>`;
 }
 document.getElementById('view').addEventListener('click', e => {
   if (e.target.id === 'begin') {
     if (!state.started) { state.started = new Date().toISOString(); save(); }
-    const next = TASKS.find(t => !state.tasks[t.id] || !done(state.tasks[t.id]));
+    const next = TASKS.find(t => !state.tasks[t.id] || !L.isDone(state.tasks[t.id]));
     go(next ? next.id : 'concepts');
   }
-  const j = e.target.closest('[data-jump]'); if (j) go(j.dataset.jump);
+  const j = e.target.closest('[data-jump]'); if (j) { e.preventDefault(); go(j.dataset.jump); }
 });
 
-/* ---------- Task view ---------- */
+/* ---------- Task ---------- */
 function renderTask(v, task) {
+  if (!L.ready()) { v.innerHTML = '<div class="card"><p class="muted">Waiting for the SQL engine…</p></div>'; return; }
   const i = TASKS.indexOf(task);
-  const t = ts(task.id);
-  timing = { id: task.id, at: Date.now() };
-  if (!SQL) { v.innerHTML = '<div class="card"><p class="muted">Waiting for the SQL engine…</p></div>'; return; }
-  let expHTML = '', tblHTML = '';
-  try { tblHTML = tablesHTML(task); expHTML = gridHTML(expectedFor(task)); } catch (err) { expHTML = `<div class="msg fail">${esc(err.message)}</div>`; }
-  v.innerHTML = `<div class="card">
-    <div class="meta"><span class="tag">${i + 1} / ${TASKS.length}</span><span class="tag level">${esc(task.level)}</span>${task.skills.map(s => `<span class="tag">${esc(SKILLS[s])}</span>`).join('')}</div>
-    <h2>${esc(task.title)}</h2>
-    <div class="prompt">${task.prompt}</div>
-    <h3>Tables (sample data)</h3>
-    <div class="tables">${tblHTML}</div>
-    <h3>Expected output on the sample data</h3>
-    <div class="tables"><div class="tbl">${expHTML}</div></div>
-    <div class="editor-wrap">
-      <div class="editor-bar"><span>query.sql</span><span id="tstat">${statusLabel[t.status]}${t.submits ? ` · ${t.submits} submit${t.submits > 1 ? 's' : ''}` : ''}${t.hints ? ` · ${t.hints} hint${t.hints > 1 ? 's' : ''}` : ''}</span></div>
-      <textarea class="sql" id="sql" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Your SQL query" placeholder="-- Write your query here"></textarea>
-    </div>
-    <div class="actions">
-      <button class="btn" type="button" id="run">Run <span class="k">⌘↵</span></button>
-      <button class="btn primary" type="button" id="submit">Submit <span class="k">⇧⌘↵</span></button>
-      <button class="btn" type="button" id="hint"></button>
-      <span class="spacer"></span>
-      <button class="btn" type="button" id="giveup">Show solution</button>
-      <button class="btn" type="button" id="next">${i + 1 < TASKS.length ? 'Next task →' : 'Concept checks →'}</button>
-    </div>
-    <div id="hints" class="out"></div>
-    <div id="out" class="out" aria-live="polite"></div>
-    <div id="after" class="out"></div>
-  </div>`;
-  const ta = v.querySelector('#sql');
-  ta.value = t.sql || '';
-  ta.addEventListener('input', () => { t.sql = ta.value; save(); });
-  ta.addEventListener('keydown', e => {
-    if (e.key === 'Tab' && !e.shiftKey) { e.preventDefault(); const s = ta.selectionStart; ta.setRangeText('  ', s, ta.selectionEnd, 'end'); t.sql = ta.value; }
-    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); e.shiftKey ? submit() : run(); }
+  workspace = L.mount(v, task, ts(task.id), {
+    save, onStatus: renderSteps,
+    meta: `<span class="tag">${i + 1} / ${TASKS.length}</span><span class="tag level">${esc(task.level)}</span>${task.skills.map(s => `<span class="tag">${esc(SKILLS[s])}</span>`).join('')}`,
+    nextLabel: i + 1 < TASKS.length ? 'Next task →' : 'Concept checks →',
+    onNext: () => go(i + 1 < TASKS.length ? TASKS[i + 1].id : 'concepts')
   });
-  const out = v.querySelector('#out');
-  const hintBtn = v.querySelector('#hint');
-  const renderHints = () => {
-    v.querySelector('#hints').innerHTML = task.hints.slice(0, t.hints).map((h, k) => `<div class="hint"><b>Hint ${k + 1}.</b> ${h}</div>`).join('');
-    const left = task.hints.length - t.hints;
-    hintBtn.textContent = left ? `Hint (${left} left)` : 'No hints left';
-    hintBtn.disabled = !left;
-  };
-  const updateStat = () => { v.querySelector('#tstat').textContent = `${statusLabel[t.status]}${t.submits ? ` · ${t.submits} submit${t.submits > 1 ? 's' : ''}` : ''}${t.hints ? ` · ${t.hints} hint${t.hints > 1 ? 's' : ''}` : ''}`; renderSteps(); };
-  const renderAfter = () => {
-    const a = v.querySelector('#after');
-    if (!done(t)) { a.innerHTML = ''; return; }
-    a.innerHTML = `<div><div class="label">Reference solution</div><pre class="solution">${esc(task.ref)}</pre><p class="note">${task.explain}</p></div>
-      <div class="feel"><span class="muted">How did this one feel?</span>${['Easy', 'OK', 'Hard'].map(f => `<button type="button" data-feel="${f}" aria-pressed="${t.feel === f}">${f}</button>`).join('')}</div>`;
-    a.querySelectorAll('[data-feel]').forEach(b => b.addEventListener('click', () => { t.feel = b.dataset.feel; save(); renderAfter(); }));
-  };
-  renderHints(); renderAfter();
-
-  function run() {
-    if (!SQL) return;
-    tick();
-    t.runs++; save();
-    const sql = ta.value;
-    let exp, got;
-    try { exp = expectedFor(task); got = userFor(task, null, sql); }
-    catch (err) { out.innerHTML = `<div class="msg fail"><b>SQL error.</b> ${esc(err.message)}</div>`; return; }
-    const c = compare(got, exp, task.ordered);
-    out.innerHTML = `<div class="msg ${c.ok ? 'pass' : 'warn'}">${c.ok ? '<b>Matches the sample.</b> Submit to run the hidden tests.' : `<b>Doesn't match yet.</b> ${esc(c.msg)}`}</div>
-      <div class="pair"><div><div class="label">Your output</div>${gridHTML(got, c.bad)}</div><div><div class="label">Expected</div>${gridHTML(exp)}</div></div>`;
-  }
-  function submit() {
-    if (!SQL) return;
-    tick();
-    const sql = ta.value;
-    if (!sql.trim()) { out.innerHTML = '<div class="msg warn">Write a query first.</div>'; return; }
-    t.submits++;
-    const cases = [{ name: 'Sample data', sql: null }].concat(task.hidden);
-    const results = [];
-    let firstFail = null;
-    for (const cs of cases) {
-      let exp, got, c;
-      try { exp = expectedFor(task, cs.sql); got = userFor(task, cs.sql, sql); c = compare(got, exp, task.ordered); }
-      catch (err) { c = { ok: false, msg: 'SQL error: ' + err.message }; }
-      results.push({ cs, c });
-      if (!c.ok && !firstFail) firstFail = { cs, c, exp, got };
-    }
-    const passed = results.every(r => r.c.ok);
-    if (passed && t.status !== 'passed') {
-      if (t.status !== 'gaveup') { t.status = 'passed'; t.solvedSubmits = t.submits; }
-    } else if (!passed) {
-      if (t.status === 'untouched') t.status = 'attempted';
-      results.filter(r => !r.c.ok && r.cs.sql).forEach(r => { if (!t.failedCases.includes(r.cs.name)) t.failedCases.push(r.cs.name); });
-    }
-    t.lastSubmitted = sql;
-    save();
-    let h = `<div class="msg ${passed ? 'pass' : 'fail'}"><b>${passed ? `All ${cases.length} tests passed.` : `${results.filter(r => r.c.ok).length} of ${cases.length} tests passed.`}</b></div>`;
-    h += '<div class="cases">' + results.map(r => `<div class="case"><span class="dot ${r.c.ok ? 'pass' : 'fail'}"></span><span>${esc(r.cs.name)}${r.c.ok ? '' : ` — <span class="muted">${esc(r.c.msg)}</span>`}</span></div>`).join('') + '</div>';
-    if (firstFail && firstFail.got) {
-      h += `${firstFail.cs.sql ? `<div><div class="label">Data added for "${esc(firstFail.cs.name)}"</div><pre class="solution">${esc(firstFail.cs.sql)}</pre></div>` : ''}
-        <div class="pair"><div><div class="label">Your output</div>${gridHTML(firstFail.got, firstFail.c.bad)}</div><div><div class="label">Expected</div>${gridHTML(firstFail.exp)}</div></div>`;
-    }
-    out.innerHTML = h;
-    updateStat(); renderAfter();
-  }
-  v.querySelector('#run').addEventListener('click', run);
-  v.querySelector('#submit').addEventListener('click', submit);
-  hintBtn.addEventListener('click', () => { if (t.hints < task.hints.length) { t.hints++; if (t.status === 'untouched') t.status = 'attempted'; save(); renderHints(); updateStat(); } });
-  v.querySelector('#giveup').addEventListener('click', () => {
-    if (!done(t) && !confirm('Show the reference solution? This task will be recorded as not solved.')) return;
-    tick();
-    if (!done(t)) { t.status = 'gaveup'; save(); }
-    updateStat(); renderAfter();
-    v.querySelector('#after').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  });
-  v.querySelector('#next').addEventListener('click', () => go(i + 1 < TASKS.length ? TASKS[i + 1].id : 'concepts'));
 }
 
 /* ---------- Concepts ---------- */
 function renderConcepts(v) {
-  const L = 'ABCD';
+  const AB = 'ABCD';
   v.innerHTML = `<div class="card"><h2>Concept checks</h2><p class="note">One try each. These test the rules behind the tasks, mostly window functions and NULLs.</p>` +
     CONCEPTS.map((c, n) => {
-      const picked = state.concepts[c.id];
-      const answered = picked !== undefined;
+      const picked = state.concepts[c.id], answered = picked !== undefined;
       return `<div class="q" data-q="${c.id}"><div class="meta"><span class="tag">${n + 1} / ${CONCEPTS.length}</span><span class="tag">${esc(SKILLS[c.skill])}</span></div>
         <p>${inl(c.q)}</p>${c.code ? `<pre>${esc(c.code)}</pre>` : ''}
-        <div class="choices">${c.choices.map((ch, k) => `<button type="button" class="choice${answered && k === c.answer ? ' right' : ''}${answered && k === picked && k !== c.answer ? ' wrong' : ''}" data-k="${k}" ${answered ? 'disabled' : ''}><span class="letter">${L[k]}</span><span>${inl(ch)}</span></button>`).join('')}</div>
+        <div class="choices">${c.choices.map((ch, k) => `<button type="button" class="choice${answered && k === c.answer ? ' right' : ''}${answered && k === picked && k !== c.answer ? ' wrong' : ''}" data-k="${k}" ${answered ? 'disabled' : ''}><span class="letter">${AB[k]}</span><span>${inl(ch)}</span></button>`).join('')}</div>
         ${answered ? `<p class="explain"><b>${picked === c.answer ? 'Right.' : 'Not quite.'}</b> ${inl(c.why)}</p>` : ''}</div>`;
     }).join('') + `<div class="actions"><button class="btn primary" type="button" data-jump="report">See the report →</button></div></div>`;
   v.querySelectorAll('.q').forEach(q => q.addEventListener('click', e => {
@@ -1050,61 +134,70 @@ function renderConcepts(v) {
   }));
 }
 
-/* ---------- Report ---------- */
+/* ---------- Report ----------
+   A task counts toward the skills it is about. A hidden test counts toward the one skill it checks, so failing
+   the "two managers named Uma" test marks grouping, not joins. Concept checks and hidden tests weigh half a task. */
 function taskScore(t) {
   if (!t || t.status === 'untouched') return null;
-  if (t.status === 'passed') return t.hints === 0 && t.solvedSubmits <= 2 ? 1 : 0.6;
-  if (t.status === 'gaveup') return 0;
-  return 0.2; // attempted, not solved yet
+  if (t.status === 'passed') return t.hints ? 0.8 : 1;
+  return t.status === 'gaveup' ? 0 : 0.2;
 }
 function skillRows() {
   return Object.keys(SKILLS).map(k => {
-    const ts_ = TASKS.filter(t => t.skills.includes(k));
-    const cs = CONCEPTS.filter(c => c.skill === k);
     let sum = 0, w = 0;
-    const tdone = ts_.map(t => taskScore(state.tasks[t.id])).filter(s => s !== null);
-    tdone.forEach(s => { sum += s; w += 1; });
-    const cdone = cs.filter(c => c.id in state.concepts);
-    const cright = cdone.filter(c => state.concepts[c.id] === c.answer).length;
-    sum += 0.5 * cright; w += 0.5 * cdone.length;
+    const mine = TASKS.filter(t => t.skills.includes(k));
+    const tried = mine.map(t => taskScore(state.tasks[t.id])).filter(s => s !== null);
+    tried.forEach(s => { sum += s; w += 1; });
+    let tests = 0, clean = 0;
+    TASKS.forEach(t => {
+      const s = state.tasks[t.id]; if (!s || !s.submits) return;
+      t.hidden.filter(h => h.skill === k).forEach(h => {
+        tests++;
+        const failed = s.failedCases.includes(h.name);
+        if (!failed) clean++;
+        sum += 0.5 * (failed ? (s.status === 'passed' ? 0.5 : 0) : (s.status === 'passed' ? 1 : 0.5)); w += 0.5;
+      });
+    });
+    const cs = CONCEPTS.filter(c => c.skill === k && c.id in state.concepts);
+    const right = cs.filter(c => state.concepts[c.id] === c.answer).length;
+    sum += 0.5 * right; w += 0.5 * cs.length;
     const score = w ? sum / w : null;
-    const verdict = score === null ? 'none' : score >= 0.8 ? 'solid' : score >= 0.5 ? 'shaky' : 'gap';
-    const tpass = ts_.filter(t => state.tasks[t.id] && state.tasks[t.id].status === 'passed').length;
-    return { k, name: SKILLS[k], score, verdict, tasks: tdone.length ? `${tpass}/${tdone.length}${tdone.length < ts_.length ? ` · ${ts_.length - tdone.length} not tried` : ''}` : `– · ${ts_.length} not tried`, concepts: cdone.length ? `${cright}/${cdone.length}` : '–' };
+    const solved = mine.filter(t => state.tasks[t.id] && state.tasks[t.id].status === 'passed').length;
+    return { k, name: SKILLS[k], score, verdict: score === null ? 'none' : score >= 0.8 ? 'solid' : score >= 0.5 ? 'shaky' : 'gap',
+      tasks: tried.length ? `${solved}/${tried.length}${tried.length < mine.length ? ` · ${mine.length - tried.length} not tried` : ''}` : `– · ${mine.length} not tried`,
+      tests: tests ? `${clean}/${tests}` : '–', concepts: cs.length ? `${right}/${cs.length}` : '–' };
   });
 }
 const VERDICT = { solid: 'Solid', shaky: 'Shaky', gap: 'Gap', none: 'Not tested' };
 function renderReport(v) {
-  const rows = skillRows();
-  const all = TASKS.map(t => state.tasks[t.id]);
+  const rows = skillRows(), all = TASKS.map(t => state.tasks[t.id]);
   const passed = all.filter(t => t && t.status === 'passed').length;
-  const clean = all.filter(t => taskScore(t) === 1).length;
-  const minutes = all.reduce((a, t) => a + (t ? t.ms : 0), 0);
-  const cAns = CONCEPTS.filter(c => c.id in state.concepts);
-  const cRight = cAns.filter(c => state.concepts[c.id] === c.answer).length;
+  const first = all.filter(t => t && t.status === 'passed' && t.solvedSubmits === 1 && !t.hints).length;
+  const ms = all.reduce((a, t) => a + (t ? t.ms : 0), 0);
+  const cAns = CONCEPTS.filter(c => c.id in state.concepts), cRight = cAns.filter(c => state.concepts[c.id] === c.answer).length;
   v.innerHTML = `<div class="card">
     <h2>Report</h2>
     <div class="stats">
-      <div class="stat"><div class="n">${passed}/${TASKS.length}</div><div class="l">tasks passed</div></div>
-      <div class="stat"><div class="n">${clean}</div><div class="l">clean (no hints, ≤ 2 submits)</div></div>
+      <div class="stat"><div class="n">${passed}/${TASKS.length}</div><div class="l">tasks solved</div></div>
+      <div class="stat"><div class="n">${first}</div><div class="l">on the first submit, no hints</div></div>
       <div class="stat"><div class="n">${cRight}/${cAns.length}</div><div class="l">concept checks right</div></div>
-      <div class="stat"><div class="n">${fmtMin(minutes)}</div><div class="l">active time</div></div>
+      <div class="stat"><div class="n">${L.fmtMin(ms)}</div><div class="l">active time</div></div>
     </div>
     <div class="scroll wide"><table class="skills">
-      <thead><tr><th>Skill</th><th>Passed / tried</th><th class="hide-sm">Concepts</th><th class="hide-sm">Score</th><th>Verdict</th></tr></thead>
-      <tbody>${rows.map(r => `<tr><td>${esc(r.name)}</td><td class="mono">${r.tasks}</td><td class="mono hide-sm">${r.concepts}</td>
+      <thead><tr><th>Skill</th><th>Solved / tried</th><th class="hide-sm">Hidden tests passed first time</th><th class="hide-sm">Concepts</th><th class="hide-sm">Score</th><th>Verdict</th></tr></thead>
+      <tbody>${rows.map(r => `<tr><td>${esc(r.name)}</td><td class="mono">${r.tasks}</td><td class="mono hide-sm">${r.tests}</td><td class="mono hide-sm">${r.concepts}</td>
         <td class="hide-sm"><span class="bar"><i style="width:${r.score === null ? 0 : Math.round(r.score * 100)}%"></i></span></td>
         <td><span class="verdict ${r.verdict}">${VERDICT[r.verdict]}</span></td></tr>`).join('')}</tbody>
     </table></div>
-    <p class="note">Scoring per task: passed with no hints in ≤ 2 submits = 1, passed otherwise = 0.6, attempted = 0.2, saw the solution = 0. Concept checks count half. Solid ≥ 0.8, Shaky ≥ 0.5.</p>
+    <p class="note">A solved task scores 1 (0.8 with hints), an unsolved attempt 0.2, a task ended at the solution 0. Each hidden test counts toward the one skill it checks, at half weight, as do concept checks. Solid ≥ 0.8, Shaky ≥ 0.5.</p>
     <h3>Tasks</h3>
     <div class="scroll wide"><table class="skills">
       <thead><tr><th>#</th><th>Task</th><th>Result</th><th class="hide-sm">Submits</th><th class="hide-sm">Hints</th><th class="hide-sm">Time</th><th class="hide-sm">Felt</th></tr></thead>
       <tbody>${TASKS.map((t, i) => { const s = state.tasks[t.id] || {}; return `<tr><td class="mono">${i + 1}</td><td><a href="#${t.id}" data-jump="${t.id}">${esc(t.title)}</a></td>
-        <td>${statusLabel[s.status || 'untouched']}</td><td class="mono hide-sm">${s.submits || 0}</td><td class="mono hide-sm">${s.hints || 0}</td><td class="mono hide-sm">${s.ms ? fmtMin(s.ms) : '–'}</td><td class="hide-sm">${s.feel || '–'}</td></tr>`; }).join('')}</tbody>
+        <td>${L.STATUS[s.status || 'untouched']}</td><td class="mono hide-sm">${s.submits || 0}</td><td class="mono hide-sm">${s.hints || 0}</td><td class="mono hide-sm">${s.ms ? L.fmtMin(s.ms) : '–'}</td><td class="hide-sm">${s.feel || '–'}</td></tr>`; }).join('')}</tbody>
     </table></div>
     <h3>Send this to Claude</h3>
-    <p class="note">Copy the summary (it includes your final query for each task) and paste it into the chat. The next version of the lab gets built around it.</p>
+    <p class="note">Copy the summary (it includes your final query for each task) and paste it into the chat.</p>
     <div class="actions">
       <button class="btn primary" type="button" id="copy">Copy results</button>
       <button class="btn" type="button" id="dl">Download JSON</button>
@@ -1121,7 +214,7 @@ function renderReport(v) {
       : `<div class="msg warn">Couldn't reach the clipboard. Select all of this and copy it:</div><textarea class="sql" readonly style="min-height:240px;border:1px solid var(--line);border-radius:8px">${esc(text)}</textarea>`;
   });
   v.querySelector('#dl').addEventListener('click', () => {
-    const blob = new Blob([JSON.stringify({ exported: new Date().toISOString(), skills: skillRows(), state }, null, 2)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify({ exported: new Date().toISOString(), version: 2, skills: skillRows(), state }, null, 2)], { type: 'application/json' });
     const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'sql-lab-results.json'; a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   });
@@ -1131,16 +224,16 @@ function renderReport(v) {
   });
 }
 function exportText() {
-  const L = 'ABCD';
-  const lines = [`# SQL Lab diagnostic v1 results (${new Date().toISOString().slice(0, 10)})`, '', '## Skills', '', '| Skill | Tasks passed / tried | Concepts right | Score | Verdict |', '|---|---|---|---|---|'];
-  skillRows().forEach(r => lines.push(`| ${r.name} | ${r.tasks} | ${r.concepts} | ${r.score === null ? '–' : r.score.toFixed(2)} | ${VERDICT[r.verdict]} |`));
+  const AB = 'ABCD';
+  const lines = [`# SQL Lab diagnostic (version 2) results, ${new Date().toISOString().slice(0, 10)}`, '', '## Skills', '', '| Skill | Solved / tried | Hidden tests passed first time | Concepts right | Score | Verdict |', '|---|---|---|---|---|---|'];
+  skillRows().forEach(r => lines.push(`| ${r.name} | ${r.tasks} | ${r.tests} | ${r.concepts} | ${r.score === null ? '–' : r.score.toFixed(2)} | ${VERDICT[r.verdict]} |`));
   lines.push('', '## Tasks', '');
   TASKS.forEach((t, i) => {
     const s = state.tasks[t.id] || { status: 'untouched' };
     lines.push(`### ${i + 1}. ${t.title} [${t.level}; ${t.skills.join(', ')}]`);
-    lines.push(`- Result: ${statusLabel[s.status]}${s.status === 'passed' ? ` on submit ${s.solvedSubmits}` : ''}; submits ${s.submits || 0}; runs ${s.runs || 0}; hints ${s.hints || 0}/${t.hints.length}; time ${s.ms ? fmtMin(s.ms) : '–'}; felt ${s.feel || '–'}`);
-    if (s.failedCases && s.failedCases.length) lines.push(`- Hidden tests failed at some point: ${s.failedCases.join('; ')}`);
-    const q = (s.status === 'passed' ? s.lastSubmitted : s.sql) || s.sql;
+    lines.push(`- Result: ${L.STATUS[s.status]}${s.status === 'passed' ? ` on submit ${s.solvedSubmits}` : ''}; submits ${s.submits || 0}; runs ${s.runs || 0}; hints ${s.hints || 0}/${t.hints.length}; time ${s.ms ? L.fmtMin(s.ms) : '–'}; felt ${s.feel || '–'}`);
+    if (s.failedCases && s.failedCases.length) lines.push(`- Hidden tests failed at some point: ${s.failedCases.map(n => { const h = t.hidden.find(x => x.name === n); return n + (h ? ` [${h.skill}]` : ''); }).join('; ')}`);
+    const q = (s.status === 'passed' ? s.lastSubmitted : s.sql) || s.lastSubmitted;
     if (q && q.trim()) lines.push('```sql', q.trim(), '```');
     lines.push('');
   });
@@ -1148,7 +241,7 @@ function exportText() {
   CONCEPTS.forEach((c, n) => {
     if (!(c.id in state.concepts)) { lines.push(`- ${n + 1}. [${c.skill}] not answered`); return; }
     const p = state.concepts[c.id];
-    lines.push(`- ${n + 1}. [${c.skill}] ${p === c.answer ? 'right' : `WRONG: picked ${L[p]} "${c.choices[p]}", answer ${L[c.answer]} "${c.choices[c.answer]}"`} (${c.q.replace(/`/g, '')})`);
+    lines.push(`- ${n + 1}. [${c.skill}] ${p === c.answer ? 'right' : `WRONG: picked ${AB[p]} "${c.choices[p]}", answer ${AB[c.answer]} "${c.choices[c.answer]}"`} (${c.q.replace(/`/g, '')})`);
   });
   return lines.join('\n');
 }
@@ -1157,18 +250,8 @@ function exportText() {
 const engine = document.getElementById('engine');
 const startId = location.hash.slice(1);
 go(['concepts', 'report'].includes(startId) || TASKS.some(t => t.id === startId) ? startId : 'start');
-if (typeof initSqlJs !== 'function') {
-  engine.textContent = "The SQL engine didn't load (cdn.jsdelivr.net may be blocked on this network). Reload to try again.";
-  engine.classList.add('err');
-} else {
-  initSqlJs({ locateFile: f => `https://cdn.jsdelivr.net/npm/sql.js@1.10.3/dist/${f}` }).then(S => {
-    SQL = S;
-    const db = new SQL.Database();
-    engine.textContent = `SQLite ${db.exec('SELECT sqlite_version()')[0].values[0][0]} running in your browser · nothing leaves this page`;
-    db.close();
-    go(current);
-  }).catch(err => { engine.textContent = "The SQL engine didn't load: " + err.message; engine.classList.add('err'); });
-}
+L.load().then(v => { engine.textContent = `SQLite ${v} running in your browser · nothing leaves this page`; go(current); })
+  .catch(err => { engine.textContent = "The SQL engine didn't load: " + err.message + '. Reload to try again.'; engine.classList.add('err'); });
 </script>
 </body>
 </html>

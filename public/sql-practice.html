@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="SQL practice problems by topic, from easy to hard, with hidden edge-case tests. Runs in the browser.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<title>SQL Practice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="sql/core.css">
+</head>
+<body>
+<div class="page">
+  <header>
+    <p class="eyebrow">SQL Lab · Practice · <a href="sql-lab">Diagnostic →</a></p>
+    <h1>SQL practice</h1>
+    <p class="engine" id="engine">Loading the SQL engine…</p>
+  </header>
+  <main id="view"></main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sql.js@1.10.3/dist/sql-wasm.js"></script>
+<script src="sql/core.js"></script>
+<script src="sql/practice-bank.js"></script>
+<script>
+// The problem set: topics from sql/practice-bank.js, each with a lesson, quick checks and problems from easy to hard.
+// Problems stay available after they are solved; "Solve again" clears the query and keeps the history.
+const L = SQLLab, { TOPICS, UPCOMING } = PRACTICE_BANK, { esc, inl } = L;
+
+const KEY = 'sql-practice-v1';
+let state = { problems: {}, checks: {} };
+try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.problems) state = Object.assign(state, s); } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} };
+const ps = id => state.problems[id] || (state.problems[id] = Object.assign(L.blankState(), { history: [] }));
+const TARGET = { Easy: 10, Medium: 15, Hard: 25 };
+
+let workspace = null;
+const view = document.getElementById('view');
+function route() {
+  if (workspace) { workspace.destroy(); workspace = null; }
+  const [tid, pid] = location.hash.slice(1).split('/');
+  const topic = TOPICS.find(t => t.id === tid);
+  if (!topic) renderHome();
+  else if (pid === 'lesson') renderLesson(topic);
+  else if (topic.problems.some(p => p.id === pid)) renderProblem(topic, topic.problems.find(p => p.id === pid));
+  else renderHome();
+  window.scrollTo({ top: 0 });
+}
+window.addEventListener('hashchange', route);
+
+/* ---------- Home: every topic and problem ---------- */
+function renderHome() {
+  const topicHTML = t => {
+    const solved = t.problems.filter(p => state.problems[p.id] && state.problems[p.id].history && state.problems[p.id].history.length).length;
+    const checks = t.checks.filter(c => c.id in state.checks).length;
+    return `<div class="card topic">
+      <h2>${esc(t.title)}</h2>
+      <p class="note">${esc(t.blurb)}</p>
+      <div class="actions"><a class="btn primary" href="#${t.id}/lesson">Lesson and quick checks${checks ? ` (${checks}/${t.checks.length})` : ''}</a><span class="muted">${solved} of ${t.problems.length} problems solved</span></div>
+      <div class="scroll wide" style="margin-top:12px"><table class="list">
+        <thead><tr><th>#</th><th>Problem</th><th>Level</th><th>Status</th><th class="hide-sm">Best time</th><th class="hide-sm">Solved</th></tr></thead>
+        <tbody>${t.problems.map((p, i) => { const s = state.problems[p.id] || {}; const h = s.history || [];
+          const best = h.length ? Math.min(...h.map(x => x.ms)) : null;
+          const status = h.length && s.status !== 'passed' && s.status !== 'untouched' ? 'In progress (solved before)' : h.length && s.status === 'untouched' ? 'Solved' : L.STATUS[s.status || 'untouched'];
+          return `<tr><td class="mono">${i + 1}</td><td><a href="#${t.id}/${p.id}">${esc(p.title)}</a></td><td><span class="lvl ${p.level}">${p.level}</span></td>
+            <td>${status}</td><td class="mono hide-sm">${best === null ? '–' : L.clock(best)}</td><td class="mono hide-sm">${h.length ? h.length + '×' : '–'}</td></tr>`; }).join('')}</tbody>
+      </table></div>
+      <h3>Then on LeetCode</h3>
+      <p class="note">${t.followups.map(f => `<a href="https://leetcode.com/problems/${f.slug}/" target="_blank" rel="noopener">${f.n}. ${esc(f.title)}</a>`).join(' · ')}</p>
+    </div>`;
+  };
+  view.innerHTML = `<div class="card prompt" style="margin-bottom:16px">
+    <p>Problems are grouped by topic and go from easy to hard. Start each topic with its lesson. A solved problem stays here, so you can come back and solve it again; your times are kept.</p>
+    <p>Checked the way LeetCode and interviewers check: column names and order must match the prompt, a requested order needs an <code>ORDER BY</code>, and rounding counts. Every requirement in a prompt has a test behind it. Engine notes (MySQL functions, integer division) are on the <a href="sql-lab">diagnostic's start page</a>.</p>
+    <div class="actions"><button class="btn" type="button" id="exp">Export progress</button><button class="btn" type="button" id="imp">Import progress</button><input type="file" id="impfile" accept="application/json,.json" hidden><span id="impmsg" class="muted"></span></div>
+  </div>
+  ${TOPICS.map(topicHTML).join('')}
+  <div class="card topic"><h2>Coming next</h2><ul class="tight">${UPCOMING.map(u => `<li><b>${esc(u.title)}.</b> <span class="muted">${esc(u.blurb)}</span></li>`).join('')}</ul></div>`;
+  view.querySelector('#exp').addEventListener('click', () => {
+    const blob = new Blob([JSON.stringify({ exported: new Date().toISOString(), app: 'sql-practice', state }, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'sql-practice-progress.json'; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  });
+  const file = view.querySelector('#impfile');
+  view.querySelector('#imp').addEventListener('click', () => file.click());
+  file.addEventListener('change', async () => {
+    const msg = view.querySelector('#impmsg');
+    try {
+      const data = JSON.parse(await file.files[0].text());
+      if (data.app !== 'sql-practice' || !data.state || !data.state.problems) throw new Error('not a practice export');
+      if (!confirm('Replace the progress in this browser with the imported file?')) return;
+      state = Object.assign({ problems: {}, checks: {} }, data.state); save(); renderHome();
+    } catch (e) { msg.textContent = "That file couldn't be imported (" + e.message + ').'; }
+  });
+}
+
+/* ---------- Lesson: a worked example with each step's output, then quick checks ---------- */
+function renderLesson(topic) {
+  const ls = topic.lesson;
+  let stepsHTML = '<p class="muted">Waiting for the SQL engine…</p>';
+  if (L.ready()) {
+    const fake = { setup: ls.setup };
+    const show = (name, sql) => { const db = L.makeDb(fake); try { return `<p><b>${esc(ls.stepNotes[name] || name)}</b></p>${L.gridHTML(L.runQuery(db, sql))}`; } finally { db.close(); } };
+    stepsHTML = `<div class="tables">${L.tablesHTML(fake)}</div><p><b>Question.</b> ${esc(ls.question)}</p><pre class="solution">${esc(ls.sql)}</pre>` +
+      L.cteSteps(ls.sql).map(s => show(s.name, s.sql)).join('') + show('', ls.sql);
+  }
+  const AB = 'ABCD';
+  view.innerHTML = `<div class="crumbs"><a href="#">All problems</a><span>/</span><span>${esc(topic.title)}</span><span>/</span><span>Lesson</span></div>
+  <div class="card lesson prompt">
+    <h2>${esc(topic.title)}</h2>
+    ${ls.intro}
+    <h3>Worked example</h3>
+    ${stepsHTML}
+    ${ls.outro}
+  </div>
+  <div class="card" style="margin-top:16px"><h2>Quick checks</h2><p class="note">Predict before you write. One try each.</p>` +
+    topic.checks.map((c, n) => {
+      const picked = state.checks[c.id], answered = picked !== undefined;
+      return `<div class="q" data-q="${c.id}"><div class="meta"><span class="tag">${n + 1} / ${topic.checks.length}</span></div>
+        <p>${inl(c.q)}</p>
+        <div class="choices">${c.choices.map((ch, k) => `<button type="button" class="choice${answered && k === c.answer ? ' right' : ''}${answered && k === picked && k !== c.answer ? ' wrong' : ''}" data-k="${k}" ${answered ? 'disabled' : ''}><span class="letter">${AB[k]}</span><span>${inl(ch)}</span></button>`).join('')}</div>
+        ${answered ? `<p class="explain"><b>${picked === c.answer ? 'Right.' : 'Not quite.'}</b> ${inl(c.why)}</p>` : ''}</div>`;
+    }).join('') + `<div class="actions"><a class="btn primary" href="#${topic.id}/${topic.problems[0].id}">Start problem 1 →</a></div></div>`;
+  view.querySelectorAll('.q').forEach(q => q.addEventListener('click', e => {
+    const b = e.target.closest('.choice'); if (!b || b.disabled) return;
+    state.checks[q.dataset.q] = +b.dataset.k; save();
+    const y = window.scrollY; renderLesson(topic); window.scrollTo({ top: y });
+  }));
+}
+
+/* ---------- Problem ---------- */
+function renderProblem(topic, p) {
+  const i = topic.problems.indexOf(p), next = topic.problems[i + 1];
+  view.innerHTML = `<div class="crumbs"><a href="#">All problems</a><span>/</span><a href="#${topic.id}/lesson">${esc(topic.title)}</a><span>/</span><span>${i + 1} of ${topic.problems.length}</span></div><div id="ws"></div>`;
+  const ws = view.querySelector('#ws');
+  if (!L.ready()) { ws.innerHTML = '<div class="card"><p class="muted">Waiting for the SQL engine…</p></div>'; return; }
+  const st = ps(p.id);
+  workspace = L.mount(ws, p, st, {
+    save,
+    meta: `<span class="tag">${i + 1} / ${topic.problems.length}</span><span class="tag level lvl ${p.level}">${p.level}</span><span class="tag">${esc(topic.title)}</span>${st.history.length ? `<span class="tag">Solved ${st.history.length}× · best ${L.clock(Math.min(...st.history.map(h => h.ms)))}</span>` : ''}`,
+    targetMin: TARGET[p.level],
+    onSolved: () => { st.history.push({ at: new Date().toISOString(), ms: st.ms, submits: st.submits, hints: st.hints }); save(); },
+    onReset: () => { state.problems[p.id] = Object.assign(L.blankState(), { history: st.history }); save(); route(); },
+    nextLabel: next ? 'Next problem →' : 'All problems',
+    onNext: () => { location.hash = next ? `#${topic.id}/${next.id}` : '#'; }
+  });
+}
+
+/* ---------- Boot ---------- */
+const engine = document.getElementById('engine');
+route();
+L.load().then(v => { engine.textContent = `SQLite ${v} running in your browser · nothing leaves this page`; route(); })
+  .catch(err => { engine.textContent = "The SQL engine didn't load: " + err.message + '. Reload to try again.'; engine.classList.add('err'); });
+</script>
+</body>
+</html>

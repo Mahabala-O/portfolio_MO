@@ -21,8 +21,9 @@ export default withNextra({
     return [
       // Standalone career-fair guide (public/fair-guide.html), served without the site layout.
       { source: '/fair-guide', destination: '/fair-guide.html' },
-      // Standalone SQL skills check (public/sql-lab.html), not linked from the site and not indexed.
-      { source: '/sql-lab', destination: '/sql-lab.html' }
+      // Standalone SQL pages, not linked from the site and not indexed. They share the files in public/sql/.
+      { source: '/sql-lab', destination: '/sql-lab.html' },
+      { source: '/sql-practice', destination: '/sql-practice.html' }
     ]
   }
 })
