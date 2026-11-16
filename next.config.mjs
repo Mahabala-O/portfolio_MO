@@ -9,7 +9,21 @@ export default withNextra({
   async redirects() {
     return [
       { source: '/posts', destination: '/projects', permanent: true },
-      { source: '/posts/:slug*', destination: '/projects', permanent: true }
+      { source: '/posts/:slug*', destination: '/projects', permanent: true },
+      { source: '/tags/:tag*', destination: '/projects', permanent: true },
+      // Temporary: the Photos page was removed but may come back.
+      { source: '/photos', destination: '/', permanent: false },
+      // Short link for the Merage Fall Talent Expo section of the career-fair guide
+      { source: '/talent-expo', destination: '/fair-guide#merage-expo-oct-2026', permanent: false }
+    ]
+  },
+  async rewrites() {
+    return [
+      // Standalone career-fair guide (public/fair-guide.html), served without the site layout.
+      { source: '/fair-guide', destination: '/fair-guide.html' },
+      // Standalone SQL pages, not linked from the site and not indexed. They share the files in public/sql/.
+      { source: '/sql-lab', destination: '/sql-lab.html' },
+      { source: '/sql-practice', destination: '/sql-practice.html' }
     ]
   }
 })

@@ -1,25 +1,37 @@
 # Mikhail Orlov — Portfolio
 
-Personal portfolio at [portfolio-mo.vercel.app](https://portfolio-mo.vercel.app), built with Next.js and [Nextra](https://nextra.site) (`nextra-theme-blog`).
+Personal portfolio at [portfolio-mo.vercel.app](https://portfolio-mo.vercel.app), built with Next.js and [Nextra](https://nextra.site) (`nextra-theme-blog`). Pushing to `main` redeploys the site on Vercel.
 
-## Editing content
+## Updating content
 
-- **About page:** `pages/index.mdx`
-- **Projects:** add a Markdown file to `pages/projects/`. Frontmatter:
+| What | Where |
+| --- | --- |
+| Name, role label, footer links, site description | `lib/site.js` (used by the header, footer, and link previews) |
+| Homepage headline (`title`), browser-tab title (`tabTitle`), intro, links, bio | `pages/index.mdx` |
+| Resume | `pages/resume.mdx` (editing notes are at the top of the file) |
+| Header navigation | `NAV` in `components/site-header.js` |
+| Colors for light and dark mode | CSS variables at the top of `styles/main.css` |
+| Career-fair guide at `/fair-guide` | `public/fair-guide.html`, a standalone page outside the site layout. Each fair is an employer list plus an entry in `FAIRS` at the top of its script; the comment there lists the fields. Link to one fair with `/fair-guide#<fair id>`; `/talent-expo` is a short link (in `next.config.mjs`) to the Merage Fall Talent Expo. |
+| SQL diagnostic at `/sql-lab` and practice problems at `/sql-practice` | Standalone pages (`public/sql-lab.html`, `public/sql-practice.html`), not linked from the site and `noindex`, that run SQLite in the browser via sql.js. They share `public/sql/`: `core.js` (engine, answer checking, the task workspace), `core.css`, `lab-bank.js` (diagnostic tasks) and `practice-bank.js` (topics and problems). The same files are published as a standalone template at [github.com/Mahabala-O/sql-lab](https://github.com/Mahabala-O/sql-lab) (its `checks/` folder is `scripts/sql-lab/` here); keep the two in sync. Rules for writing problems are in `docs/sql-lab-v2-plan.md`. After changing a problem, run the checks in `scripts/sql-lab/` (commands are in that doc). The write-up is `pages/projects/sql-lab.mdx`. |
 
-  ```yaml
-  ---
-  title: Project name
-  date: 2026/5/6 # controls sort order
-  description: One or two sentences shown on the projects list
-  tag: python, tableau # comma-separated, becomes /tags/<tag> pages
-  ---
-  ```
+### Adding a project
 
-- **Footer links, site name, SEO defaults:** `theme.config.js`
-- **Colors (light and dark):** CSS variables at the top of `styles/main.css`
+Add a Markdown file to `pages/projects/`. It shows up automatically in the project list on the homepage and the Projects page, newest first.
 
-The build (`npm run build`) also generates `public/feed.xml` (RSS) and `public/sitemap.xml` from the projects folder.
+```yaml
+---
+title: Project name
+date: 2026/5/6 # sets the order; shown as "May 2026"
+description: One or two sentences (used for search results and link previews)
+highlight: The headline result, e.g. "Cut forecast error 18%" # optional, shown in the list instead of the description
+tools: Python, SQL, Tableau # optional
+draft: true # optional, hides the project
+---
+```
+
+Images in a project write-up open full size when clicked.
+
+The build (`npm run build`) also generates `public/feed.xml` (RSS) and `public/sitemap.xml`. Link-preview images come from `pages/api/og.js`.
 
 ## Development
 
@@ -28,4 +40,4 @@ npm install
 npm run dev
 ```
 
-Dark mode follows the visitor's system setting by default, and the toggle in the nav overrides it.
+Dark mode follows the visitor's system setting by default, and the toggle in the header overrides it.
