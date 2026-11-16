@@ -12,10 +12,10 @@ SQL Lab is a free tool for improving at SQL interview problems. A diagnostic of 
 
 ## Summary
 
-- **Diagnose, then practice.** The diagnostic combines 14 query tasks with 11 concept checks and ends in a skill report. The practice set is organized by topic, and each topic opens with a lesson and moves from Easy to Hard.
-- **Graded like an interview.** Column names must match the prompt, a requested sort order requires an `ORDER BY`, and missing rounding counts as wrong. Hidden tests target the edge cases that trip up medium-level answers: ties, NULLs, duplicate rows, and month and leap-year boundaries.
+- **Diagnose, then practice.** The diagnostic combines 14 query tasks with 11 concept checks and ends in a skill report. The practice set is organized by topic, and each topic opens with a lesson and moves from Easy to Hard. The first two topics cover ranking within groups and the growth, retention, and funnel metrics analysts report every week.
+- **Graded like an interview.** Column names must match the prompt, a requested sort order requires an `ORDER BY`, and missing rounding counts as wrong. Hidden tests target the edge cases that trip up medium-level answers: ties, NULLs, duplicate rows, and month and leap-year boundaries. Every problem also runs against a generated dataset of hundreds to thousands of rows, as on LeetCode.
 - **Built to be reused.** The project is an open-source template. Anyone can copy it, take the diagnostic, and add topics for their own gaps, using an AI assistant for the first draft and the built-in checks to verify it.
-- **Every requirement is tested.** An automated check confirms that each requirement in every prompt is enforced by at least one test: 134 requirements across 22 problems.
+- **Every requirement is tested.** An automated check confirms that each requirement in every prompt is enforced by at least one test: 182 requirements across 29 problems.
 
 ## The problem
 
@@ -29,11 +29,15 @@ Every problem includes sample data, a reference solution, and hidden tests. Each
 
 ![A failed hidden test opened as a tab. The query groups by product name, so two different products named Tee are counted as one.](/images/sql-lab/failed-test.png)
 
+Every problem also has a large hidden test: hundreds to thousands of generated rows with realistic messiness, such as customers who share a name, guest orders with no customer ID, ties at every level, and orders on both sides of every date range. The data is generated from a fixed seed, so it's identical every time, and it can be copied as SQL to run elsewhere.
+
 Each topic begins with a worked example. The lesson runs the query live and shows the output of every step, so you can see exactly what each stage of the query receives. The same step-by-step view is available in every problem.
 
 ![The lesson for "Aggregate, then rank," showing the worked example and the output of each step](/images/sql-lab/lesson.png)
 
 Problems increase in difficulty one element at a time. The second problem provides the full query except for the ranking step; later problems add a join, a `CASE` bucket, a second tie-break, and a second window function. Solved problems stay in the list with your best time, so you can return and solve them again.
+
+The second topic, *Growth, retention and funnels*, follows the format of company interview questions on sites like StrataScratch: a business question, realistic tables from a fictional company, and a tag for the type of metric. The scenarios match the work I've done: no-show rates for a clinic network, active customers and revenue growth for an online store, and activation funnels and cohort retention for a SaaS product.
 
 ![The practice set's problem list, from Easy to Hard](/images/sql-lab/practice.png)
 
@@ -47,7 +51,9 @@ I replaced that manual audit with an automated one. For every problem, the check
 - removes each `ROUND`
 - applies problem-specific changes, such as dropping a date filter, changing `>=` to `>`, swapping `DENSE_RANK` for `RANK`, or grouping by name instead of ID
 
-If no test catches a change, the check fails, and the problem doesn't ship until the data exercises that requirement. All 134 requirements across 22 problems now pass, and the check runs on GitHub with every change.
+If no test catches a change, the check fails, and the problem doesn't ship until the data exercises that requirement. All 182 requirements across 29 problems now pass, and the check runs on GitHub with every change.
+
+Large datasets add a second risk: ties the prompt never settles. A query that returns a different but equally valid answer would fail unfairly. A separate check rebuilds every table with its rows stored in reverse order and confirms that each reference solution still gives the same answer. Where it didn't, I added a tie-break to the prompt.
 
 Two further checks protect the content. Each problem lists known wrong answers, including mistakes from my own attempts, that must fail a specific test. It also lists alternative correct answers that must pass, so the tests never accept only one way of writing a query.
 
@@ -64,4 +70,4 @@ The [repository](https://github.com/Mahabala-O/sql-lab) is a GitHub template. Co
 
 ## What's next
 
-Upcoming topics cover NULLs and anti-joins, first and last events with date arithmetic, consecutive runs (gaps and islands), and window-function details such as default frames. After that, I plan to add a visualization of how window functions partition, order, and frame rows, along with a re-test to measure progress.
+Upcoming topics cover NULLs and anti-joins, consecutive runs (gaps and islands), and window-function details such as default frames. After that, I plan to add a visualization of how window functions partition, order, and frame rows, along with a re-test to measure progress.

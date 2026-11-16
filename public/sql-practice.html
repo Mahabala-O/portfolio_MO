@@ -60,11 +60,11 @@ function renderHome() {
       <p class="note">${esc(t.blurb)}</p>
       <div class="actions"><a class="btn primary" href="#${t.id}/lesson">Lesson and quick checks${checks ? ` (${checks}/${t.checks.length})` : ''}</a><span class="muted">${solved} of ${t.problems.length} problems solved</span></div>
       <div class="scroll wide" style="margin-top:12px"><table class="list">
-        <thead><tr><th>#</th><th>Problem</th><th>Level</th><th>Status</th><th class="hide-sm">Best time</th><th class="hide-sm">Solved</th></tr></thead>
+        <thead><tr><th>#</th><th>Problem</th><th class="hide-sm">Type</th><th>Level</th><th>Status</th><th class="hide-sm">Best time</th><th class="hide-sm">Solved</th></tr></thead>
         <tbody>${t.problems.map((p, i) => { const s = state.problems[p.id] || {}; const h = s.history || [];
           const best = h.length ? Math.min(...h.map(x => x.ms)) : null;
           const status = h.length && s.status !== 'passed' && s.status !== 'untouched' ? 'In progress (solved before)' : h.length && s.status === 'untouched' ? 'Solved' : L.STATUS[s.status || 'untouched'];
-          return `<tr><td class="mono">${i + 1}</td><td><a href="#${t.id}/${p.id}">${esc(p.title)}</a></td><td><span class="lvl ${p.level}">${p.level}</span></td>
+          return `<tr><td class="mono">${i + 1}</td><td><a href="#${t.id}/${p.id}">${esc(p.title)}</a>${p.scenario ? `<div class="muted" style="font-size:12.5px">${esc(p.scenario)}</div>` : ''}</td><td class="hide-sm muted">${esc(p.type || '')}</td><td><span class="lvl ${p.level}">${p.level}</span></td>
             <td>${status}</td><td class="mono hide-sm">${best === null ? '–' : L.clock(best)}</td><td class="mono hide-sm">${h.length ? h.length + '×' : '–'}</td></tr>`; }).join('')}</tbody>
       </table></div>
       <h3>Then on LeetCode</h3>
@@ -139,7 +139,7 @@ function renderProblem(topic, p) {
   const st = ps(p.id);
   workspace = L.mount(ws, p, st, {
     save,
-    meta: `<span class="tag">${i + 1} / ${topic.problems.length}</span><span class="tag level lvl ${p.level}">${p.level}</span><span class="tag">${esc(topic.title)}</span>${st.history.length ? `<span class="tag">Solved ${st.history.length}× · best ${L.clock(Math.min(...st.history.map(h => h.ms)))}</span>` : ''}`,
+    meta: `<span class="tag">${i + 1} / ${topic.problems.length}</span><span class="tag level lvl ${p.level}">${p.level}</span>${p.type ? `<span class="tag">${esc(p.type)}</span>` : ''}${p.scenario ? `<span class="tag">${esc(p.scenario)}</span>` : ''}${st.history.length ? `<span class="tag">Solved ${st.history.length}× · best ${L.clock(Math.min(...st.history.map(h => h.ms)))}</span>` : ''}`,
     targetMin: TARGET[p.level],
     onSolved: () => { st.history.push({ at: new Date().toISOString(), ms: st.ms, submits: st.submits, hints: st.hints }); save(); },
     onReset: () => { state.problems[p.id] = Object.assign(L.blankState(), { history: st.history }); save(); route(); },

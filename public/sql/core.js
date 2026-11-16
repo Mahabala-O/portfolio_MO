@@ -22,6 +22,12 @@ const UNITS = { DAY: ['days', 1], WEEK: ['days', 7], MONTH: ['months', 1], YEAR:
 function shift(d, iv, sign) {
   const m = iv.match(/^\s*INTERVAL\s+([\s\S]+?)\s+(DAY|WEEK|MONTH|YEAR|HOUR|MINUTE|SECOND)S?\s*$/i);
   const [unit, mult] = m ? UNITS[m[2].toUpperCase()] : UNITS.DAY;
+  if (unit === 'months' || unit === 'years') {
+    // MySQL clamps to the end of the month (Jan 31 + 1 month = Feb 28); SQLite would roll over to Mar 3.
+    // So: move the first of the month, add back the day, and take the earlier of that and the target month's last day.
+    const k = `(${sign}(${m[1]}) * ${unit === 'years' ? 12 * mult : mult})`;
+    return `min(date(${d}, 'start of month', ${k} || ' months', (CAST(strftime('%d', ${d}) AS INTEGER) - 1) || ' days'), date(${d}, 'start of month', (${k} + 1) || ' months', '-1 day'))`;
+  }
   const n = `(${sign}(${m ? m[1] : iv})${mult === 1 ? '' : ' * ' + mult})`;
   return `${['hours', 'minutes', 'seconds'].includes(unit) ? 'datetime' : 'date'}(${d}, ${n} || ' ${unit}')`;
 }
@@ -237,18 +243,65 @@ function judge(task, sql, extra) {
   if (c.ok && task.ordered && !hasTopLevelOrderBy(sql)) return { ok: false, kind: 'order', msg: NO_ORDER_BY, got, exp, bad: new Set() };
   return Object.assign(c, { got, exp });
 }
-// The sample data plus every hidden test.
-const casesOf = task => [{ name: 'Sample data', sql: null, skill: (task.skills || [])[0] }].concat(task.hidden || []);
+/* ---------- Generated test data ----------
+   A hidden test can build its rows with code instead of listing them: { name, skill, build(g) }.
+   build returns INSERT statements (use g.insert); g is seeded from the task id and the test's name,
+   so the data is identical on every run and every device. */
+const NAMES = ('Aaron Abby Adam Aisha Alan Alex Alma Amir Amy Ana Andre Anika Anna Ari Arjun Ava Ben Bea Beth Bo Brad Bree Cai Cam Cara Carl Cat Chen Chloe Cleo Cody Cole Cy Dale Dan Dara Dee Dev Di Dina Dom Drew Ed Eli Ella Emi Emma Eric Esme Eva Eve Ezra Faye Fern Finn Flo Fox Gabe Gia Gil Gus Hal Hana Hap Hugo Ian Ida Ike Ines Ira Isla Ivy Jack Jade Jay Jen Jo Joel Jon Jude June Kai Kara Kate Kim Kit Kofi Lars Lea Lee Leo Lev Lia Lily Lou Luca Lucy Luis Luz Mae Mai Max Maya Mei Mia Milo Mina Moe Nate Nia Nico Nina Noa Noor Omar Ona Oren Otto Pam Pat Pia Raj Ravi Rex Rhea Rita Rob Rosa Roy Ruby Ruth Sam Sara Seb Shay Sol Sky Tam Tao Tess Theo Tia Tom Tov Uma Una Val Vic Vik Wes Wil Xi Yan Yara Yuki Zac Zara Zed Zoe Zuri').split(' ');
+function hashStr(t) { let h = 2166136261; for (let i = 0; i < t.length; i++) { h ^= t.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+const lit = v => (v === null || v === undefined ? 'NULL' : typeof v === 'number' ? String(v) : "'" + String(v).replace(/'/g, "''") + "'");
+const dayMs = d => Date.UTC(+d.slice(0, 4), +d.slice(5, 7) - 1, +d.slice(8, 10));
+const isoDay = ms => new Date(ms).toISOString().slice(0, 10);
+function makeGen(seedText) {
+  let a = hashStr(seedText);
+  const rand = () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  const g = {
+    rand,
+    pad,
+    int: (lo, hi) => lo + Math.floor(rand() * (hi - lo + 1)),
+    chance: p => rand() < p,
+    pick: arr => arr[Math.floor(rand() * arr.length)],
+    weighted: pairs => { let r = rand() * pairs.reduce((s, p) => s + p[1], 0); for (const [v, w] of pairs) if ((r -= w) < 0) return v; return pairs[pairs.length - 1][0]; },
+    shuffle: arr => { const o = arr.slice(); for (let i = o.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [o[i], o[j]] = [o[j], o[i]]; } return o; },
+    // A day between from and to (inclusive), as 'YYYY-MM-DD'.
+    date: (from, to) => isoDay(dayMs(from) + Math.floor(rand() * ((dayMs(to) - dayMs(from)) / 864e5 + 1)) * 864e5),
+    addDays: (d, n) => isoDay(dayMs(d) + n * 864e5),
+    daysBetween: (a2, b2) => Math.round((dayMs(b2) - dayMs(a2)) / 864e5),
+    time: (h0 = 0, h1 = 23) => pad(g.int(h0, h1)) + ':' + pad(g.int(0, 59)) + ':' + pad(g.int(0, 59)),
+    // n first names; with repeats only when unique is false or n is larger than the pool.
+    names: (n, unique = true) => unique && n <= NAMES.length ? g.shuffle(NAMES).slice(0, n) : Array.from({ length: n }, () => g.pick(NAMES)),
+    // INSERT statements for rows (arrays of values), in chunks.
+    insert: (table, rows) => { let out = ''; for (let i = 0; i < rows.length; i += 400) out += `INSERT INTO ${table} VALUES ` + rows.slice(i, i + 400).map(r => '(' + r.map(lit).join(',') + ')').join(',') + ';\n'; return out; }
+  };
+  return g;
+}
+const built = new WeakMap();
+function caseSql(task, cs) {
+  if (!cs.build) return cs.sql;
+  if (!built.has(cs)) built.set(cs, cs.build(makeGen(task.id + '|' + cs.name)));
+  return built.get(cs);
+}
+// The sample data plus every hidden test, with generated tests' rows built.
+const casesOf = task => [{ name: 'Sample data', sql: null, skill: (task.skills || [])[0] }]
+  .concat((task.hidden || []).map(h => (h.build ? Object.assign({}, h, { sql: caseSql(task, h), generated: true }) : h)));
 
 /* ---------- Rendering ---------- */
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const inl = s => esc(s).replace(/`([^`]+)`/g, '<code>$1</code>');
-function gridHTML(res, bad) {
+// Long results show `limit` rows starting at `start` (by default, a little before the first highlighted row),
+// with a row-number column and a line saying which rows are shown.
+const firstBad = bad => (bad && bad.size ? Math.min(...bad) : -1);
+const windowStart = (n, bad, limit) => (n <= limit ? 0 : Math.max(0, Math.min(firstBad(bad) - 3, n - limit)));
+function gridHTML(res, bad, opt = {}) {
   if (!res) return '';
-  const head = '<tr>' + res.columns.map(c => `<th>${esc(c)}</th>`).join('') + '</tr>';
-  const body = res.rows.map((r, i) => `<tr${bad && bad.has(i) ? ' class="bad"' : ''}>` + r.map(v =>
-    v === null ? '<td class="null">null</td>' : `<td${typeof v === 'number' ? ' class="num"' : ''}>${esc(typeof v === 'number' ? +v.toFixed(6) : v)}</td>`).join('') + '</tr>').join('');
-  return `<div class="scroll"><table class="grid"><thead>${head}</thead><tbody>${body}</tbody></table>${res.rows.length ? '' : '<div class="empty">(no rows)</div>'}</div>`;
+  const n = res.rows.length, limit = opt.limit || 40;
+  const long = n > limit, start = long ? (opt.start !== undefined ? Math.min(opt.start, Math.max(0, n - limit)) : windowStart(n, bad, limit)) : 0;
+  const shown = res.rows.slice(start, start + (long ? limit : n));
+  const head = '<tr>' + (long ? '<th>#</th>' : '') + res.columns.map(c => `<th>${esc(c)}</th>`).join('') + '</tr>';
+  const body = shown.map((r, k) => { const i = start + k; return `<tr${bad && bad.has(i) ? ' class="bad"' : ''}>` + (long ? `<td class="num rowno">${i + 1}</td>` : '') + r.map(v =>
+    v === null ? '<td class="null">null</td>' : `<td${typeof v === 'number' ? ' class="num"' : ''}>${esc(typeof v === 'number' ? +v.toFixed(6) : v)}</td>`).join('') + '</tr>'; }).join('');
+  const note = long ? `<div class="empty">Rows ${start + 1}–${start + shown.length} of ${n.toLocaleString('en-US')}${bad && bad.size ? ` · ${bad.size} differ${bad.size === 1 ? 's' : ''}, first at row ${firstBad(bad) + 1}` : ''}</div>` : '';
+  return `<div class="scroll"><table class="grid"><thead>${head}</thead><tbody>${body}</tbody></table>${n ? '' : '<div class="empty">(no rows)</div>'}${note}</div>`;
 }
 function tablesHTML(task, extra) {
   const db = makeDb(task, extra);
@@ -256,7 +309,9 @@ function tablesHTML(task, extra) {
     const names = runQuery(db, "SELECT name FROM sqlite_master WHERE type='table' ORDER BY rowid").rows.map(r => r[0]);
     return names.map(n => {
       const cols = runQuery(db, `PRAGMA table_info(${n})`).rows.map(r => `${r[1]} ${String(r[2]).toLowerCase()}`);
-      return `<div class="tbl"><div class="cap">${esc(n)} <span>(${esc(cols.join(', '))})</span></div>${gridHTML(runQuery(db, `SELECT * FROM ${n}`))}</div>`;
+      const count = runQuery(db, `SELECT COUNT(*) FROM ${n}`).rows[0][0], big = count > 30;
+      const data = runQuery(db, `SELECT * FROM ${n}${big ? ' LIMIT 12' : ''}`);
+      return `<div class="tbl"><div class="cap">${esc(n)} <span>(${esc(cols.join(', '))})</span></div>${gridHTML(data)}${big ? `<div class="empty">First 12 of ${count.toLocaleString('en-US')} rows</div>` : ''}</div>`;
     }).join('');
   } finally { db.close(); }
 }
@@ -274,7 +329,7 @@ function blankState() {
 function mount(el, task, st, o) {
   Object.keys(blankState()).forEach(k => { if (st[k] === undefined) st[k] = blankState()[k]; });
   if (!st.sql && task.starter && st.status === 'untouched') st.sql = task.starter;
-  const hidden = task.hidden || [];
+  const hidden = casesOf(task).slice(1);
   let sel = 'sample'; // 'sample' | index into hidden | 'custom'
   let customErr = null;
 
@@ -324,7 +379,10 @@ function mount(el, task, st, o) {
         <textarea class="custom" id="custom" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Custom rows" placeholder="INSERT INTO table_name VALUES (...);">${esc(st.custom || '')}</textarea>
         <div class="actions"><button class="btn" type="button" id="apply">Apply rows</button></div>`;
     } else if (sel !== 'sample') {
-      p += `<h3>Rows this test adds</h3><pre class="solution">${esc(hidden[sel].sql.trim())}</pre>`;
+      const h = hidden[sel];
+      p += h.generated
+        ? `<h3>About this test</h3><p class="note">A generated dataset, the same every time${h.about ? `: ${esc(h.about)}` : '.'} The tables below show their first rows.</p><div class="actions"><button class="btn" type="button" id="copysql">Copy the full dataset as SQL</button><span class="muted" id="copied"></span></div>`
+        : `<h3>Rows this test adds</h3><pre class="solution">${esc(h.sql.trim())}</pre>`;
     }
     try {
       customErr = null;
@@ -341,7 +399,14 @@ function mount(el, task, st, o) {
     sel = /^\d+$/.test(b.dataset.case) ? +b.dataset.case : b.dataset.case;
     renderCases(); out.innerHTML = '';
   });
-  $('casepanel').addEventListener('click', e => {
+  $('casepanel').addEventListener('click', async e => {
+    if (e.target.id === 'copysql') {
+      const text = `-- ${task.title}: ${hidden[sel].name}\n${task.setup.trim()}\n${hidden[sel].sql}`;
+      let ok = false;
+      try { await navigator.clipboard.writeText(text); ok = true; } catch (err) {}
+      $('copied').textContent = ok ? `Copied (${Math.round(text.length / 1024)} KB): schema, sample rows and this test's rows.` : "Couldn't reach the clipboard in this browser.";
+      return;
+    }
     if (e.target.id !== 'apply') return;
     st.custom = $('custom').value; o.save(); renderCases();
   });
@@ -395,7 +460,10 @@ function mount(el, task, st, o) {
   const onVis = () => { last = Date.now(); };
   document.addEventListener('visibilitychange', onVis);
 
-  const pair = (got, exp, bad) => `<div class="pair"><div><div class="label">Your output</div>${gridHTML(got, bad)}</div><div><div class="label">Expected</div>${gridHTML(exp)}</div></div>`;
+  const pair = (got, exp, bad) => {
+    const start = windowStart(Math.max(got.rows.length, exp.rows.length), bad, 40);
+    return `<div class="pair"><div><div class="label">Your output</div>${gridHTML(got, bad, { start })}</div><div><div class="label">Expected</div>${gridHTML(exp, null, { start })}</div></div>`;
+  };
   function run() {
     tick(); st.runs++; o.save();
     if (sel === 'custom' && customErr) { out.innerHTML = `<div class="msg fail"><b>Fix the custom rows first.</b> ${esc(customErr)}</div>`; return; }
@@ -431,7 +499,7 @@ function mount(el, task, st, o) {
     const first = results.find(x => !x.r.ok);
     let h = `<div class="msg ${passed ? 'pass' : 'fail'}"><b>${passed ? `All ${results.length} tests passed.` : `${results.filter(x => x.r.ok).length} of ${results.length} tests passed.`}</b>${!passed && results.some(x => !x.r.ok && x.cs.sql) ? ' Each failed test is now a tab above: pick it and use Run to work on it.' : ''}</div>`;
     h += '<div class="cases">' + results.map(x => `<div class="case"><span class="dot ${x.r.ok ? 'pass' : 'fail'}"></span><span>${esc(x.cs.name)}${x.r.ok ? '' : ` — <span class="muted">${esc(x.r.kind === 'error' ? 'SQL error: ' + x.r.msg : x.r.msg)}</span>`}</span></div>`).join('') + '</div>';
-    if (first && first.r.got) h += `${first.cs.sql ? `<div><div class="label">Rows added by "${esc(first.cs.name)}"</div><pre class="solution">${esc(first.cs.sql.trim())}</pre></div>` : ''}${pair(first.r.got, first.r.exp, first.r.bad)}`;
+    if (first && first.r.got) h += `${first.cs.sql && !first.cs.generated ? `<div><div class="label">Rows added by "${esc(first.cs.name)}"</div><pre class="solution">${esc(first.cs.sql.trim())}</pre></div>` : ''}${first.cs.generated ? `<div class="label">"${esc(first.cs.name)}" (generated; open its tab to see the tables)</div>` : ''}${pair(first.r.got, first.r.exp, first.r.bad)}`;
     changed();
     out.innerHTML = h;
   }
@@ -466,6 +534,6 @@ function load() {
 }
 
 const api = { load, ready: () => !!SQL, setSQL: S => { SQL = S; }, expandMacros, addCompat, splitArgs, closeParen, skipQuoted, hasTopLevelOrderBy, cteSteps,
-  makeDb, runQuery, compare, judge, casesOf, expectedFor, userFor, esc, inl, gridHTML, tablesHTML, mount, blankState, isDone, STATUS, clock, fmtMin };
+  makeDb, runQuery, compare, judge, casesOf, makeGen, expectedFor, userFor, esc, inl, gridHTML, tablesHTML, mount, blankState, isDone, STATUS, clock, fmtMin };
 if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.SQLLab = api;
 })(typeof window !== 'undefined' ? window : globalThis);
