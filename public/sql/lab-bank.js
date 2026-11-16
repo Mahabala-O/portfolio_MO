@@ -204,7 +204,7 @@ ORDER BY dept, salary DESC, name;`,
 },
 {
   id: 'category-share', title: 'Product share of category revenue', level: 'Medium', skills: ['winagg'],
-  prompt: `<p>Each row in <code>order_lines</code> is one sale. For every product return <code>category</code>, <code>product</code>, <code>product_revenue</code> (its total revenue), <code>category_revenue</code> (its category's total revenue) and <code>share_pct</code> = product revenue as a percentage of category revenue, rounded to 1 decimal.</p><p>Order by <code>category</code>, then <code>share_pct</code> descending.</p>`,
+  prompt: `<p>Each row in <code>order_lines</code> is one sale. For every product return <code>category</code>, <code>product</code>, <code>product_revenue</code> (its total revenue), <code>category_revenue</code> (its category's total revenue) and <code>share_pct</code> = product revenue as a percentage of category revenue, rounded to 1 decimal.</p><p>Order by <code>category</code>, then <code>share_pct</code> descending, then <code>product</code>.</p>`,
   setup: `
 CREATE TABLE order_lines (line_id INTEGER PRIMARY KEY, product TEXT, category TEXT, revenue INTEGER);
 INSERT INTO order_lines VALUES
@@ -218,7 +218,7 @@ INSERT INTO order_lines VALUES
        ROUND(100.0 * SUM(revenue) / SUM(SUM(revenue)) OVER (PARTITION BY category), 1) AS share_pct
 FROM order_lines
 GROUP BY category, product
-ORDER BY category, share_pct DESC;`,
+ORDER BY category, share_pct DESC, product;`,
   ordered: true,
   hidden: [
     { name: 'Kitchen has a single product, Mug (100% share)', skill: 'winagg', sql: `INSERT INTO order_lines VALUES (9,'Mug','Kitchen',12);` },
@@ -428,6 +428,132 @@ ORDER BY quarter;`,
   explain: 'This is the shape of Seasonal Sales Analysis: bucket → aggregate → rank inside each bucket with tie-breaks → keep #1. PARTITION BY restarts the numbering for each quarter.'
 }
 ];
+
+/* ---------- Large generated tests ----------
+   One per task, added to its hidden tests: hundreds to thousands of rows with realistic messiness, built by code from
+   a fixed seed (see makeGen in core.js). Ids start at 1000 so they never collide with the sample rows. Each generator
+   respects every guarantee its prompt makes; the harness's row-order check fails if one doesn't. */
+const DEPTS = ['Eng', 'Sales', 'Ops', 'Finance', 'HR', 'Legal', 'Marketing', 'Support', 'Data', 'Design', 'IT', 'Facilities'];
+const LARGE = {
+  'never-ordered': { name: 'A store with 250 more customers and about 1,000 orders, including guest orders with customer_id NULL', skill: 'nulls', build: g => {
+    const names = g.names(250, false), customers = names.map((n, i) => [1000 + i, n]), orders = [];
+    let id = 1000;
+    customers.forEach(([cid]) => { if (g.chance(0.82)) for (let k = g.int(1, 7); k > 0; k--) orders.push([id++, cid, g.int(5, 400)]); });
+    for (let k = 0; k < 40; k++) orders.push([id++, null, g.int(5, 400)]);
+    return g.insert('customers', customers) + g.insert('orders', g.shuffle(orders));
+  } },
+  'dept-high-earners': { name: '600 employees across 9 departments, with salaries on both sides of 100000', skill: 'agg', build: g => {
+    const rows = [];
+    for (let i = 0; i < 600; i++) {
+      const dept = g.pick(DEPTS.slice(0, 9)), base = { Eng: 115000, Data: 105000, Legal: 110000, Finance: 95000, Sales: 85000 }[dept] || 70000;
+      const salary = g.chance(0.04) ? 100000 : Math.max(35000, Math.round((base + g.int(-45000, 60000)) / 500) * 500);
+      rows.push([1000 + i, g.pick(NAMES_SAMPLE), dept, salary]);
+    }
+    return g.insert('employees', rows);
+  } },
+  'bought-all': { name: '16 products, 200 customers and about 2,500 purchases, with many repeat purchases', skill: 'agg', build: g => {
+    const products = []; for (let p = 8; p <= 20; p++) products.push([p]);
+    const all = [5, 6, 7].concat(products.map(r => r[0])), rows = [];
+    for (let c = 1000; c < 1200; c++) {
+      const want = g.chance(0.12) ? all : g.shuffle(all).slice(0, g.int(1, all.length - 1));
+      want.forEach(p => { for (let k = g.int(1, 3); k > 0; k--) rows.push([c, p]); });
+    }
+    return g.insert('product', products) + g.insert('customer_purchases', g.shuffle(rows));
+  } },
+  'above-dept-avg': { name: '500 employees across 8 departments, with averages that aren\'t whole numbers', skill: 'winagg', build: g => {
+    const rows = [], used = new Set();
+    for (let i = 0; i < 500; i++) {
+      const dept = g.pick(DEPTS.slice(0, 8));
+      let salary; do { salary = g.int(38000, 190000); } while (salary % 5000 === 0 || used.has(dept + salary));
+      used.add(dept + salary);
+      rows.push([1000 + i, g.pick(NAMES_SAMPLE), dept, salary]);
+    }
+    return g.insert('employees', rows);
+  } },
+  'manager-reports': { name: 'A 600-person company where many people share first names, and some report to ids that no longer exist', skill: 'agg', build: g => {
+    const rows = [], managers = [];
+    for (let i = 0; i < 40; i++) { const id = 1000 + i; rows.push([id, g.pick(NAMES.slice(0, 50)), i < 6 ? 1 : g.pick(managers.length ? managers : [1])]); managers.push(id); }
+    for (let i = 40; i < 600; i++) rows.push([1000 + i, g.pick(NAMES.slice(0, 50)), g.chance(0.02) ? g.int(9001, 9004) : g.weighted(managers.map((m, k) => [m, 1 + (k % 7)]))]);
+    return g.insert('employee', rows);
+  } },
+  'latest-login': { name: '3,000 logins from 300 users, with repeated timestamps and login ids that aren\'t in time order', skill: 'rank', build: g => {
+    const raw = [];
+    for (let k = 0; k < 3000; k++) {
+      const user = g.int(1000, 1299), prev = raw.filter(r => r[0] === user);
+      const at = prev.length && g.chance(0.06) ? g.pick(prev)[1] : `${g.date('2025-01-01', '2025-12-31')} ${g.time()}`;
+      raw.push([user, at, g.pick(['web', 'ios', 'android', 'ipad'])]);
+    }
+    const ids = g.shuffle(raw.map((r, i) => 1000 + i));
+    return g.insert('logins', raw.map((r, i) => [ids[i], r[0], r[1], r[2]]));
+  } },
+  'top-three': { name: '700 employees across 12 departments, with many tied salaries and a few tiny departments', skill: 'rank', build: g => {
+    const rows = [];
+    for (let i = 0; i < 700; i++) {
+      const dept = i < 3 ? 'Facilities' : g.pick(DEPTS.slice(0, 11));
+      rows.push([1000 + i, g.pick(NAMES_SAMPLE), dept, g.int(8, 32) * 5000]);
+    }
+    return g.insert('employee', rows);
+  } },
+  'category-share': { name: '2,500 sales lines for about 150 products in 10 categories; some product names appear in several categories', skill: 'winagg', build: g => {
+    const cats = ['Audio', 'Books', 'Garden', 'Grocery', 'Home', 'Kitchen', 'Office', 'Outdoor', 'Sports', 'Toys'];
+    const names = ['Cable', 'Lamp', 'Mug', 'Mat', 'Bag', 'Kit', 'Pack', 'Set', 'Case', 'Box', 'Pad', 'Tray', 'Brush', 'Clip', 'Hook', 'Tag', 'Pen', 'Cup', 'Jar', 'Rope'];
+    const products = []; cats.forEach(c => g.shuffle(names).slice(0, g.int(8, 18)).forEach(n => products.push([c, n, g.int(1, 9)])));
+    const rows = []; for (let i = 0; i < 2500; i++) { const [c, n, w] = g.weighted(products.map(p => [p, p[2]])); rows.push([1000 + i, n, c, g.int(5, 400)]); }
+    return g.insert('order_lines', rows);
+  } },
+  'mom-revenue': { name: '1,500 orders from October 2024 to March 2026, with every month of 2025 present', skill: 'laglead', build: g => {
+    const rows = []; let id = 1000;
+    for (let m = 1; m <= 12; m++) rows.push([id++, g.date(`2025-${g.pad(m)}-01`, `2025-${g.pad(m)}-28`), g.int(20, 900)]);
+    while (rows.length < 1500) rows.push([id++, g.date('2024-10-01', '2026-03-31'), g.int(20, 900)]);
+    return g.insert('orders', g.shuffle(rows));
+  } },
+  'moving-avg': { name: '10 stores over a year: about 3,000 transactions, several per day, with days off in between', skill: 'frames', build: g => {
+    const rows = []; let id = 1000;
+    ['Anaheim', 'Brea', 'Costa Mesa', 'Fullerton', 'Irvine', 'Laguna', 'Newport', 'Orange', 'Tustin', 'Yorba Linda'].forEach(store => {
+      let d = g.date('2025-01-01', '2025-01-10');
+      while (d < '2025-12-31') { for (let k = g.int(1, 5); k > 0; k--) rows.push([id++, store, d, g.int(10, 600)]); d = g.addDays(d, g.weighted([[1, 6], [2, 2], [3, 1], [6, 1]])); }
+    });
+    return g.insert('sales', g.shuffle(rows));
+  } },
+  'day1-retention': { name: '600 players with first logins from late 2023 to mid 2025, across month and leap-day boundaries', skill: 'dates', build: g => {
+    const rows = [];
+    for (let p = 1000; p < 1600; p++) {
+      const first = g.date('2023-12-01', '2025-06-30'), days = new Set([first]);
+      if (g.chance(0.38)) days.add(g.addDays(first, 1));
+      for (let k = g.int(0, 8); k > 0; k--) days.add(g.addDays(first, g.int(2, 90)));
+      days.forEach(d => rows.push([p, d, g.int(1, 12)]));
+    }
+    return g.insert('activity', g.shuffle(rows));
+  } },
+  'order-gaps': { name: '2,000 orders from 300 customers, with same-day orders and order ids that aren\'t in date order', skill: 'laglead', build: g => {
+    const raw = [];
+    for (let c = 1000; c < 1300; c++) {
+      let d = g.date('2024-01-01', '2025-06-30');
+      for (let k = g.weighted([[1, 2], [3, 3], [6, 3], [12, 2]]); k > 0; k--) { raw.push([c, d]); d = g.addDays(d, g.weighted([[0, 1], [g.int(1, 14), 5], [g.int(15, 90), 3]])); }
+    }
+    const ids = g.shuffle(raw.map((r, i) => 1000 + i));
+    return g.insert('orders', raw.map((r, i) => [ids[i], r[0], r[1]]));
+  } },
+  'longest-streak': { name: '200 users across 2025: streaks of up to three weeks, crossing month ends, with repeat logins on the same day', skill: 'islands', build: g => {
+    const rows = [];
+    for (let u = 1000; u < 1200; u++) {
+      let d = g.date('2025-01-01', '2025-02-15');
+      for (let run = g.int(1, 8); run > 0 && d < '2025-12-31'; run--) {
+        for (let k = g.weighted([[1, 3], [2, 3], [4, 3], [8, 2], [g.int(10, 21), 1]]); k > 0; k--) { rows.push([u, d]); if (g.chance(0.2)) rows.push([u, d]); d = g.addDays(d, 1); }
+        d = g.addDays(d, g.int(1, 20));
+      }
+    }
+    return g.insert('logins', g.shuffle(rows));
+  } },
+  'quarter-champion': { name: '4,000 sales at 15 stores from July 2024 to March 2026', skill: 'rank', build: g => {
+    const stores = ['Bay', 'Canyon', 'Delta', 'Downtown', 'Grove', 'Harbor', 'Hills', 'Mall', 'Market', 'Mesa', 'Park', 'Pier', 'Plaza', 'Ridge', 'Valley'], rows = [];
+    for (let i = 0; i < 4000; i++) rows.push([1000 + i, g.date('2024-07-01', '2026-03-31'), g.pick(stores), g.int(1, 40), g.pick([5, 8, 10, 12, 15, 20, 25, 40, 60, 99])]);
+    return g.insert('sales', rows);
+  } }
+};
+const NAMES_SAMPLE = ['Ava', 'Bo', 'Cy', 'Di', 'Ed', 'Fay', 'Gus', 'Hal', 'Ida', 'Jo', 'Kai', 'Lu', 'Mia', 'Ned', 'Oli', 'Pia', 'Quin', 'Ray', 'Sue', 'Ty'];
+const NAMES = ['Aaron', 'Abby', 'Adam', 'Aisha', 'Alan', 'Alex', 'Alma', 'Amir', 'Amy', 'Ana', 'Andre', 'Anika', 'Anna', 'Ari', 'Arjun', 'Ava', 'Ben', 'Bea', 'Beth', 'Bo', 'Brad', 'Bree', 'Cai', 'Cam', 'Cara', 'Carl', 'Cat', 'Chen', 'Chloe', 'Cleo', 'Cody', 'Cole', 'Cy', 'Dale', 'Dan', 'Dara', 'Dee', 'Dev', 'Di', 'Dina', 'Dom', 'Drew', 'Ed', 'Eli', 'Ella', 'Emi', 'Emma', 'Eric', 'Esme', 'Eva', 'Eve', 'Ezra', 'Faye', 'Fern', 'Finn', 'Flo', 'Fox', 'Gabe', 'Gia', 'Gil'];
+TASKS.forEach(t => { if (LARGE[t.id]) t.hidden.push(LARGE[t.id]); });
 
 const CONCEPTS = [
 { id: 'c-rank', skill: 'rank',

@@ -85,7 +85,7 @@ Shared by both pages (`public/sql/core.js`):
 |---|---|---|---|
 | 1 | Aggregate, then rank | Ranking aggregated rows inside groups; tie-break chains; ROW_NUMBER vs RANK vs DENSE_RANK; buckets built with CASE | Built: lesson, 4 checks, 8 problems |
 | 2 | NULLs and anti-joins | `NOT IN` vs `NOT EXISTS` vs `LEFT JOIN … IS NULL`; filters in `ON` vs `WHERE`; what `COUNT` and `AVG` skip | Next |
-| 3 | First and last events, date arithmetic | MIN/MAX per entity then join back; "N days after the first"; month and leap-year boundaries; filter before LAG | Next |
+| 3 | Growth, retention and funnels | StrataScratch-style business questions: rates, active users, funnels, growth by segment, new vs returning, cohort retention, overdue lists; first events and month arithmetic | Built: lesson, 4 checks, 7 problems |
 | 4 | Consecutive runs | date − ROW_NUMBER; removing duplicates first; streak length | Planned |
 | 5 | Window details | Default frame and tied rows; ROWS vs RANGE; LAG/LEAD defaults | Planned |
 
@@ -132,4 +132,4 @@ node scripts/sql-lab/e2e.js
 - `macros.js`: the MySQL function rewriter, ORDER BY detection, CTE steps and result comparison.
 - `e2e.js`: both pages in a headless browser (needs Playwright with Chromium).
 
-Current state: 134 requirements across 22 tasks, all covered; 33 browser checks pass.
+Current state: 182 requirements across 29 tasks, all covered; every task has a large generated test; the row-order check passes. The canonical copy, with docs on generated tests, is github.com/Mahabala-O/sql-lab.

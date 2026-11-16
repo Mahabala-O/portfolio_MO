@@ -173,3 +173,4 @@ a.btn.primary, a.btn.primary:hover { color: var(--bg); text-decoration: none; }
 .eyebrow a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 .lesson .scroll { margin-bottom: 14px; }
 .lesson pre.solution { margin: 8px 0 14px; }
+table.grid td.rowno { color: var(--faint); }

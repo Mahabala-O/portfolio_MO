@@ -33,9 +33,14 @@ const shot = async (page, name) => { if (shots) await page.screenshot({ path: pa
   check('lab: no hidden-test tabs before a submit', await page.locator('.casetab').count() === 2, await page.locator('.casetab').count());
   await page.fill('#sql', byName);
   await page.click('#submit');
-  check('lab: group-by-name fails 1 of 3', /2 of 3 tests passed/.test(await msg(page)), await msg(page));
-  check('lab: failed test opens as a tab', await page.locator('.casetab.failed').count() === 1, await page.locator('.casetab').allTextContents());
-  await page.click('.casetab.failed');
+  check('lab: group-by-name fails the two duplicate-name tests', /2 of 4 tests passed/.test(await msg(page)), await msg(page));
+  check('lab: each failed test opens as a tab', await page.locator('.casetab.failed').count() === 2, await page.locator('.casetab').allTextContents());
+  await page.locator('.casetab.failed').nth(1).click();
+  check('lab: a generated test describes itself instead of printing its SQL', /A generated dataset/.test(await page.textContent('#casepanel')) && await page.locator('#copysql').count() === 1, await page.textContent('#casepanel'));
+  check('lab: big tables show their first rows and a count', /First 12 of 608 rows/.test(await page.textContent('#casepanel')), await page.textContent('#casepanel'));
+  await page.click('#run');
+  check('lab: big results say which rows are shown', /Expected 42 rows, got 28/.test(await page.textContent('#out')) && /Rows 1–40 of 42/.test(await page.textContent('#out')), await page.textContent('#out'));
+  await page.locator('.casetab.failed').nth(0).click();
   check('lab: tab shows the rows the test adds', /INSERT INTO employee VALUES \(9,'Uma',1\)/.test(await page.textContent('#casepanel')), '');
   await page.click('#run');
   check('lab: Run uses the selected test', /Doesn't match yet/.test(await msg(page)) && await page.locator('#out tr.bad').count() === 1, await msg(page));
@@ -45,14 +50,14 @@ const shot = async (page, name) => { if (shots) await page.screenshot({ path: pa
   check('lab: fixed query matches on that test', /Matches the expected output for the test/.test(await msg(page)), await msg(page));
   await page.fill('#sql', byName.replace('group by e2.name', 'group by e2.id').replace(' order by report_count desc, e2.name', ''));
   await page.click('#submit');
-  check('lab: missing ORDER BY is rejected', /0 of 3 tests passed/.test(await msg(page)) && /no ORDER BY/.test(await page.textContent('#out')), await page.textContent('#out'));
+  check('lab: missing ORDER BY is rejected', /0 of 4 tests passed/.test(await msg(page)) && /no ORDER BY/.test(await page.textContent('#out')), await page.textContent('#out'));
   await page.fill('#sql', byName.replace('group by e2.name', 'group by e2.id').replace('count(*) as report_count', 'count(*)').replace('order by report_count desc', 'order by count(*) desc'));
   await page.click('#run');
   check('lab: unnamed column is rejected', /Column names must match/.test(await msg(page)), await msg(page));
   await page.fill('#sql', byName.replace('group by e2.name', 'group by e2.id'));
   await page.keyboard.press('Control+Shift+Enter');
-  check('lab: correct query passes all tests', /All 3 tests passed/.test(await msg(page)), await msg(page));
-  check('lab: all tests visible as tabs once solved', await page.locator('.casetab').count() === 4, await page.locator('.casetab').count());
+  check('lab: correct query passes all tests', /All 4 tests passed/.test(await msg(page)), await msg(page));
+  check('lab: all tests visible as tabs once solved', await page.locator('.casetab').count() === 5, await page.locator('.casetab').count());
 
   await page.click('[data-go="above-dept-avg"]');
   check('lab: step menu hidden without CTEs', await page.locator('#step').isHidden(), '');
@@ -83,7 +88,8 @@ const shot = async (page, name) => { if (shots) await page.screenshot({ path: pa
 
   /* ---- Practice ---- */
   page = await open(browser, file('sql-practice.html'));
-  check('practice: home lists 8 problems', await page.locator('table.list tbody tr').count() === 8, await page.locator('table.list tbody tr').count());
+  check('practice: home lists 15 problems in 2 topics', await page.locator('table.list tbody tr').count() === 15 && await page.locator('.topic h2').count() === 3, await page.locator('table.list tbody tr').count());
+  check('practice: problems show their type and scenario', /Rates/.test(await page.textContent('body')) && /Healthcare operations · ClinicFlow/.test(await page.textContent('body')), '');
   await shot(page, 'practice-home');
   await page.click('a[href="#agg-rank/lesson"]');
   await page.waitForSelector('.lesson');
@@ -101,7 +107,7 @@ const shot = async (page, name) => { if (shots) await page.screenshot({ path: pa
   const starter = await page.inputValue('#sql');
   await page.fill('#sql', starter.replace(/-- Your step.*\n\s*SELECT \*/, 'SELECT *, ROW_NUMBER() OVER (PARTITION BY region ORDER BY total DESC, deals) AS rn'));
   await page.click('#submit');
-  check('practice: completed step passes', /All 3 tests passed/.test(await msg(page)), await msg(page));
+  check('practice: completed step passes', /All 4 tests passed/.test(await msg(page)), await msg(page));
   await shot(page, 'practice-problem');
   page.once('dialog', d => d.accept());
   await page.click('#again');
