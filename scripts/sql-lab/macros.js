@@ -31,5 +31,18 @@ require('./load.js')().then(({ core }) => {
   assert.strictEqual(core.compare({ columns: ['b', 'a'], rows: [[2.5, 1]] }, exp, true).kind, 'columns');
   assert.strictEqual(core.compare({ columns: ['a', 'b'], rows: [[1, 2.5004]] }, exp, true).kind, 'rows');
   assert.strictEqual(core.compare({ columns: ['a', 'b'], rows: [[1, 2.5000000001]] }, exp, true).ok, true);
+  // Pasted MySQL scripts run after cleanMysqlScript.
+  const script = "CREATE DATABASE IF NOT EXISTS shop_db;\nUSE shop_db;\nDROP TABLE IF EXISTS t;\nCREATE TABLE t (id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, name VARCHAR(50), price DECIMAL(8,2)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;\nINSERT INTO t (name, price) VALUES ('It''s', 2.5), ('B', 3);";
+  const db2 = core.makeDb({ setup: core.cleanMysqlScript(script) });
+  assert.deepStrictEqual(core.runQuery(db2, 'SELECT id, name, price FROM t').rows, [[1, "It's", 2.5], [2, 'B', 3]]);
+  db2.close();
+  const db4 = core.makeDb({ setup: core.cleanMysqlScript('CREATE TABLE u (id BIGINT(20) NOT NULL AUTO_INCREMENT, n TEXT, PRIMARY KEY (id)) AUTO_INCREMENT=5; INSERT INTO u (n) VALUES (\'a\'), (\'b\');') });
+  assert.deepStrictEqual(core.runQuery(db4, 'SELECT id, n FROM u').rows, [[1, 'a'], [2, 'b']]);
+  db4.close();
+  // The playground's Hollywood dataset loads, with every row.
+  const hw = require(require('path').join(require('./load.js').root, 'public', 'sql', 'datasets.js')).DATASETS.find(d => d.id === 'hollywood');
+  const db3 = core.makeDb({ setup: hw.setup });
+  assert.deepStrictEqual(core.runQuery(db3, "SELECT COUNT(*), COUNT(Profitability), COUNT(AudienceScore), SUM(Film LIKE '%\n%'), ROUND(SUM(WorldwideGross), 2) FROM Hollywood_T").rows[0], [74, 71, 73, 0, 10090.05]);
+  db3.close();
   console.log('macros.js: all checks passed');
 }).catch(e => { console.error(e); process.exit(1); });

@@ -168,6 +168,20 @@ function cteSteps(sql) {
   return steps;
 }
 
+/* ---------- Pasted MySQL scripts ----------
+   Makes a MySQL setup script run on SQLite: drops CREATE/DROP DATABASE and USE statements, and MySQL-only
+   table options. Types such as VARCHAR(255), DECIMAL(8,2) and INT need no change. */
+function cleanMysqlScript(sql) {
+  return sql
+    .replace(/^\s*(CREATE|DROP)\s+(DATABASE|SCHEMA)\b[^;]*;/gim, '')
+    .replace(/^\s*USE\s+[^;]+;/gim, '')
+    // SQLite numbers rows automatically only for a column declared exactly INTEGER PRIMARY KEY.
+    .replace(/\b(TINY|SMALL|MEDIUM|BIG)?INT(EGER)?(\s*\(\d+\))?(\s+UNSIGNED)?(\s+NOT\s+NULL)?\s+AUTO_INCREMENT\b/gi, 'INTEGER')
+    .replace(/\bAUTO_INCREMENT\b(\s*=\s*\d+)?/gi, '')
+    .replace(/\b(ENGINE|DEFAULT\s+CHARSET|CHARSET|COLLATE)\s*=?\s*\w+/gi, '')
+    .replace(/\bUNSIGNED\b/gi, '');
+}
+
 /* ---------- Running and judging ---------- */
 let SQL = null;
 function makeDb(task, extra) {
@@ -534,6 +548,6 @@ function load() {
 }
 
 const api = { load, ready: () => !!SQL, setSQL: S => { SQL = S; }, expandMacros, addCompat, splitArgs, closeParen, skipQuoted, hasTopLevelOrderBy, cteSteps,
-  makeDb, runQuery, compare, judge, casesOf, makeGen, expectedFor, userFor, esc, inl, gridHTML, tablesHTML, mount, blankState, isDone, STATUS, clock, fmtMin };
+  makeDb, runQuery, compare, judge, casesOf, makeGen, cleanMysqlScript, expectedFor, userFor, esc, inl, gridHTML, tablesHTML, mount, blankState, isDone, STATUS, clock, fmtMin };
 if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.SQLLab = api;
 })(typeof window !== 'undefined' ? window : globalThis);

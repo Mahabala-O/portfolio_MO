@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="A SQL playground in the browser: pick a dataset or paste your own, and run any query. Nothing is graded.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<title>SQL Playground</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="sql/core.css">
+</head>
+<body>
+<div class="page">
+  <header>
+    <p class="eyebrow">SQL Lab · Playground · <a href="sql-lab.html">Diagnostic</a> · <a href="sql-practice.html">Practice</a></p>
+    <h1>SQL playground</h1>
+    <p class="engine" id="engine">Loading the SQL engine…</p>
+  </header>
+  <main id="view"></main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sql.js@1.10.3/dist/sql-wasm.js"></script>
+<script src="sql/core.js"></script>
+<script src="sql/datasets.js"></script>
+<script>
+// Free-form querying: pick a dataset (or paste your own setup script) and run anything. Nothing is graded.
+// Every run starts from a fresh copy of the data, so statements that change it only last for that run.
+const L = SQLLab, { DATASETS } = PLAYGROUND_DATA, { esc } = L;
+const KEY = 'sql-playground-v1';
+let state = { dataset: DATASETS[0].id, queries: {}, custom: '' };
+try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.queries) state = Object.assign(state, s); } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} };
+const view = document.getElementById('view');
+const CUSTOM = { id: 'custom', title: 'Your own data', starter: '-- Paste a setup script above, then query its tables here.\n' };
+const current = () => DATASETS.find(d => d.id === state.dataset) || CUSTOM;
+const setupOf = ds => (ds.id === 'custom' ? L.cleanMysqlScript(state.custom || '') : ds.setup);
+
+// Run every statement; collect each result set (a query can hold several SELECTs).
+function runAll(setup, sql) {
+  const db = L.makeDb({ setup });
+  try {
+    const out = [];
+    for (const st of db.iterateStatements(L.expandMacros(sql))) {
+      const columns = st.getColumnNames(), rows = [];
+      while (st.step()) rows.push(st.get());
+      if (columns.length) out.push({ columns, rows });
+    }
+    return out;
+  } finally { db.close(); }
+}
+
+function render() {
+  const ds = current();
+  const options = DATASETS.map(d => `<option value="${d.id}" ${d.id === ds.id ? 'selected' : ''}>${esc(d.title)}</option>`).join('') + `<option value="custom" ${ds.id === 'custom' ? 'selected' : ''}>Your own data (paste a script)</option>`;
+  let tables = '', err = '';
+  if (L.ready()) { try { tables = L.tablesHTML({ setup: setupOf(ds) }); } catch (e) { err = e.message; } }
+  view.innerHTML = `<div class="card">
+    <div class="actions" style="margin-top:0"><label class="label" for="ds" style="margin:0">Dataset</label><select class="stepsel" id="ds" style="max-width:none">${options}</select></div>
+    ${ds.id === 'custom'
+      ? `<h3>Setup script</h3><p class="note">Paste the SQL that creates and fills your tables. MySQL scripts work: <code>CREATE DATABASE</code>, <code>USE</code>, <code>AUTO_INCREMENT</code> and table options are handled for you. It's saved in this browser.</p>
+         <textarea class="custom" id="setup" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" style="min-height:160px" placeholder="CREATE TABLE …; INSERT INTO … VALUES …;">${esc(state.custom || '')}</textarea>
+         <div class="actions"><button class="btn" type="button" id="load">Load tables</button></div>`
+      : `<div class="prompt" style="margin-top:12px">${ds.about}</div>`}
+    ${err ? `<div class="msg fail"><b>The setup script didn't run.</b> ${esc(err)}</div>` : ''}
+    ${tables ? `<h3>Tables</h3><div class="tables">${tables}</div>` : (L.ready() || err ? '' : '<p class="muted">Waiting for the SQL engine…</p>')}
+    ${ds.ideas ? `<details class="data"><summary>Questions to try</summary><ol class="tight">${ds.ideas.map(i => `<li>${esc(i)}</li>`).join('')}</ol></details>` : ''}
+    <div class="editor-wrap">
+      <div class="editor-bar"><span>query.sql</span><span>MySQL syntax · nothing is graded</span></div>
+      <textarea class="sql" id="sql" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Your SQL query"></textarea>
+    </div>
+    <div class="actions">
+      <button class="btn primary" type="button" id="run">Run <span class="k">⌘↵</span></button>
+      <select class="stepsel" id="step" aria-label="Which step of the query to show" hidden></select>
+      <span class="spacer"></span>
+      <span class="muted" style="font-size:12.5px">Each run starts from fresh data.</span>
+    </div>
+    <div id="out" class="out" aria-live="polite"></div>
+  </div>`;
+  const $ = id => view.querySelector('#' + id);
+  const ta = $('sql'), stepSel = $('step');
+  ta.value = state.queries[ds.id] !== undefined ? state.queries[ds.id] : (ds.starter || '');
+  const renderSteps = () => {
+    const steps = L.cteSteps(ta.value), keep = stepSel.value;
+    stepSel.hidden = !steps.length;
+    stepSel.innerHTML = '<option value="">Show: final result</option>' + steps.map(s => `<option value="${esc(s.name)}">Show step: ${esc(s.name)}</option>`).join('');
+    if (steps.some(s => s.name === keep)) stepSel.value = keep;
+  };
+  let t = null;
+  ta.addEventListener('input', () => { state.queries[ds.id] = ta.value; save(); clearTimeout(t); t = setTimeout(renderSteps, 300); });
+  ta.addEventListener('keydown', e => {
+    if (e.key === 'Tab' && !e.shiftKey) { e.preventDefault(); const s = ta.selectionStart; ta.setRangeText('  ', s, ta.selectionEnd, 'end'); }
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); run(); }
+  });
+  $('ds').addEventListener('change', e => { state.dataset = e.target.value; save(); render(); });
+  if ($('load')) $('load').addEventListener('click', () => { state.custom = $('setup').value; save(); render(); });
+  function run() {
+    if (!L.ready()) return;
+    const out = $('out');
+    const step = stepSel.value && L.cteSteps(ta.value).find(s => s.name === stepSel.value);
+    let results;
+    try { results = runAll(setupOf(ds), step ? step.sql : ta.value); }
+    catch (e) { out.innerHTML = `<div class="msg fail"><b>SQL error.</b> ${esc(e.message)}</div>`; return; }
+    if (!results.length) { out.innerHTML = '<div class="msg">Ran without returning any rows. Add a SELECT to see results.</div>'; return; }
+    out.innerHTML = results.map((r, i) => `<div><div class="label">${step ? `Step ${esc(step.name)}` : results.length > 1 ? `Result ${i + 1} of ${results.length}` : 'Result'} · ${r.rows.length.toLocaleString('en-US')} row${r.rows.length === 1 ? '' : 's'}</div>${L.gridHTML(r, null, { limit: 100 })}</div>`).join('');
+  }
+  $('run').addEventListener('click', run);
+  renderSteps();
+}
+
+const engine = document.getElementById('engine');
+render();
+L.load().then(v => { engine.textContent = `SQLite ${v} running in your browser · nothing leaves this page`; render(); })
+  .catch(err => { engine.textContent = "The SQL engine didn't load: " + err.message + '. Reload to try again.'; engine.classList.add('err'); });
+</script>
+</body>
+</html>
