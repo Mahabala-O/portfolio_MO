@@ -23,7 +23,8 @@ export default withNextra({
       { source: '/fair-guide', destination: '/fair-guide.html' },
       // Standalone SQL pages, not linked from the site and not indexed. They share the files in public/sql/.
       { source: '/sql-lab', destination: '/sql-lab.html' },
-      { source: '/sql-practice', destination: '/sql-practice.html' }
+      { source: '/sql-practice', destination: '/sql-practice.html' },
+      { source: '/sql-playground', destination: '/sql-playground.html' }
     ]
   }
 })

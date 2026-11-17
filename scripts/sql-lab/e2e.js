@@ -123,12 +123,33 @@ const shot = async (page, name) => { if (shots) await page.screenshot({ path: pa
     const home = await ctx.newPage();
     await home.goto(file('index.html'));
     const links = await home.locator('a.btn').evaluateAll(as => as.map(a => a.getAttribute('href')));
-    check('landing: links to both pages', links.join('|') === 'sql-lab.html|sql-practice.html', links);
+    check('landing: links to all three pages', links.join('|') === 'sql-lab.html|sql-practice.html|sql-playground.html', links);
     await ctx.close();
   }
 
+  /* ---- Playground ---- */
+  page = await open(browser, file('sql-playground.html'));
+  await page.waitForSelector('.tables');
+  check('playground: Hollywood table loads with a row count', /First 12 of 74 rows/.test(await page.textContent('.tables')), await page.textContent('.tables'));
+  await page.fill('#sql', "SELECT Genre, COUNT(*) AS films, ROUND(AVG(AudienceScore), 1) AS avg_audience FROM Hollywood_T GROUP BY Genre ORDER BY films DESC; SELECT COUNT(*), COUNT(Profitability) FROM Hollywood_T;");
+  await page.click('#run');
+  check('playground: runs a query and shows every result set', /Result 1 of 2 · 6 rows/.test(await page.textContent('#out')) && /Comedy/.test(await page.textContent('#out')), await page.textContent('#out'));
+  await page.fill('#sql', "WITH y AS (SELECT Year, Film, WorldwideGross, ROW_NUMBER() OVER (PARTITION BY Year ORDER BY WorldwideGross DESC) AS rn FROM Hollywood_T) SELECT Year, Film FROM y WHERE rn = 1 ORDER BY Year");
+  await page.waitForFunction(() => !document.getElementById('step').hidden);
+  await page.selectOption('#step', 'y'); await page.click('#run');
+  check('playground: can show one step of a query', /Step y · 74 rows/.test(await page.textContent('#out')), await page.textContent('#out'));
+  await page.selectOption('#ds', 'custom');
+  await page.fill('#setup', "CREATE DATABASE IF NOT EXISTS shop;\nUSE shop;\nCREATE TABLE t (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(20)) ENGINE=InnoDB;\nINSERT INTO t (name) VALUES ('a'), ('b');");
+  await page.click('#load');
+  await page.fill('#sql', 'SELECT id, name FROM t');
+  await page.click('#run');
+  check('playground: a pasted MySQL script loads and can be queried', /Result · 2 rows/.test(await page.textContent('#out')) && /First|name/.test(await page.textContent('.tables')), await page.textContent('#out'));
+  await page.reload(); await page.waitForFunction(() => document.getElementById('engine').textContent.includes('SQLite'));
+  check('playground: dataset choice and pasted script survive a reload', (await page.inputValue('#ds')) === 'custom' && /shop/.test(await page.inputValue('#setup')), await page.inputValue('#ds'));
+  check('playground: no page errors', page.errors.length === 0, page.errors.join(' | '));
+
   /* ---- Phone width ---- */
-  for (const [name, url] of [['lab', file('sql-lab.html') + '#moving-avg'], ['practice home', file('sql-practice.html')], ['practice problem', file('sql-practice.html') + '#agg-rank/peak-station']]) {
+  for (const [name, url] of [['lab', file('sql-lab.html') + '#moving-avg'], ['practice home', file('sql-practice.html')], ['practice problem', file('sql-practice.html') + '#agg-rank/peak-station'], ['playground', file('sql-playground.html')]]) {
     const m = await open(browser, url, { width: 390, height: 844 });
     const w = await m.evaluate(() => document.documentElement.scrollWidth);
     check(`phone: ${name} has no sideways scroll`, w <= 390, w);
