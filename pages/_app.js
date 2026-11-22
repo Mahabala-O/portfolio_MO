@@ -1,6 +1,7 @@
 import 'nextra-theme-blog/style.css'
 import Head from 'next/head'
 import { ThemeProvider } from 'next-themes'
+import { Analytics } from '@vercel/analytics/next'
 
 import SiteHeader from '../components/site-header'
 import '../styles/main.css'
@@ -33,6 +34,7 @@ export default function Nextra({ Component, pageProps }) {
       </Head>
       <SiteHeader />
       <Component {...pageProps} />
+      <Analytics />
     </ThemeProvider>
   )
 }
